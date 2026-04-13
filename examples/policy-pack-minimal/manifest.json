@@ -1,0 +1,10 @@
+{
+  "name": "policy-pack-minimal",
+  "version": "1.0.0",
+  "description": "Minimal three-layer architecture policy demonstrating deterministic enforcement",
+  "policySchemaVersion": "1",
+  "schemaAuthority": "https://schemas.arch-engine.dev/",
+  "descriptorSchema": "https://schemas.arch-engine.dev/descriptors/v1.json",
+  "engine": "@arch-engine/core",
+  "engineVersion": ">=0.1.0-preview"
+}

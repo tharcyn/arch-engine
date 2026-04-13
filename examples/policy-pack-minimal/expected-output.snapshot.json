@@ -1,0 +1,75 @@
+{
+  "policyHash": "3d382cb1afbb8b548df4960de145cc9311ea50f7b2fca12267e567e496fa07aa",
+  "policyVersion": 1,
+  "policyMode": "enforce",
+  "evaluationStrategyVersion": 1,
+  "policyDetected": true,
+  "matchedEdges": 6,
+  "violations": [
+    {
+      "violationCategory": "explicit_forbid",
+      "from": "frontend/app.ts",
+      "to": "infrastructure/database.ts",
+      "severity": "error",
+      "ruleId": "no-cross-layer-imports",
+      "ruleSource": "forbid_rule",
+      "confidenceContext": "policy-pack-minimal",
+      "matchedDomainSource": "frontend",
+      "matchedDomainTarget": "infrastructure",
+      "tierSource": "high",
+      "tierTarget": "low",
+      "tierDelta": 2,
+      "suppressionEligible": true,
+      "originPolicyId": "policy-pack-minimal",
+      "originRuleId": "no-cross-layer-imports",
+      "compositionDepth": 0,
+      "originPolicyChain": ["policy-pack-minimal"],
+      "mergeAuthority": "local"
+    }
+  ],
+  "allowMatches": [
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "policy-pack-minimal",
+      "allowCompositionDepth": 0,
+      "from": "frontend/app.ts",
+      "to": "services/user-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "policy-pack-minimal",
+      "allowCompositionDepth": 0,
+      "from": "frontend/app.ts",
+      "to": "services/auth-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "policy-pack-minimal",
+      "allowCompositionDepth": 0,
+      "from": "frontend/components/header.ts",
+      "to": "services/user-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "services-to-infrastructure",
+      "matchedAllowPolicyId": "policy-pack-minimal",
+      "allowCompositionDepth": 0,
+      "from": "services/user-service.ts",
+      "to": "infrastructure/database.ts"
+    },
+    {
+      "matchedAllowRuleId": "services-to-infrastructure",
+      "matchedAllowPolicyId": "policy-pack-minimal",
+      "allowCompositionDepth": 0,
+      "from": "services/auth-service.ts",
+      "to": "infrastructure/cache.ts"
+    }
+  ],
+  "policyRuleHits": {
+    "no-cross-layer-imports": 1
+  },
+  "_meta": {
+    "snapshotVersion": "1.0.0",
+    "determinismGuarantee": "This snapshot is byte-stable across runs. It contains no timestamps, no filesystem paths, and no environment-sensitive values.",
+    "replayInstructions": "Running the same policy against the same topology must produce this exact output. If any field differs, a determinism regression has occurred."
+  }
+}
