@@ -43,6 +43,8 @@ examples/trusted-fallback/
 
 This example operates fully offline with no registry dependencies.
 
+See [examples/policy-pack-minimal](examples/policy-pack-minimal/) for a deterministic architecture enforcement walkthrough.
+
 ## Export Surface
 
 | Path | Description |
