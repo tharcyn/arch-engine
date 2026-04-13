@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/authority-index",
+  "$id": "https://schemas.arch-engine.dev/declared/authority-index",
   "title": "Declared Authority Index",
   "description": "Schema for normalized authority registry output. Each entry defines a single mutable entity's authority boundary: who may write, what surfaces are exposed, and what invariants are protected.",
   "type": "object",

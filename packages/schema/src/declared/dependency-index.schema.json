@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/dependency-index",
+  "$id": "https://schemas.arch-engine.dev/declared/dependency-index",
   "title": "Declared Dependency Index",
   "description": "Schema for normalized deployment dependency map output. Each entry defines a subsystem's runtime dependencies, failure cascades, and environmental requirements.",
   "type": "object",

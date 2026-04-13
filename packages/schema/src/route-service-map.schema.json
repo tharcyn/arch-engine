@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://vendoor.com/schemas/route-service-map.schema.json",
+  "$id": "https://schemas.arch-engine.dev/route-service-map.schema.json",
   "title": "Config for Route Service Map",
   "description": "Route-to-service projection map. Forward keys use route_identity (METHOD:uri) as the canonical collision-safe route key.",
   "type": "object",

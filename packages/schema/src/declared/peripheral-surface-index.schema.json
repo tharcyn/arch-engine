@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/peripheral-surface-index",
+  "$id": "https://schemas.arch-engine.dev/declared/peripheral-surface-index",
   "title": "Declared Peripheral Surface Index",
   "description": "Schema for normalized peripheral surface taxonomy output. Each entry classifies a namespace pattern as intentional architecture context within the INFO drift taxonomy.",
   "type": "object",

@@ -9,7 +9,7 @@
  *    - Registration validation + freeze semantics
  *    - Adapter compatibility checking
  *
- *  Adapters are registered by adapter packs (e.g. vendoor, laravel, rails).
+ *  Adapters are registered by adapter packs (e.g. laravel, rails, custom).
  *  Core engine starts with ZERO adapters and discovers nothing implicitly.
  *
  *  Forward-portable to: @arch-engine/core/contracts
@@ -107,7 +107,7 @@ export interface AdapterRegistrationResult {
  * Adapters are registered via adapter packs:
  *
  *   const registry = new AdapterCapabilityRegistry();
- *   registerVendoorAdapters(registry);
+ *   registerAdapters(registry);
  *   registry.freeze();
  */
 export class AdapterCapabilityRegistry {

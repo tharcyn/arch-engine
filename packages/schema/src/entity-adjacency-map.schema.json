@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://vendoor.com/schemas/entity-adjacency-map.schema.json",
+  "$id": "https://schemas.arch-engine.dev/entity-adjacency-map.schema.json",
   "title": "Config for Entity Adjacency Map",
   "type": "object",
   "patternProperties": {

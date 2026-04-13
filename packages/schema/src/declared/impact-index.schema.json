@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/impact-index",
+  "$id": "https://schemas.arch-engine.dev/declared/impact-index",
   "title": "Declared Impact Index",
   "description": "Schema for normalized decision-impact map output. Each entry describes the blast radius of modifying a specific architecture entity.",
   "type": "object",

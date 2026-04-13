@@ -19,7 +19,7 @@
 import type { EdgeConfidenceLevel } from '../confidence/edge-confidence';
 import type { EdgeAuthorityLevel } from '../reconciliation/canonical-edge-promoter';
 
-// Vendoor specific imports removed to enforce pure core abstraction boundary.
+// Proprietary imports removed to enforce pure core abstraction boundary.
 
 // ─── Classification Strategy ────────────────────────────
 

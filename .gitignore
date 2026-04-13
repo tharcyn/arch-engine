@@ -1,5 +1,9 @@
 node_modules/
 dist/
-*.tsbuildinfo
-.DS_Store
 coverage/
+.cache/
+.tmp/
+.turbo/
+*.tsbuildinfo
+*.tgz
+.DS_Store

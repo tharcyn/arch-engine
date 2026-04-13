@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@arch-engine/core": "4.0.0",
-    "@arch-engine/adapter-monorepo": "4.0.0",
     "@arch-engine/schema": "4.0.0",
     "cac": "^6.7.14",
     "picocolors": "^1.0.0",

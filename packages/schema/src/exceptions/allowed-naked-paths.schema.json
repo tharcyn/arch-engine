@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://vendoor.com/schemas/allowed-naked-paths.json",
+  "$id": "https://schemas.arch-engine.dev/allowed-naked-paths.json",
   "title": "Allowed Naked Paths Exception Registry",
   "type": "array",
   "items": {

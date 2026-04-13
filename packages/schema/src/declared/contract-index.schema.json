@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/contract-index",
+  "$id": "https://schemas.arch-engine.dev/declared/contract-index",
   "title": "Declared Contract Index",
   "description": "Schema for normalized contract parity map output. Entries represent CONCEPTUAL parity assertions between backend and frontend, not endpoint-level machine truth. Null-safe fields reflect the intentional conceptual nature of this registry.",
   "type": "object",

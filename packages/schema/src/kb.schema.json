@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Vendoor KB Architecture Schema",
+  "title": "Arch-Engine KB Architecture Schema",
   "description": "Machine-consumable architecture enforcement schema. All definitions use additionalProperties: false to prevent silent drift.",
   "type": "object",
   "required": ["entities", "services", "models", "controllers", "jobs", "events", "frontend_routes", "frontend_composables", "frontend_stores", "openapi_paths"],

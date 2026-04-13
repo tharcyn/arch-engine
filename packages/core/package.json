@@ -39,20 +39,33 @@
   },
   "keywords": [
     "architecture",
+    "architecture-analysis",
     "topology",
+    "topology-analysis",
     "dependency-graph",
     "authority-boundary",
     "blast-radius",
     "code-analysis",
+    "static-analysis",
     "governance",
     "graph-validation",
     "confidence-scoring",
-    "adapter-sdk"
+    "policy-engine",
+    "schema-validation",
+    "adapter-sdk",
+    "llm-infrastructure"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/arch-engine/core",
+    "url": "https://github.com/tharcyn/arch-engine.git",
     "directory": "packages/core"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "tsup"

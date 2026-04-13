@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vendoor-kb/declared/entity-index",
+  "$id": "https://schemas.arch-engine.dev/declared/entity-index",
   "title": "Declared Entity Index",
   "description": "Schema for the unified declared truth registry. This is the overarching index that links all declared architecture entities across registries. Intentionally uses additionalProperties: true on 'ref' to accommodate evolving sub-schemas without requiring synchronized updates.",
   "type": "object",

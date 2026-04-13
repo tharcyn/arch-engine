@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://vendoor.com/schemas/closure-route-classification.json",
+  "$id": "https://schemas.arch-engine.dev/closure-route-classification.json",
   "title": "Closure Route Classification Registry",
   "type": "array",
   "items": {

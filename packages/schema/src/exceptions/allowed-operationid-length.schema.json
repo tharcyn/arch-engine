@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://vendoor.com/schemas/allowed-operationid-length.json",
+  "$id": "https://schemas.arch-engine.dev/allowed-operationid-length.json",
   "title": "Allowed OperationId Length Exception Registry",
   "type": "array",
   "items": {
