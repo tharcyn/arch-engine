@@ -11,7 +11,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@arch-engine/core": "4.0.0",
+    "@arch-engine/core": "0.1.0-preview",
     "@arch-engine/schema": "4.0.0",
     "cac": "^6.7.14",
     "picocolors": "^1.0.0",
