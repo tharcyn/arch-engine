@@ -10,11 +10,30 @@ export interface ParsedPolicy {
   sourcePath: string;
 }
 
+// ─── Prototype Pollution Guard ──────────────────────────
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function assertSafeKey(key: string, context: string): void {
+  if (DANGEROUS_KEYS.has(key)) {
+    throw new Error(`Prototype pollution attempt detected: key '${key}' in ${context}`);
+  }
+}
+
+// ─── YAML Size Guard ────────────────────────────────────
+const MAX_POLICY_FILE_BYTES = 2 * 1024 * 1024; // 2 MB
+
 export function loadPolicyConfig(cwd: string): ParsedPolicy | null {
   const policyPath = path.join(cwd, '.archengine', 'policy.yml');
   
   if (!fs.existsSync(policyPath)) {
     return null;
+  }
+
+  const stat = fs.statSync(policyPath);
+  if (stat.size > MAX_POLICY_FILE_BYTES) {
+    throw new Error(
+      `Policy file exceeds maximum allowed size (${MAX_POLICY_FILE_BYTES} bytes): ${stat.size} bytes at ${policyPath}`
+    );
   }
 
   const fileContent = fs.readFileSync(policyPath, 'utf-8');
@@ -73,9 +92,10 @@ function validateRawConfig(raw: any): PolicyConfig {
   const severityPolicy = ['strict', 'loose'].includes(raw.severityPolicy) ? raw.severityPolicy : undefined;
   const deleted = typeof raw.deleted === 'boolean' ? raw.deleted : undefined;
 
-  const domains: Record<string, import('./types.js').PolicyDomainDef> = {};
+  const domains: Record<string, import('./types.js').PolicyDomainDef> = Object.create(null);
   if (raw.domains && typeof raw.domains === 'object') {
     for (const [k, v] of Object.entries(raw.domains)) {
+      assertSafeKey(k, 'policy.domains');
       if (typeof v === 'object' && v !== null) {
         const anyV = v as any;
         domains[k] = {

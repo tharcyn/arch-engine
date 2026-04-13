@@ -25,6 +25,7 @@ import {
 } from './capabilityFederationTypes.js';
 import * as crypto from 'node:crypto';
 import { stableCanonicalStringify } from '../transport/stableCanonicalStringify.js';
+import { binaryStringCompare } from '../utils/binaryStringCompare.js';
 
 // ═══════════════════════════════════════════════════════════
 // Input Canonicalization
@@ -42,19 +43,19 @@ export function canonicalizeNegotiationInput(
   context: CapabilityNegotiationContext
 ): CapabilityNegotiationContext {
   const sortedProviders = [...context.capabilityProviders].sort(
-    (a, b) => a.providerId.localeCompare(b.providerId)
+    (a, b) => binaryStringCompare(a.providerId, b.providerId)
   );
 
   const sortedRequirements = [...context.requestedCapabilities].sort(
-    (a, b) => a.requiredNamespace.localeCompare(b.requiredNamespace)
+    (a, b) => binaryStringCompare(a.requiredNamespace, b.requiredNamespace)
   );
 
   const sortedOverlaySet = [...context.resolvedOverlaySet].sort(
-    (a, b) => a.localeCompare(b)
+    (a, b) => binaryStringCompare(a, b)
   );
 
   const sortedSeamIds = context.activeSeamIds
-    ? [...context.activeSeamIds].sort((a, b) => a.localeCompare(b))
+    ? [...context.activeSeamIds].sort((a, b) => binaryStringCompare(a, b))
     : undefined;
 
   return {
@@ -85,17 +86,17 @@ export function hashNegotiationStructure(
 ): string {
   const selectedIds = decision.selected
     .map(p => p.providerId)
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => binaryStringCompare(a, b));
 
   const closure = [...decision.dependencyClosure]
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => binaryStringCompare(a, b));
 
   // Serialize trust envelope keys and effective tiers
   const envelopeEntries: Array<[string, number]> = [];
   decision.trustEnvelopes.forEach((envelope, key) => {
     envelopeEntries.push([key, envelope.effectiveAuthorityTier]);
   });
-  envelopeEntries.sort((a, b) => a[0].localeCompare(b[0]));
+  envelopeEntries.sort((a, b) => binaryStringCompare(a[0], b[0]));
 
   const payload = stableCanonicalStringify({
     selectedIds,
@@ -123,16 +124,16 @@ export function hashNegotiationTrace(
   decision: Pick<CapabilityNegotiationDecision, 'negotiationTrace' | 'rejected'>
 ): string {
   const trace = [...decision.negotiationTrace]
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => binaryStringCompare(a, b));
 
   // Sort rejected by providerId → stage → reason for deterministic ordering
   const rejections = [...decision.rejected]
     .sort((a, b) => {
-      const idCmp = a.providerId.localeCompare(b.providerId);
+      const idCmp = binaryStringCompare(a.providerId, b.providerId);
       if (idCmp !== 0) return idCmp;
-      const stageCmp = a.stage.localeCompare(b.stage);
+      const stageCmp = binaryStringCompare(a.stage, b.stage);
       if (stageCmp !== 0) return stageCmp;
-      return a.reason.localeCompare(b.reason);
+      return binaryStringCompare(a.reason, b.reason);
     })
     .map(r => ({ providerId: r.providerId, stage: r.stage, reason: r.reason }));
 

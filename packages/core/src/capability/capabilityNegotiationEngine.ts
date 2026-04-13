@@ -69,6 +69,8 @@ import {
   hashNegotiationTrace,
 } from './capabilityNegotiationDeterminism.js';
 
+import { binaryStringCompare } from '../utils/binaryStringCompare.js';
+
 // ═══════════════════════════════════════════════════════════
 // Semver Range Matching (self-contained, no external dependency)
 // ═══════════════════════════════════════════════════════════
@@ -231,7 +233,7 @@ export function resolveCapabilityDependencyClosure(
     if (!p) throw new CapabilityDependencyResolutionError(`Missing dependency: ${pid}`);
 
     visiting.add(pid);
-    const sortedDeps = [...p.declaredDependencies].sort((a, b) => a.localeCompare(b));
+    const sortedDeps = [...p.declaredDependencies].sort((a, b) => binaryStringCompare(a, b));
     for (const dep of sortedDeps) {
       visit(dep);
     }
@@ -240,7 +242,7 @@ export function resolveCapabilityDependencyClosure(
     resolvedOrder.push(pid);
   };
 
-  const rootsToVisit = [...providers].map(p => p.providerId).sort((a, b) => a.localeCompare(b));
+  const rootsToVisit = [...providers].map(p => p.providerId).sort((a, b) => binaryStringCompare(a, b));
   for (const root of rootsToVisit) {
     visit(root);
   }
@@ -527,7 +529,7 @@ export function resolveCapabilityNegotiation(
 
     // 3. Namespace (ascending lexicographic)
     if (a.capabilityNamespace !== b.capabilityNamespace) {
-      return a.capabilityNamespace.localeCompare(b.capabilityNamespace);
+      return binaryStringCompare(a.capabilityNamespace, b.capabilityNamespace);
     }
 
     // 4. Execution priority (descending — higher priority first)
@@ -536,19 +538,19 @@ export function resolveCapabilityNegotiation(
     // 5. Version (descending lexicographic — newer first)
     const aVer = a.capabilityVersion || '';
     const bVer = b.capabilityVersion || '';
-    if (aVer !== bVer) return bVer.localeCompare(aVer);
+    if (aVer !== bVer) return binaryStringCompare(bVer, aVer);
 
     // 6. Provider ID (ascending lexicographic — terminal tiebreaker)
-    return a.providerId.localeCompare(b.providerId);
+    return binaryStringCompare(a.providerId, b.providerId);
   });
 
   // Sort rejected deterministically [Refinement #8]
   rejected.sort((a, b) => {
-    const idCmp = a.providerId.localeCompare(b.providerId);
+    const idCmp = binaryStringCompare(a.providerId, b.providerId);
     if (idCmp !== 0) return idCmp;
-    const stageCmp = a.stage.localeCompare(b.stage);
+    const stageCmp = binaryStringCompare(a.stage, b.stage);
     if (stageCmp !== 0) return stageCmp;
-    return a.reason.localeCompare(b.reason);
+    return binaryStringCompare(a.reason, b.reason);
   });
 
   negotiationTrace.push(`[Step 11] Final ordering: [${eligible.map(p => p.providerId).join(', ')}]`);

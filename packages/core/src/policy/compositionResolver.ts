@@ -54,10 +54,13 @@ export function composePolicies(policyStack: PolicyStackEntry[]): ComposedPolicy
 
   let finalVersion = 1;
   let finalMode: PolicyMode | undefined;
-  const finalDomains: Record<string, PolicyDomainDef> = {};
+  const finalDomains: Record<string, PolicyDomainDef> = Object.create(null);
   
   const allowRulesMap = new Map<string, ComposedRuleDef>();
   const forbidRulesMap = new Map<string, ComposedRuleDef>();
+
+  // Prototype pollution guard for domain keys from untrusted policy inputs
+  const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
   for (let depth = 0; depth < policyStack.length; depth++) {
     const entry = policyStack[depth];
@@ -69,6 +72,14 @@ export function composePolicies(policyStack: PolicyStackEntry[]): ComposedPolicy
     // Merge domains (replace/override logic)
     if (config.domains) {
       for (const [dName, dDef] of Object.entries(config.domains)) {
+        if (DANGEROUS_KEYS.has(dName)) {
+          throw new PolicyRuntimeError({
+            code: PolicyRuntimeErrorCode.STACK_TOPOLOGY_VIOLATION,
+            message: `Prototype pollution attempt detected: domain key '${dName}' in policy '${policyId}'.`,
+            policyId,
+            contractVersion: 'v1'
+          });
+        }
         finalDomains[dName] = { ...finalDomains[dName], ...dDef };
       }
     }

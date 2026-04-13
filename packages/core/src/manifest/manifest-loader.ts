@@ -49,8 +49,19 @@ export interface CompatibilityResult {
 // ─── Semver Comparison ──────────────────────────────────
 
 function parseSemver(version: string): [number, number, number] {
-  const parts = version.replace(/-.+$/, '').split('.').map(Number);
-  return [parts[0] || 0, parts[1] || 0, parts[2] || 0];
+  const cleaned = version.replace(/-.+$/, '');
+  if (!/^\d+\.\d+\.\d+$/.test(cleaned)) {
+    throw new Error(
+      `Invalid semver version: '${version}'. Expected format: MAJOR.MINOR.PATCH`
+    );
+  }
+  const parts = cleaned.split('.').map(Number);
+  if (parts.some(p => Number.isNaN(p))) {
+    throw new Error(
+      `Invalid semver version: '${version}'. Components must be numeric.`
+    );
+  }
+  return [parts[0], parts[1], parts[2]];
 }
 
 function semverGte(a: string, b: string): boolean {

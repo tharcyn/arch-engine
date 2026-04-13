@@ -1,5 +1,6 @@
 import { OverlayAuthorityTier } from './seamContracts.js';
 import { OverlayLifecycleState } from './overlayLifecycleState.js';
+import { binaryStringCompare } from '../utils/binaryStringCompare.js';
 
 export enum ResolutionStrategy {
   AUTHORITY_FIRST = 'AUTHORITY_FIRST',
@@ -173,11 +174,11 @@ export function resolveOverlaySelection(
 
       const aNs = a.namespace || '';
       const bNs = b.namespace || '';
-      if (aNs !== bNs) return aNs.localeCompare(bNs);
+      if (aNs !== bNs) return binaryStringCompare(aNs, bNs);
 
       const aId = `${a.overlaySourceId}@${a.overlayVersion}`;
       const bId = `${b.overlaySourceId}@${b.overlayVersion}`;
-      return aId.localeCompare(bId);
+      return binaryStringCompare(aId, bId);
   };
 
   // Base deterministic ordering prevents mirror/import latency from altering trace evaluation order.
