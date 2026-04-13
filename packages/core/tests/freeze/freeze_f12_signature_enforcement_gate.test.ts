@@ -10,7 +10,7 @@ describe('Freeze F-12: Signature Enforcement Gate', () => {
       providerId: 'provider-sig-test',
       registrySource: 'core',
       authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-      capabilityNamespace: 'vendoor.policy.override',
+      capabilityNamespace: 'acme.policy.override',
       capabilityVersion: '1.0.0',
       supportedAdapters: [],
       declaredDependencies: [],

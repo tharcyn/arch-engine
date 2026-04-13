@@ -10,7 +10,7 @@ describe('Freeze F-12: Mirror Privilege Escalation Prevention', () => {
       providerId: 'provider-mirror-test',
       registrySource: 'core',
       authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-      capabilityNamespace: 'vendoor.policy.override',
+      capabilityNamespace: 'acme.policy.override',
       capabilityVersion: '1.0.0',
       supportedAdapters: [],
       declaredDependencies: [],
@@ -30,7 +30,7 @@ describe('Freeze F-12: Mirror Privilege Escalation Prevention', () => {
     const primaryEnvelope: RegistryCapabilityEnvelope = {
       registryId: 'core',
       registryTrustTier: 'CORE_INTERNAL',
-      supportedCapabilityNamespaces: ['vendoor.policy.override'],
+      supportedCapabilityNamespaces: ['acme.policy.override'],
       mirrorEquivalenceHash: 'hash-primary-abc',
       federationCompatibilityVersion: 'F12-v1',
       capabilityDowngradePolicy: 'reject',
@@ -39,7 +39,7 @@ describe('Freeze F-12: Mirror Privilege Escalation Prevention', () => {
     const mirrorEnvelope: RegistryCapabilityEnvelope = {
       registryId: 'mirror-core',
       registryTrustTier: 'CORE_INTERNAL',
-      supportedCapabilityNamespaces: ['vendoor.policy.override'],
+      supportedCapabilityNamespaces: ['acme.policy.override'],
       mirrorEquivalenceHash: 'hash-mirror-DIFFERENT',
       federationCompatibilityVersion: 'F12-v1',
       capabilityDowngradePolicy: 'reject',
@@ -69,7 +69,7 @@ describe('Freeze F-12: Mirror Privilege Escalation Prevention', () => {
     const primaryEnvelope: RegistryCapabilityEnvelope = {
       registryId: 'core',
       registryTrustTier: 'CORE_INTERNAL',
-      supportedCapabilityNamespaces: ['vendoor.policy.override'],
+      supportedCapabilityNamespaces: ['acme.policy.override'],
       mirrorEquivalenceHash: 'hash-primary-xyz',
       federationCompatibilityVersion: 'F12-v1',
       capabilityDowngradePolicy: 'reject',
@@ -78,7 +78,7 @@ describe('Freeze F-12: Mirror Privilege Escalation Prevention', () => {
     const mirrorEnvelope: RegistryCapabilityEnvelope = {
       registryId: 'mirror-core',
       registryTrustTier: 'CORE_INTERNAL',
-      supportedCapabilityNamespaces: ['vendoor.policy.override'],
+      supportedCapabilityNamespaces: ['acme.policy.override'],
       mirrorEquivalenceHash: 'hash-mirror-DIFFERENT-2',
       federationCompatibilityVersion: 'F12-v1',
       capabilityDowngradePolicy: 'reject',

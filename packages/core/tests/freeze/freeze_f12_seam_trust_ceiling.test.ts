@@ -14,7 +14,7 @@ describe('Freeze F-12: Seam Trust Ceiling', () => {
       providerId: 'provider-seam-test',
       registrySource: 'official',
       authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-      capabilityNamespace: 'vendoor.inventory.restock',
+      capabilityNamespace: 'acme.inventory.restock',
       capabilityVersion: '1.0.0',
       supportedAdapters: [],
       declaredDependencies: [],
@@ -35,12 +35,12 @@ describe('Freeze F-12: Seam Trust Ceiling', () => {
       'seam-A': {
         seamId: 'seam-A',
         maxCapabilityTier: OverlayAuthorityTier.SIGNED_EXTERNAL_PACK,
-        allowedCapabilityNamespaces: ['vendoor.inventory.restock'],
+        allowedCapabilityNamespaces: ['acme.inventory.restock'],
       },
       'seam-B': {
         seamId: 'seam-B',
         maxCapabilityTier: OverlayAuthorityTier.UNTRUSTED_EXTERNAL,
-        allowedCapabilityNamespaces: ['vendoor.inventory.restock'],
+        allowedCapabilityNamespaces: ['acme.inventory.restock'],
       },
     };
 
@@ -71,12 +71,12 @@ describe('Freeze F-12: Seam Trust Ceiling', () => {
       'seam-A': {
         seamId: 'seam-A',
         maxCapabilityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-        allowedCapabilityNamespaces: ['vendoor.policy.override'],
+        allowedCapabilityNamespaces: ['acme.policy.override'],
       },
       'seam-B': {
         seamId: 'seam-B',
         maxCapabilityTier: OverlayAuthorityTier.UNTRUSTED_EXTERNAL,
-        allowedCapabilityNamespaces: ['vendoor.policy.override'],
+        allowedCapabilityNamespaces: ['acme.policy.override'],
       },
     };
 
@@ -106,7 +106,7 @@ describe('Freeze F-12: Seam Trust Ceiling', () => {
       'seam-escalation': {
         seamId: 'seam-escalation',
         maxCapabilityTier: OverlayAuthorityTier.CORE_INTERNAL,
-        allowedCapabilityNamespaces: ['vendoor.policy.override'],
+        allowedCapabilityNamespaces: ['acme.policy.override'],
       },
     };
 

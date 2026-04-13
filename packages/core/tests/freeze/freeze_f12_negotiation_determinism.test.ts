@@ -39,9 +39,9 @@ describe('Freeze F-12: Negotiation Determinism', () => {
   }
 
   test('negotiation is deterministic across provider input ordering permutations', () => {
-    const providerA = makeProvider('prov-alpha', 'vendoor.inventory.restock', 10);
-    const providerB = makeProvider('prov-beta', 'vendoor.policy.override', 5);
-    const providerC = makeProvider('prov-gamma', 'vendoor.inventory.restock', 8);
+    const providerA = makeProvider('prov-alpha', 'acme.inventory.restock', 10);
+    const providerB = makeProvider('prov-beta', 'acme.policy.override', 5);
+    const providerC = makeProvider('prov-gamma', 'acme.inventory.restock', 8);
 
     // Run with original order
     const result1 = resolveCapabilityNegotiation(makeContext([providerA, providerB, providerC]));
@@ -57,9 +57,9 @@ describe('Freeze F-12: Negotiation Determinism', () => {
 
   test('negotiation is deterministic across registry mirror arrival order', () => {
     const providers = [
-      makeProvider('provider-z', 'vendoor.z.namespace', 1),
-      makeProvider('provider-a', 'vendoor.a.namespace', 1),
-      makeProvider('provider-m', 'vendoor.m.namespace', 1),
+      makeProvider('provider-z', 'acme.z.namespace', 1),
+      makeProvider('provider-a', 'acme.a.namespace', 1),
+      makeProvider('provider-m', 'acme.m.namespace', 1),
     ];
 
     const result1 = resolveCapabilityNegotiation(makeContext(providers));
@@ -73,9 +73,9 @@ describe('Freeze F-12: Negotiation Determinism', () => {
 
   test('selected provider ordering is deterministic', () => {
     const providers = [
-      makeProvider('prov-3', 'vendoor.namespace.c', 5),
-      makeProvider('prov-1', 'vendoor.namespace.a', 5),
-      makeProvider('prov-2', 'vendoor.namespace.b', 5),
+      makeProvider('prov-3', 'acme.namespace.c', 5),
+      makeProvider('prov-1', 'acme.namespace.a', 5),
+      makeProvider('prov-2', 'acme.namespace.b', 5),
     ];
 
     const result = resolveCapabilityNegotiation(makeContext(providers));
@@ -88,8 +88,8 @@ describe('Freeze F-12: Negotiation Determinism', () => {
 
   test('rejected providers are sorted deterministically by providerId → stage → reason', () => {
     const providers = [
-      makeProvider('prov-reject-z', 'vendoor.policy.override', 5),
-      makeProvider('prov-reject-a', 'vendoor.policy.override', 5),
+      makeProvider('prov-reject-z', 'acme.policy.override', 5),
+      makeProvider('prov-reject-a', 'acme.policy.override', 5),
     ];
 
     // Force rejection by setting unknown registry
@@ -108,7 +108,7 @@ describe('Freeze F-12: Negotiation Determinism', () => {
   });
 
   test('negotiation result is frozen (immutable)', () => {
-    const provider = makeProvider('frozen-test', 'vendoor.policy.override', 5);
+    const provider = makeProvider('frozen-test', 'acme.policy.override', 5);
     const result = resolveCapabilityNegotiation(makeContext([provider]));
 
     expect(Object.isFrozen(result)).toBe(true);
@@ -116,7 +116,7 @@ describe('Freeze F-12: Negotiation Determinism', () => {
   });
 
   test('decision includes split hashes (structure + trace)', () => {
-    const provider = makeProvider('hash-test', 'vendoor.policy.override', 5);
+    const provider = makeProvider('hash-test', 'acme.policy.override', 5);
     const result = resolveCapabilityNegotiation(makeContext([provider]));
 
     expect(result.decisionStructureHash).toBeTruthy();
@@ -125,7 +125,7 @@ describe('Freeze F-12: Negotiation Determinism', () => {
   });
 
   test('protocol version is F12-v1', () => {
-    const provider = makeProvider('version-test', 'vendoor.policy.override', 5);
+    const provider = makeProvider('version-test', 'acme.policy.override', 5);
     const result = resolveCapabilityNegotiation(makeContext([provider]));
 
     expect(result.protocolVersion).toBe('F12-v1');

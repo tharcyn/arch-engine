@@ -13,7 +13,7 @@ describe('Freeze F-12: Trust Envelope Ceiling', () => {
       providerId: 'provider-ceiling-test',
       registrySource: 'core',
       authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-      capabilityNamespace: 'vendoor.policy.override',
+      capabilityNamespace: 'acme.policy.override',
       capabilityVersion: '2.0.0',
       supportedAdapters: [],
       declaredDependencies: [],

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arch-engine.dev/schemas/cli-output-contract.json",
+  "$id": "https://schemas.arch-engine.dev/cli-output-contract.json",
   "title": "Arch-Engine CLI Output Contract",
   "description": "Defines the stable JSON output contract for CLI commands operating in --json mode. Ensures diagnostic sovereignty extends to CLI output surfaces.",
   "schemaVersion": "R0-v1",

@@ -10,7 +10,7 @@ describe('Freeze F-12: Registry Provenance Validation', () => {
       providerId: 'provider-provenance-test',
       registrySource: 'core',
       authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-      capabilityNamespace: 'vendoor.policy.override',
+      capabilityNamespace: 'acme.policy.override',
       capabilityVersion: '1.0.0',
       supportedAdapters: [],
       declaredDependencies: [],

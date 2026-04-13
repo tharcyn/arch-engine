@@ -9,7 +9,7 @@ describe('Freeze F-12: Handler Identity Binding', () => {
       overlayRegistrySource: 'partner',
       overlayVersion: '1.0.0',
       overlaySignature: 'sig:test',
-      overlayNamespace: 'vendoor.policy.override',
+      overlayNamespace: 'acme.policy.override',
       overlayPriority: 10,
       overlayDeclaredOrder: 1,
       handler: (state: any) => state,
@@ -68,7 +68,7 @@ describe('Freeze F-12: Handler Identity Binding', () => {
       overlayVersion: '1.0.0',
       overlayRegistrySource: 'partner',
       overlaySignature: 'sig:context-default',
-      overlayNamespace: 'vendoor.policy',
+      overlayNamespace: 'acme.policy',
       handler: (state: any) => state,
       handlerIdentityHash: 'sha256:identity-hash',
       providerIdentity: 'provider-alpha',
@@ -80,7 +80,7 @@ describe('Freeze F-12: Handler Identity Binding', () => {
       overlayVersion: '1.0.0',
       overlayRegistrySource: 'partner',
       overlaySignature: 'sig:context-default',
-      overlayNamespace: 'vendoor.policy',
+      overlayNamespace: 'acme.policy',
       handler: (state: any) => state,
     };
 

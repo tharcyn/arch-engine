@@ -15,7 +15,7 @@ describe('Freeze F-12: Capability Manifest Contract', () => {
     providerId: 'test-provider-alpha',
     registrySource: 'core',
     authorityTier: OverlayAuthorityTier.TRUSTED_POLICY_PACK,
-    capabilityNamespace: 'vendoor.inventory.restock',
+    capabilityNamespace: 'acme.inventory.restock',
     capabilityVersion: '1.2.0',
     supportedAdapters: ['laravel'],
     declaredDependencies: [],
@@ -61,11 +61,11 @@ describe('Freeze F-12: Capability Manifest Contract', () => {
     const grant: CapabilitySeamAuthorityGrant = {
       seamId: 'overlay::topology::resolution',
       maxCapabilityTier: OverlayAuthorityTier.SIGNED_EXTERNAL_PACK,
-      allowedCapabilityNamespaces: ['vendoor.inventory.restock'],
+      allowedCapabilityNamespaces: ['acme.inventory.restock'],
     };
 
     expect(grant.maxCapabilityTier).toBe(OverlayAuthorityTier.SIGNED_EXTERNAL_PACK);
-    expect(grant.allowedCapabilityNamespaces).toContain('vendoor.inventory.restock');
+    expect(grant.allowedCapabilityNamespaces).toContain('acme.inventory.restock');
   });
 
   test('CAPABILITY_FEDERATION_DESCRIPTOR contains all required schema versions', () => {
@@ -82,7 +82,7 @@ describe('Freeze F-12: Capability Manifest Contract', () => {
 
   test('CapabilityRequirementDescriptor enforces authority floor', () => {
     const requirement: CapabilityRequirementDescriptor = {
-      requiredNamespace: 'vendoor.inventory.restock',
+      requiredNamespace: 'acme.inventory.restock',
       requiredVersionRange: '^1.0.0',
       requiredFeatures: ['batch-restock'],
       optionalFeatures: ['audit-trail'],
@@ -98,6 +98,6 @@ describe('Freeze F-12: Capability Manifest Contract', () => {
     // Refinement #2: namespace canonicalization
     expect(validProvider.capabilityNamespace).toContain('.');
     expect(validProvider.capabilityNamespace).not.toBe('restock');
-    expect(validProvider.capabilityNamespace).toBe('vendoor.inventory.restock');
+    expect(validProvider.capabilityNamespace).toBe('acme.inventory.restock');
   });
 });

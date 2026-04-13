@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arch-engine.dev/schemas/diagnostics/R0-v1.json",
+  "$id": "https://schemas.arch-engine.dev/diagnostics/R0-v1.json",
   "title": "Arch-Engine Diagnostic Output Schema",
   "description": "Defines the categorical diagnostic output contract for @arch-engine/core federation diagnostics. Diagnostic surfaces are observational only — they MUST NOT participate in authority resolution, closure identity computation, replay validation, or signature verification.",
   "schemaVersion": "R0-v1",

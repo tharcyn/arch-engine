@@ -41,7 +41,7 @@ describe('Freeze F-12: Identity Hash Isolation', () => {
   test('negotiation result contains no numeric authority tier values in top-level output', () => {
     const context: CapabilityNegotiationContext = {
       resolvedOverlaySet: [],
-      capabilityProviders: [makeProvider('iso-test', 'vendoor.test.namespace')],
+      capabilityProviders: [makeProvider('iso-test', 'acme.test.namespace')],
       requestedCapabilities: [],
       authorityContext: { 'core': OverlayAuthorityTier.TRUSTED_POLICY_PACK },
       registryTrustDomain: 'CORE_INTERNAL',
@@ -71,8 +71,8 @@ describe('Freeze F-12: Identity Hash Isolation', () => {
     const context: CapabilityNegotiationContext = {
       resolvedOverlaySet: [],
       capabilityProviders: [
-        makeProvider('prov-1', 'vendoor.a.namespace'),
-        makeProvider('prov-2', 'vendoor.b.namespace'),
+        makeProvider('prov-1', 'acme.a.namespace'),
+        makeProvider('prov-2', 'acme.b.namespace'),
       ],
       requestedCapabilities: [],
       authorityContext: { 'core': OverlayAuthorityTier.TRUSTED_POLICY_PACK },
@@ -101,7 +101,7 @@ describe('Freeze F-12: Identity Hash Isolation', () => {
   });
 
   test('negotiation does not modify input context', () => {
-    const providers = [makeProvider('mutation-test', 'vendoor.test.ns')];
+    const providers = [makeProvider('mutation-test', 'acme.test.ns')];
     const context: CapabilityNegotiationContext = {
       resolvedOverlaySet: ['overlay-1'],
       capabilityProviders: providers,

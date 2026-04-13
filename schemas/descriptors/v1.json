@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arch-engine.dev/schemas/descriptors/v1.json",
+  "$id": "https://schemas.arch-engine.dev/descriptors/v1.json",
   "title": "Arch-Engine Capability Descriptor Schema",
   "description": "Defines the canonical schema for capability descriptors used in federation negotiation, overlay admission, and compatibility matrix evaluation. This schema is the authority referenced by 'Registry descriptor schema version: v1' in the release envelope.",
   "schemaVersion": "v1",
