@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://vendoor.com/schemas/route-service-map.schema.json",
+  "title": "Config for Route Service Map",
+  "description": "Route-to-service projection map. Forward keys use route_identity (METHOD:uri) as the canonical collision-safe route key.",
+  "type": "object",
+  "required": ["forward", "reverse"],
+  "properties": {
+    "forward": {
+      "type": "object",
+      "patternProperties": {
+        "^.+$": {
+          "type": "object",
+          "required": [
+            "backend_route",
+            "method",
+            "controller",
+            "controller_entity_id",
+            "controller_resolution_status",
+            "services",
+            "operation_ids"
+          ],
+          "properties": {
+            "frontend_route": {
+              "type": ["string", "null"]
+            },
+            "backend_route": {
+              "type": "string",
+              "description": "Route identity in METHOD:uri format (canonical collision-safe key)"
+            },
+            "method": {
+              "type": "string",
+              "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+              "description": "HTTP method component of the route identity"
+            },
+            "controller": { "type": "string" },
+            "controller_fqcn": {
+              "type": "string",
+              "description": "Fully-qualified controller class name resolved from scanner use-import map"
+            },
+            "controller_entity_id": { "type": "string" },
+            "controller_resolution_status": {
+              "type": "string",
+              "enum": ["scanner_use_import", "scanner_fqcn_literal", "unique_short_name", "unresolved_controller_identity"],
+              "description": "How the controller identity was resolved: scanner_use_import (PHP use statement), scanner_fqcn_literal (already FQCN), unique_short_name (fallback), unresolved_controller_identity (cannot resolve)"
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "entity_id"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "entity_id": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "operation_ids": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "reverse": {
+      "type": "object",
+      "patternProperties": {
+        "^.+$": {
+          "type": "object",
+          "required": [
+            "entity_id",
+            "controllers",
+            "reachable_backend_routes",
+            "reachable_frontend_routes",
+            "operation_ids"
+          ],
+          "properties": {
+            "entity_id": { "type": "string" },
+            "mutation_authority": { "type": "boolean" },
+            "blast_radius": { "type": "string" },
+            "controllers": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "reachable_backend_routes": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Route identities in METHOD:uri format"
+            },
+            "reachable_frontend_routes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "operation_ids": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

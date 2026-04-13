@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/schemas/cli-output-contract.json",
+  "title": "Arch-Engine CLI Output Contract",
+  "description": "Defines the stable JSON output contract for CLI commands operating in --json mode. Ensures diagnostic sovereignty extends to CLI output surfaces.",
+  "schemaVersion": "R0-v1",
+  "type": "object",
+  "properties": {
+    "doctor": {
+      "$ref": "#/$defs/DoctorOutput"
+    },
+    "inspect": {
+      "$ref": "#/$defs/InspectOutput"
+    },
+    "check": {
+      "$ref": "#/$defs/CheckOutput"
+    }
+  },
+  "$defs": {
+    "DoctorOutput": {
+      "type": "object",
+      "description": "Output contract for `arch-engine doctor --json`",
+      "properties": {
+        "environment": { "type": "string" },
+        "extractionMode": { "type": "string", "enum": ["structured", "fallback"] },
+        "topologyConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "topologyConfidenceLabel": { "type": "string" },
+        "confidenceDescription": { "type": "string" },
+        "detectedNodes": { "type": "integer" },
+        "expectedNodes": { "type": "integer" },
+        "connectedNodes": { "type": "integer" },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "connectivity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "crossings": { "type": "integer" },
+        "domainDistribution": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "domainIntegrity": {
+          "type": "object",
+          "properties": {
+            "degraded": { "type": "boolean" },
+            "message": { "type": ["string", "null"] }
+          }
+        },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "autoInitialized": { "type": "boolean" },
+        "hasPolicyFile": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "InspectOutput": {
+      "type": "object",
+      "description": "Output contract for `arch-engine inspect --json`",
+      "properties": {
+        "nodes": { "type": "integer" },
+        "edges": { "type": "integer" },
+        "crossings": { "type": "integer" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "topologyConfidenceLabel": { "type": "string" },
+        "confidenceDescription": { "type": "string" },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "connectivity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "extractionMode": { "type": "string" },
+        "workspaceType": { "type": "string" },
+        "domainDistribution": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "adaptersActive": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "CheckOutput": {
+      "type": "object",
+      "description": "Output contract for `arch-engine check --json`",
+      "properties": {
+        "score": { "type": "number" },
+        "classification": { "type": "string" },
+        "stabilityTier": { "type": "string" },
+        "topologyConfidenceLabel": { "type": "string" },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "connectivity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "extractionMode": { "type": "string" },
+        "topologyConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "authorityCrossings": { "type": "integer" },
+        "blockerCrossings": { "type": "integer" },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "executionMetrics": {
+          "type": "object",
+          "properties": {
+            "extractionMs": { "type": "number" },
+            "pipelineMs": { "type": "number" },
+            "totalMs": { "type": "number" }
+          }
+        },
+        "artifactPath": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

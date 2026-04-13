@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architecture Reasoning Engine — Engine Manifest Schema",
+  "description": "Defines the identity and compatibility layer for the arch-engine. Used for adapter compatibility checks, protocol validation, and multi-repo deployment safety.",
+  "type": "object",
+  "required": [
+    "engine_id",
+    "engine_version",
+    "schema_versions",
+    "supported_adapter_contract_versions",
+    "minimum_adapter_contract_version",
+    "models"
+  ],
+  "properties": {
+    "engine_id": {
+      "type": "string",
+      "description": "Unique engine identifier",
+      "minLength": 1
+    },
+    "engine_version": {
+      "type": "string",
+      "description": "Semantic version of the engine",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$"
+    },
+    "schema_versions": {
+      "type": "object",
+      "description": "Version map for all schema contracts",
+      "required": [
+        "capability_schema",
+        "topology_schema",
+        "entity_identity_schema",
+        "reasoning_protocol",
+        "adapter_contract",
+        "mutation_model",
+        "authority_model",
+        "confidence_model"
+      ],
+      "properties": {
+        "capability_schema": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "topology_schema": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "entity_identity_schema": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "reasoning_protocol": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "adapter_contract": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "mutation_model": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "authority_model": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "confidence_model": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+      },
+      "additionalProperties": false
+    },
+    "supported_adapter_contract_versions": {
+      "type": "array",
+      "description": "List of adapter contract versions this engine supports",
+      "items": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+      "minItems": 1
+    },
+    "minimum_adapter_contract_version": {
+      "type": "string",
+      "description": "Minimum adapter contract version required",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "models": {
+      "type": "object",
+      "description": "Reasoning model identifiers (algorithm version tags)",
+      "required": [
+        "mutation_hierarchy",
+        "authority_scoring",
+        "confidence_propagation"
+      ],
+      "properties": {
+        "mutation_hierarchy": { "type": "string", "minLength": 1 },
+        "authority_scoring": { "type": "string", "minLength": 1 },
+        "confidence_propagation": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

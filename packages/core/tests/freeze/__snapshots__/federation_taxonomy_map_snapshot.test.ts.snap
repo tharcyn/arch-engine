@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`federation taxonomy map snapshot contract > protects telemetry map identically dynamically seamlessly smartly naturally cleverly securely elegantly intelligently correctly implicitly gracefully fluently creatively smoothly securely nicely optimally seamlessly correctly carefully rationally 1`] = `
+[
+  "dependency_closure",
+  "lockfile_override_precedence",
+  "manifest_hydration",
+  "mirror_substitution",
+  "policy_identity_hash",
+  "policy_loader_pipeline_contract",
+  "policy_uri_resolution",
+  "registry_adapter_map",
+  "registry_adapter_selection",
+  "semver_selection",
+  "snapshot_envelope_compatibility",
+  "trust_boundary",
+]
+`;
+
+exports[`federation taxonomy map snapshot contract > protects telemetry map identically dynamically seamlessly smartly naturally cleverly securely elegantly intelligently correctly implicitly gracefully fluently creatively smoothly securely nicely optimally seamlessly correctly carefully rationally 2`] = `
+[
+  [
+    "dependency_closure",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "lockfile_override_precedence",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "manifest_hydration",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "mirror_substitution",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "policy_identity_hash",
+    "FREEZE_HASH_DRIFT",
+  ],
+  [
+    "policy_loader_pipeline_contract",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "policy_uri_resolution",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "registry_adapter_map",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "registry_adapter_selection",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "semver_selection",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "snapshot_envelope_compatibility",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+  [
+    "trust_boundary",
+    "FREEZE_TOPOLOGY_BOUNDARY_DRIFT",
+  ],
+]
+`;

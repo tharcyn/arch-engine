@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/impact-index",
+  "title": "Declared Impact Index",
+  "description": "Schema for normalized decision-impact map output. Each entry describes the blast radius of modifying a specific architecture entity.",
+  "type": "object",
+  "required": ["declared_impacts"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_impacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/impact_entry"
+      }
+    }
+  },
+  "definitions": {
+    "impact_entry": {
+      "type": "object",
+      "required": ["entity", "change_type", "affected_domains", "affected_journeys"],
+      "additionalProperties": false,
+      "properties": {
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The architecture entity whose modification impact is assessed."
+        },
+        "change_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Type of change being modeled (e.g., modification, removal, addition)."
+        },
+        "affected_domains": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Domains affected by this change."
+        },
+        "affected_journeys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "User journeys affected by this change."
+        },
+        "affected_invariants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Invariants at risk from this change."
+        },
+        "affected_contracts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "API or UI contracts affected."
+        },
+        "affected_dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tests and downstream dependencies affected."
+        },
+        "blast_radius_hint": {
+          "type": ["string", "null"],
+          "enum": ["LOCAL", "SERVICE_LAYER", "DOMAIN_LAYER", "MULTI_DOMAIN", "SYSTEM_CRITICAL", null],
+          "description": "Pre-computed blast radius classification."
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Optional freeform notes."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "fiveDeep": {
+    "chain": [
+      "root",
+      "org",
+      "team",
+      "project",
+      "workspace"
+    ],
+    "depth": 4,
+    "authority": "resolved-severity",
+    "inheritedFrom": "project",
+    "originPolicy": "workspace"
+  },
+  "mixedRule1": {
+    "chain": [
+      "base",
+      "local"
+    ],
+    "depth": 2,
+    "authority": "resolved-severity",
+    "inheritedFrom": "base",
+    "originPolicy": "local"
+  },
+  "mixedRule2": {
+    "chain": [
+      "overlay"
+    ],
+    "depth": 1,
+    "authority": "inherited",
+    "inheritedFrom": "overlay",
+    "originPolicy": "overlay"
+  }
+}

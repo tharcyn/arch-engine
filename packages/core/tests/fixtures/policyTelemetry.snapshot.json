@@ -1,0 +1,11 @@
+{
+  "violations": 2,
+  "mode": "enforce",
+  "version": 1,
+  "policyHash": "mockHash123",
+  "evaluationStrategyVersion": 1,
+  "policyDetected": true,
+  "policyRuleHits": {
+    "rule-abc": 2
+  }
+}

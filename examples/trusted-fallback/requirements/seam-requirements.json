@@ -1,0 +1,7 @@
+{
+  "seamId": "seam-payment-core",
+  "requiredCapabilities": ["payment-processing", "audit-logging"],
+  "preferredTrustTier": "signed",
+  "fallbackStrategy": "mirror-equivalent",
+  "conflictResolution": "authority-first"
+}

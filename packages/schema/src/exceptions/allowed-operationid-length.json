@@ -1,0 +1,14 @@
+[
+  {
+    "operationId": "listAdminInventoryAnalyticsExportMovements",
+    "length": 42,
+    "reason": "Deep analytics nesting requiring full context",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "operationId": "listAdminInventoryAnalyticsExportSnapshot",
+    "length": 41,
+    "reason": "Deep analytics nesting requiring full context",
+    "permanent_or_temporary": "PERMANENT"
+  }
+]

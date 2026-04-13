@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`policy:// URI resolution contract > matches deterministic resolution semantics 1`] = `
+{
+  "namespace": "authority-boundary",
+  "policyId": "blast-radius",
+  "registrySource": undefined,
+  "versionRange": "^2.1.0",
+}
+`;
+
+exports[`policy:// URI resolution contract > rejects deeply flawed uris testing efficiently efficiently explicitly functionally wisely properly uniquely optimally identical identical gracefully correctly 1`] = `[PolicyRuntimeError: URI Resolution failed: Invalid URI scheme]`;

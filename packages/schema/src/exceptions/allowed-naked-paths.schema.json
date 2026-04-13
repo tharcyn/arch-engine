@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://vendoor.com/schemas/allowed-naked-paths.json",
+  "title": "Allowed Naked Paths Exception Registry",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "path",
+      "method",
+      "reason",
+      "owner",
+      "review_status",
+      "permanent_or_temporary"
+    ],
+    "properties": {
+      "path": {
+        "type": "string"
+      },
+      "method": {
+        "type": "string",
+        "enum": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ]
+      },
+      "reason": {
+        "type": "string"
+      },
+      "owner": {
+        "type": "string"
+      },
+      "review_status": {
+        "type": "string",
+        "enum": [
+          "APPROVED",
+          "PENDING_DEPRECATION"
+        ]
+      },
+      "review_interval": {
+        "type": "string"
+      },
+      "permanent_or_temporary": {
+        "type": "string",
+        "enum": [
+          "PERMANENT",
+          "TEMPORARY"
+        ]
+      }
+    },
+    "additionalProperties": false
+  }
+}

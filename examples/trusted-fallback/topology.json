@@ -1,0 +1,25 @@
+{
+  "topologyId": "trusted-fallback-demo",
+  "topologyVersion": "1.0.0",
+  "description": "Demonstrates deterministic fallback selection when primary provider is unavailable and mirror-equivalent fallback is activated.",
+  "seams": [
+    {
+      "seamId": "seam-payment-core",
+      "providers": ["primary-provider", "fallback-provider"],
+      "resolutionStrategy": "authority-first",
+      "expectedResolution": "fallback-provider"
+    }
+  ],
+  "registries": [
+    {
+      "registryId": "registry-central",
+      "trustDomain": "internal",
+      "authorityCeiling": "authoritative"
+    }
+  ],
+  "executionInvariants": {
+    "deterministic": true,
+    "mirrorEquivalenceEnforced": true,
+    "overlayAdmissionRequired": true
+  }
+}

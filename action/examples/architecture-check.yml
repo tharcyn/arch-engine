@@ -1,0 +1,98 @@
+# Example workflows for arch-engine/check-boundaries
+# Copy the appropriate section to .github/workflows/architecture-check.yml
+
+name: Architecture Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ── Option A: Adoption Mode (permissive, zero friction) ──
+  architecture-adoption:
+    name: Architecture Intelligence (Adoption)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - uses: arch-engine/check-boundaries@v1
+        with:
+          mode: adoption
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: architecture-report
+          path: .arch-engine/
+
+  # ── Option B: Standard Mode (balanced enforcement) ──
+  architecture-standard:
+    name: Architecture Intelligence (Standard)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - id: arch-check
+        uses: arch-engine/check-boundaries@v1
+        with:
+          mode: standard
+          generate-badges: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: architecture-report
+          path: .arch-engine/
+      - if: always()
+        run: |
+          echo "Stability: ${{ steps.arch-check.outputs.classification }}"
+          echo "Coverage: ${{ steps.arch-check.outputs.coverage }}"
+          echo "Regressed: ${{ steps.arch-check.outputs.regressed }}"
+
+  # ── Option C: Strict Mode (enterprise gating) ──
+  architecture-strict:
+    name: Architecture Intelligence (Strict)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - uses: arch-engine/check-boundaries@v1
+        with:
+          mode: strict
+          generate-badges: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: architecture-report
+          path: .arch-engine/
+
+  # ── Option D: Custom overrides ──
+  architecture-custom:
+    name: Architecture Intelligence (Custom)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - uses: arch-engine/check-boundaries@v1
+        with:
+          min-coverage: '0.60'
+          fail-on-warnings: 'false'
+          fail-on-fallback-mode: 'true'
+          fail-on-regression: 'true'
+          generate-badges: 'true'

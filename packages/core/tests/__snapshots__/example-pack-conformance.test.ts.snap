@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`example pack conformance — trusted-fallback topology > expected output snapshot is stable 1`] = `
+{
+  "conflictDetected": false,
+  "fallbackUsed": true,
+  "mirrorEquivalent": true,
+  "providerSelected": "fallback-provider",
+  "resolutionOutcome": "deterministic",
+}
+`;

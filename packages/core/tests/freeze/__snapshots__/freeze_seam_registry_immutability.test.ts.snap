@@ -1,0 +1,87 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Freeze Evidence: Overlay Seam Registry Immutability > snapshot registry structure 1`] = `
+{
+  "overlay::dependency::closureBoundary": {
+    "allowedOperationType": "append_transitive_dependencies",
+    "auditIdentity": "freeze::overlay::dependency::closureBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "must_not_introduce_cycles",
+      "must_resolve_deterministically",
+    ],
+    "identity": "overlay::dependency::closureBoundary",
+    "layer": "dependency",
+    "mergeMode": "append",
+    "precedenceMode": "core_retains_head",
+    "target": "resolvePolicyDependencyGraph",
+  },
+  "overlay::manifest::mergeBoundary": {
+    "allowedOperationType": "extend_manifest_keys",
+    "auditIdentity": "freeze::overlay::manifest::mergeBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "cannot_delete_core_keys",
+      "must_maintain_capabilities",
+    ],
+    "identity": "overlay::manifest::mergeBoundary",
+    "layer": "manifest",
+    "mergeMode": "merge-by-key",
+    "precedenceMode": "core_wins_on_conflict",
+    "target": "hydratePolicyManifest",
+  },
+  "overlay::registry::precedenceBoundary": {
+    "allowedOperationType": "override_registry_source",
+    "auditIdentity": "freeze::overlay::registry::precedenceBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "must_return_compatible_manifest_schema",
+      "must_retain_namespace",
+    ],
+    "identity": "overlay::registry::precedenceBoundary",
+    "layer": "registry",
+    "mergeMode": "replace-if-authorized",
+    "precedenceMode": "overlay_wins",
+    "target": "registryLookup",
+  },
+  "overlay::registry::versionResolutionBoundary": {
+    "allowedOperationType": "override_version_selection",
+    "auditIdentity": "freeze::overlay::registry::versionResolutionBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "must_return_valid_semver_string",
+    ],
+    "identity": "overlay::registry::versionResolutionBoundary",
+    "layer": "registry",
+    "mergeMode": "replace-if-authorized",
+    "precedenceMode": "overlay_wins",
+    "target": "selectPolicyVersion",
+  },
+  "overlay::transport::mirrorBoundary": {
+    "allowedOperationType": "substitute_mirror_source",
+    "auditIdentity": "freeze::overlay::transport::mirrorBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "must_guarantee_crypto_hash_parity",
+    ],
+    "identity": "overlay::transport::mirrorBoundary",
+    "layer": "transport",
+    "mergeMode": "replace-if-authorized",
+    "precedenceMode": "overlay_wins",
+    "target": "fallbackRouting",
+  },
+  "overlay::transport::uriResolutionBoundary": {
+    "allowedOperationType": "substitute_uri_resolution",
+    "auditIdentity": "freeze::overlay::transport::uriResolutionBoundary",
+    "defaultInactive": true,
+    "determinismConstraints": [
+      "must_return_serializable_uriLoc",
+    ],
+    "identity": "overlay::transport::uriResolutionBoundary",
+    "layer": "transport",
+    "mergeMode": "replace-if-authorized",
+    "precedenceMode": "overlay_wins",
+    "target": "resolvePolicyURI",
+  },
+}
+`;

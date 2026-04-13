@@ -1,0 +1,21 @@
+{
+  "violationCategory": "explicit_forbid",
+  "from": "apps/web",
+  "to": "infra/db",
+  "severity": "error",
+  "ruleId": "rule-abc",
+  "ruleSource": "forbid_rule",
+  "confidenceContext": "HIGH",
+  "matchedDomainSource": "apps",
+  "matchedDomainTarget": "infra",
+  "tierSource": "high",
+  "tierTarget": "low",
+  "tierDelta": 2,
+  "suppressionEligible": true,
+  "originPolicyId": "root-org-policy",
+  "originRuleId": "rule-abc",
+  "compositionDepth": 0,
+  "inheritedFromPolicyId": "root-org-policy",
+  "originPolicyChain": ["root-org-policy"],
+  "mergeAuthority": "root"
+}

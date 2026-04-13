@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/peripheral-surface-index",
+  "title": "Declared Peripheral Surface Index",
+  "description": "Schema for normalized peripheral surface taxonomy output. Each entry classifies a namespace pattern as intentional architecture context within the INFO drift taxonomy.",
+  "type": "object",
+  "required": ["declared_peripherals"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_peripherals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/peripheral_entry"
+      }
+    }
+  },
+  "definitions": {
+    "peripheral_entry": {
+      "type": "object",
+      "required": ["namespace_pattern", "surface_type", "classification", "group_name", "reporting_policy"],
+      "additionalProperties": false,
+      "properties": {
+        "namespace_pattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "PHP namespace wildcard pattern (e.g., App\\Http\\Controllers\\Admin\\*)."
+        },
+        "surface_type": {
+          "type": "string",
+          "enum": ["api", "web", "webhook"],
+          "description": "Surface type classification."
+        },
+        "classification": {
+          "type": "string",
+          "enum": ["peripheral"],
+          "description": "Architecture classification. Currently only 'peripheral' is valid."
+        },
+        "domain": {
+          "type": ["string", "null"],
+          "description": "Domain assignment if applicable."
+        },
+        "reason": {
+          "type": ["string", "null"],
+          "description": "Descriptive rationale for peripheral classification."
+        },
+        "group_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Taxonomy group name from the peripheral surfaces document."
+        },
+        "reporting_policy": {
+          "type": "string",
+          "enum": ["standard", "suppressed", "elevated"],
+          "description": "How this surface should be reported in drift analysis."
+        }
+      }
+    }
+  }
+}

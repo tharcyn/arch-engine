@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/schemas/descriptors/v1.json",
+  "title": "Arch-Engine Capability Descriptor Schema",
+  "description": "Defines the canonical schema for capability descriptors used in federation negotiation, overlay admission, and compatibility matrix evaluation. This schema is the authority referenced by 'Registry descriptor schema version: v1' in the release envelope.",
+  "schemaVersion": "v1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "v1",
+      "description": "Descriptor schema version. Changes require major version bump per API freeze contract."
+    },
+    "descriptorId": {
+      "type": "string",
+      "description": "Unique identifier for this capability descriptor."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Name of the capability this descriptor defines."
+    },
+    "required": {
+      "type": "boolean",
+      "description": "Whether this capability is required for seam resolution."
+    },
+    "minimumTrustTier": {
+      "type": "string",
+      "enum": ["external", "verified", "signed", "authoritative"],
+      "description": "Minimum trust tier a provider must hold to satisfy this descriptor."
+    },
+    "compatibilityVersion": {
+      "type": "string",
+      "description": "Compatibility version for matrix evaluation. Providers must match this version."
+    },
+    "compatibilityRules": {
+      "type": "object",
+      "description": "Compatibility matrix rules for this descriptor.",
+      "properties": {
+        "compatible": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of descriptor IDs that are compatible with this descriptor."
+        },
+        "incompatible": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of descriptor IDs that are incompatible with this descriptor."
+        }
+      },
+      "additionalProperties": false
+    },
+    "providerRequirements": {
+      "type": "object",
+      "description": "Requirements a provider must satisfy for this descriptor.",
+      "properties": {
+        "signatureRequired": {
+          "type": "boolean",
+          "description": "Whether the provider must present a valid signature envelope."
+        },
+        "registryOriginRequired": {
+          "type": "boolean",
+          "description": "Whether the provider must originate from a known registry."
+        },
+        "namespaceOwnershipRequired": {
+          "type": "boolean",
+          "description": "Whether the provider must own its declared namespace."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["schemaVersion", "capability", "required", "minimumTrustTier", "compatibilityVersion"],
+  "additionalProperties": false
+}

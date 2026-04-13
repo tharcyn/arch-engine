@@ -1,0 +1,24 @@
+name: Test and Governance Enforcement
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'latest'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enforce Freeze Hygiene Guard
+        # MUST run before test execution to prevent snapshot masking of freeze-boundary drift
+        run: bash packages/core/tests/freeze/utils/verify-freeze-clean.sh
+
+      - name: Run Deterministic Snapshots
+        run: npm run test

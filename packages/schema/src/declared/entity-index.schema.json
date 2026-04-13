@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/entity-index",
+  "title": "Declared Entity Index",
+  "description": "Schema for the unified declared truth registry. This is the overarching index that links all declared architecture entities across registries. Intentionally uses additionalProperties: true on 'ref' to accommodate evolving sub-schemas without requiring synchronized updates.",
+  "type": "object",
+  "required": ["declared_entities"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/entity_entry"
+      }
+    }
+  },
+  "definitions": {
+    "entity_entry": {
+      "type": "object",
+      "required": ["id", "type", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identity key for this entity. Derived from the source record's primary identifier."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["authority", "invariant", "journey", "impact", "deployment", "contract", "peripheral"],
+          "description": "The declared truth registry this entity originates from."
+        },
+        "ref": {
+          "type": "object",
+          "description": "Full reference to the source record. Schema varies by type — validated by the type-specific schema, not here."
+        }
+      }
+    }
+  }
+}

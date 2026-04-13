@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`trust boundary execution freeze contract > enforces explicitly identically skillfully properly smartly cleanly cleverly flawlessly tracking naturally safely securely gracefully automatically flawlessly intelligently intelligently 1`] = `
+{
+  "namespace": "unsigned-namespace",
+  "policyId": "target",
+  "registrySource": undefined,
+  "versionRange": "1.0.0",
+}
+`;

@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 1`] = `
+[
+  "EngineRunner",
+  "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
+  "computeGraphStabilityIndex",
+  "computeWeightedBlastRadii",
+  "evaluatePolicy",
+  "loadEngineManifest",
+  "loadPolicyConfig",
+  "parseEngineManifest",
+  "rankAuthorityCrossings",
+  "resolveSeverity",
+  "validateAdapterCompatibility",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 2`] = `
+[
+  "resolvePolicyURI",
+  "registryAdapter",
+  "selectPolicyVersion",
+  "hydratePolicyManifest",
+  "resolvePolicyDependencies",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 3`] = `
+[
+  "lockfile",
+  "namespace",
+  "mirror",
+  "default",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 4`] = `
+[
+  "lockfile",
+  "namespace",
+  "mirror",
+  "default",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 5`] = `
+{
+  "dependencies": {
+    "policy://core/dep-1": "^1.0.0",
+  },
+  "mirrorMetadata": {
+    "active": false,
+  },
+  "name": "policy-target",
+  "namespaces": [
+    "core",
+  ],
+  "policyIdentitySignature": "sha256-12345",
+  "schemaVersion": "3.0.0",
+  "version": "1.2.5",
+}
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 6`] = `
+{
+  "roots": [
+    "policy://core/dep-1",
+  ],
+  "seed": 9382,
+  "topology": "closure_locked",
+}
+`;

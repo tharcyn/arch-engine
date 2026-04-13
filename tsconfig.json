@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/schema" },
+    { "path": "packages/core" },
+    { "path": "packages/cli" },
+    { "path": "packages/adapter-laravel" },
+    { "path": "packages/adapter-openapi" },
+    { "path": "packages/adapter-markdown-obsidian" },
+    { "path": "packages/governance-pack-rest-contract" },
+    { "path": "packages/governance-pack-authority" },
+    { "path": "packages/governance-pack-journey" },
+    { "path": "packages/adapter-pack-vendoor" }
+  ]
+}

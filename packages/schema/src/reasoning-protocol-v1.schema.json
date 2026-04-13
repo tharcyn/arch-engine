@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architecture Reasoning Engine — Reasoning Protocol V1",
+  "description": "Output schema produced by the architecture impact simulator. Formalizes the blast radius constraints and authority evaluation.",
+  "type": "object",
+  "required": [
+    "protocol_version",
+    "confidence_summary",
+    "impact",
+    "missing_capability_layers",
+    "enforcement_decision"
+  ],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "confidence_summary": {
+      "type": "object",
+      "required": [
+        "avg_path_confidence",
+        "min_path_confidence",
+        "total_paths_evaluated",
+        "conclusive_paths",
+        "inconclusive_paths"
+      ],
+      "properties": {
+        "avg_path_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "min_path_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "total_paths_evaluated": { "type": "integer", "minimum": 0 },
+        "conclusive_paths": { "type": "integer", "minimum": 0 },
+        "inconclusive_paths": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "dominant_path": {
+      "type": "object",
+      "required": [
+        "source_entity",
+        "traversed_edges",
+        "final_weighted_score_contribution"
+      ],
+      "properties": {
+        "source_entity": { "type": "string" },
+        "traversed_edges": { "type": "array", "items": { "type": "string" } },
+        "mutation_edge_encountered": { "type": "string" },
+        "authority_crossing_encountered": { "type": "string" },
+        "final_weighted_score_contribution": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "impact": {
+      "type": "object",
+      "required": [
+        "structural_radius",
+        "mutation_radius",
+        "authority_risk_score",
+        "conclusive_status"
+      ],
+      "properties": {
+        "structural_radius": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "mutation_radius": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "authority_risk_score": { "type": "number", "minimum": 0 },
+        "conclusive_status": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "missing_capability_layers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "enforcement_decision": {
+      "type": "string",
+      "enum": ["PASS", "WARNING", "BLOCK"]
+    }
+  },
+  "additionalProperties": false
+}

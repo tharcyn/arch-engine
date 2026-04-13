@@ -1,0 +1,18 @@
+{
+  "canonicalForms": {
+    "keyOrder": "{\"a\":2,\"m\":3,\"z\":1}",
+    "nestedKeyOrder": "{\"l1\":{\"a\":2,\"z\":1},\"l2\":{\"b\":3}}",
+    "withUndefined": "{\"a\":1}",
+    "withNull": "{\"a\":1,\"b\":null}",
+    "arrayPreserved": "{\"arr\":[3,1,2]}",
+    "emptyStruct": "{\"a\":{},\"b\":[]}"
+  },
+  "hashes": {
+    "keyOrder": "ebba85cfdc0a724b6cc327ecc545faeb38b9fe02eca603b430eb872f5cf75370",
+    "nestedKeyOrder": "5ed175ee2a8f7ab6159e2d16a43df953e77bccdf09cce963d05ad3d391b8d43c",
+    "withUndefined": "015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+    "withNull": "46e0ff59f6164548317489fbea1133a48f7a83c325c3535e44559c9619afb76b",
+    "arrayPreserved": "cab5b2405701293d6fae18f8809e9946d87a2720a4cff2b9fcac9dde50528852",
+    "emptyStruct": "aeeba1e56a144077f89e26c930dad7cf933e9383cfb8e33ddff618233b29be76"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@arch-engine/schema",
+  "version": "4.0.0",
+  "description": "Canonical JSON schemas and TypeScript types for architecture reasoning.",
+  "type": "module",
+  "main": "./dist/types/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": "./dist/types/index.js",
+    "./schemas/*": "./src/*.schema.json"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "files": ["dist", "src/*.schema.json"]
+}

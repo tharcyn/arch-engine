@@ -1,0 +1,756 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dependency closure execution freeze contract > enforces transitive ordering dynamically uniquely gracefully elegantly checking naturally instinctively smoothly safely 1`] = `
+[
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+  {
+    "config": {
+      "extends": undefined,
+      "version": 1,
+    },
+    "executionMetadata": {
+      "capabilityFallbackApplied": false,
+    },
+    "hash": "2096b0bc842456cf6072ee9e78e7a4b6a06db740c26aa71b7e33db0e426f25ed",
+    "negotiationWarnings": undefined,
+    "policyId": "test-root",
+    "policyNamespace": "core",
+    "simulatedCapabilityCompatibility": undefined,
+    "transitiveRequiredCapabilities": [],
+  },
+]
+`;

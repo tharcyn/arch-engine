@@ -1,0 +1,61 @@
+name: 'Architecture Intelligence Check'
+description: 'Run architecture topology extraction and boundary validation via arch-engine. Supports preset modes (adoption/standard/strict), regression detection, badge generation, and PR annotations.'
+author: 'arch-engine'
+
+inputs:
+  mode:
+    description: 'Configuration preset: adoption (permissive), standard (balanced), strict (enterprise gating). Explicit inputs override preset defaults.'
+    required: false
+    default: 'adoption'
+  config-path:
+    description: 'Path to arch-engine manifest (optional — auto-detects if missing)'
+    required: false
+    default: 'arch-engine.yml'
+  min-coverage:
+    description: 'Minimum topology coverage threshold (0.0–1.0). Overrides preset.'
+    required: false
+    default: ''
+  fail-on-warnings:
+    description: 'Fail the check if any extraction warnings are emitted. Overrides preset.'
+    required: false
+    default: ''
+  fail-on-fallback-mode:
+    description: 'Fail the check if workspace detection falls back to directory scan. Overrides preset.'
+    required: false
+    default: ''
+  fail-on-regression:
+    description: 'Fail the check if architecture metrics regress from previous baseline.'
+    required: false
+    default: ''
+  output-artifact:
+    description: 'Write stability-score.json and badge JSONs to .arch-engine/.'
+    required: false
+    default: 'true'
+  generate-badges:
+    description: 'Generate Shields.io badge JSONs in .arch-engine/badges/.'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'GitHub token for PR summary annotations.'
+    required: true
+    default: ${{ github.token }}
+
+outputs:
+  stability-score:
+    description: 'Topology reliability score (0.0–1.0)'
+  coverage:
+    description: 'Topology coverage ratio (0.0–1.0)'
+  connectivity:
+    description: 'Topology connectivity ratio (0.0–1.0)'
+  classification:
+    description: 'Stability tier (STABLE, HEALTHY, WARNING, CRITICAL)'
+  regressed:
+    description: 'Whether architecture metrics regressed from baseline (true/false)'
+
+runs:
+  using: 'node20'
+  main: 'dist/action.js'
+
+branding:
+  icon: 'shield'
+  color: 'blue'

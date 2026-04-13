@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`package exports map freeze contract > matches approved exports map 1`] = `
+{
+  ".": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
+    "types": "./dist/index.d.ts",
+  },
+  "./analysis": {
+    "import": "./dist/analysis.js",
+    "require": "./dist/analysis.cjs",
+    "types": "./dist/analysis.d.ts",
+  },
+  "./parsers": {
+    "import": "./dist/parsers.js",
+    "require": "./dist/parsers.cjs",
+    "types": "./dist/parsers.d.ts",
+  },
+}
+`;

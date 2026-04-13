@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/invariant-index",
+  "title": "Declared Invariant Index",
+  "description": "Schema for normalized invariant enforcement map output. Each entry maps an invariant to its enforcement evidence, verification level, blast radius, and dependent journeys.",
+  "type": "object",
+  "required": ["declared_invariants"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_invariants": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/invariant_entry"
+      }
+    }
+  },
+  "definitions": {
+    "invariant_entry": {
+      "type": "object",
+      "required": ["id", "name", "verification_level", "source_of_truth"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^INV-",
+          "description": "Invariant identifier. Must start with INV- prefix."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable invariant name."
+        },
+        "authority_owner_entity": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Component or layer responsible for enforcing this invariant."
+        },
+        "verification_level": {
+          "type": "string",
+          "enum": ["declared", "static_verified", "test_verified", "runtime_verified"],
+          "description": "The highest level of verification evidence for this invariant."
+        },
+        "source_of_truth": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Source markdown file containing this invariant definition."
+        },
+        "blast_radius": {
+          "type": ["string", "null"],
+          "enum": ["LOCAL", "SERVICE_LAYER", "DOMAIN_LAYER", "MULTI_DOMAIN", "SYSTEM_CRITICAL", null],
+          "description": "Classified blast radius using the 5-tier classifier."
+        },
+        "journeys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Journey names that depend on this invariant."
+        },
+        "code_refs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Code file references for enforcement locations."
+        },
+        "static": {
+          "type": ["string", "null"],
+          "description": "Static analysis enforcement evidence."
+        },
+        "test": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Test classes that verify this invariant."
+        },
+        "runtime": {
+          "type": ["string", "null"],
+          "description": "Runtime enforcement mechanism description."
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "What breaks if this invariant is violated."
+        }
+      }
+    }
+  }
+}

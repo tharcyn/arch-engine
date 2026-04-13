@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "R0-v1",
+  "descriptors": {
+    "payment-processing": {
+      "required": true,
+      "minimumTrustTier": "signed",
+      "compatibilityVersion": "1.0"
+    },
+    "audit-logging": {
+      "required": true,
+      "minimumTrustTier": "verified",
+      "compatibilityVersion": "1.0"
+    },
+    "notification-dispatch": {
+      "required": false,
+      "minimumTrustTier": "external",
+      "compatibilityVersion": "1.0"
+    }
+  },
+  "compatibilityMatrix": {
+    "payment-processing": {
+      "compatible": ["audit-logging"],
+      "incompatible": []
+    },
+    "audit-logging": {
+      "compatible": ["payment-processing", "notification-dispatch"],
+      "incompatible": []
+    },
+    "notification-dispatch": {
+      "compatible": ["audit-logging"],
+      "incompatible": ["payment-processing"]
+    }
+  }
+}

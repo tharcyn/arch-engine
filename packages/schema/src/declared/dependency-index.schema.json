@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/dependency-index",
+  "title": "Declared Dependency Index",
+  "description": "Schema for normalized deployment dependency map output. Each entry defines a subsystem's runtime dependencies, failure cascades, and environmental requirements.",
+  "type": "object",
+  "required": ["declared_dependencies"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/dependency_entry"
+      }
+    }
+  },
+  "definitions": {
+    "dependency_entry": {
+      "type": "object",
+      "required": ["subsystem", "dependencies"],
+      "additionalProperties": false,
+      "properties": {
+        "subsystem": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Subsystem name as declared in the deployment dependency map."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dependency_item"
+          },
+          "description": "Runtime dependencies required by this subsystem."
+        },
+        "failure_cascades": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Cascade failure descriptions."
+        },
+        "required_env": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Environment variables required by this subsystem."
+        },
+        "runtime_assumptions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Runtime assumptions this subsystem makes."
+        },
+        "safety_notes": {
+          "type": ["string", "null"],
+          "description": "Safety notes for operational awareness."
+        }
+      }
+    },
+    "dependency_item": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Dependency name or identifier."
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Dependency type classification."
+        },
+        "required_by": {
+          "type": ["string", "null"],
+          "description": "What component requires this dependency."
+        },
+        "failure_mode": {
+          "type": ["string", "null"],
+          "description": "What happens if this dependency is unavailable."
+        }
+      }
+    }
+  }
+}

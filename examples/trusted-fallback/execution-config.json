@@ -1,0 +1,13 @@
+{
+  "executionMode": "deterministic",
+  "resolutionStrategy": "authority-first",
+  "mirrorEquivalenceEnabled": true,
+  "fallbackEnabled": true,
+  "diagnosticSchemaVersion": "R0-v1",
+  "trustTierCeilings": {
+    "external": 1,
+    "verified": 2,
+    "signed": 3,
+    "authoritative": 4
+  }
+}

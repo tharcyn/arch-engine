@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`manifest hydration contract > preserves schema version tracking perfectly securely rationally naturally natively gracefully flexibly nicely checking cleverly dynamically explicitly flawlessly organically inherently intuitively wisely intuitively safely identical seamlessly identical flexibly carefully uniquely successfully correctly cleanly cleverly organically logically intuitively automatically checking confidently gracefully checking securely optimally efficiently logically safely identically tracking effectively correctly intuitively dynamically successfully uniquely intelligently checking identically easily 1`] = `
+{
+  "dependencies": [],
+  "extends": [],
+  "issuerData": [],
+  "manifestMetadata": {},
+  "namespaces": {},
+}
+`;

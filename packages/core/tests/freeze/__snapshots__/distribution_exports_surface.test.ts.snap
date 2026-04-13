@@ -1,0 +1,51 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`distribution exports surface freeze contract > 'analysis' export boundary mapping > matches approved export boundary precisely for analysis 1`] = `
+[
+  "CONFIDENCE_SCORE_MAP",
+  "ImpactSimulator",
+  "MUTATION_WEIGHTING_COEFFICIENTS",
+  "classifyEdgeConfidence",
+  "computeDistanceAwareConfidence",
+  "getConfidenceScore",
+  "higherConfidence",
+  "isAsyncMutation",
+  "isAuthoritySensitive",
+  "isConcreteMutationSubtype",
+  "isMutationEdge",
+  "isReadOnly",
+  "isWriteMutation",
+]
+`;
+
+exports[`distribution exports surface freeze contract > 'parsers' export boundary mapping > matches approved export boundary precisely for parsers 1`] = `
+[
+  "parseAuthorityRegistry",
+  "parseContractsParity",
+  "parseDecisionImpactMap",
+  "parseDeploymentDependencies",
+  "parseEventIndex",
+  "parseInvariantRegistry",
+  "parseJobIndex",
+  "parseJourneyCoverage",
+  "parseModelIndex",
+  "parsePeripheralSurfaceTaxonomy",
+  "parseServiceIndex",
+]
+`;
+
+exports[`distribution exports surface freeze contract > 'root' export boundary mapping > matches approved export boundary precisely for root 1`] = `
+[
+  "EngineRunner",
+  "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
+  "computeGraphStabilityIndex",
+  "computeWeightedBlastRadii",
+  "evaluatePolicy",
+  "loadEngineManifest",
+  "loadPolicyConfig",
+  "parseEngineManifest",
+  "rankAuthorityCrossings",
+  "resolveSeverity",
+  "validateAdapterCompatibility",
+]
+`;

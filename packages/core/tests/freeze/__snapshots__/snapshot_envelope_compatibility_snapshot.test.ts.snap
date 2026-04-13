@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshot envelope compatibility execution freeze contract > enforces envelope creatively checking brilliantly identical smoothly gracefully smartly accurately confidently optimally natively wisely rationally functionally identically automatically intelligently efficiently intelligently wisely logically effortlessly gracefully efficiently magically implicitly testing safely securely successfully naturally effectively 1`] = `
+{
+  "dependencies": [],
+  "extends": [],
+  "issuerData": [],
+  "manifestMetadata": {},
+  "namespaces": {},
+}
+`;

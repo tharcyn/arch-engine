@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architecture Reasoning Engine — Core Schema",
+  "description": "Framework-agnostic schema for architecture entities, surfaces, edges, and governance structures. No framework or project assumptions.",
+  "type": "object",
+  "definitions": {
+    "entity_identity": {
+      "type": "string",
+      "pattern": "^[a-z]{2,5}_[a-z0-9-]+_[a-f0-9]{8}$",
+      "description": "Deterministic identity: {prefix}_{slug}_{8-char-sha256-hash}"
+    },
+    "surface_identity": {
+      "type": "string",
+      "description": "Canonical surface identity tuple: METHOD|/path|handler|action|name"
+    },
+    "edge_type": {
+      "type": "string",
+      "enum": [
+        "reads_from", "writes_to", "invokes", "emits",
+        "subscribes_to", "contracts_with", "consumes", "exposes",
+        "uses_layout", "requires_permission", "requires_role", "redirects_to"
+      ]
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["ast_verified", "namespace_inferred", "runtime_verified", "manual_override", "heuristic"]
+    },
+    "verification_level": {
+      "type": "string",
+      "enum": ["declared", "static_verified", "test_verified", "runtime_verified"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["BLOCKER", "CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+    },
+    "edge": {
+      "type": "object",
+      "required": ["target", "type"],
+      "properties": {
+        "target": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/definitions/edge_type" },
+        "confidence": { "$ref": "#/definitions/confidence_level" }
+      },
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "required": ["entity_id", "type", "qualified_name", "file_path"],
+      "properties": {
+        "entity_id": { "$ref": "#/definitions/entity_identity" },
+        "type": { "type": "string", "minLength": 1 },
+        "qualified_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "edges": { "type": "array", "items": { "$ref": "#/definitions/edge" } },
+        "events_emitted": { "type": "array", "items": { "type": "string" } },
+        "jobs_dispatched": { "type": "array", "items": { "type": "string" } },
+        "models_touched": { "type": "array", "items": { "type": "string" } },
+        "interfaces": { "type": "array", "items": { "type": "string" } },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "surface": {
+      "type": "object",
+      "required": ["identity", "method", "path", "handler"],
+      "properties": {
+        "entity_id": { "$ref": "#/definitions/entity_identity" },
+        "identity": { "$ref": "#/definitions/surface_identity" },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"] },
+        "path": { "type": "string", "minLength": 1 },
+        "handler": { "type": "string", "minLength": 1 },
+        "handler_fqn": { "type": ["string", "null"] },
+        "handler_resolution": { "type": "string" },
+        "action": { "type": "string" },
+        "route_name": { "type": "string" },
+        "edges": { "type": "array", "items": { "$ref": "#/definitions/edge" } }
+      },
+      "additionalProperties": false
+    },
+    "contract": {
+      "type": "object",
+      "required": ["operation_id", "endpoint", "method"],
+      "properties": {
+        "entity_id": { "$ref": "#/definitions/entity_identity" },
+        "operation_id": { "type": "string", "minLength": 1 },
+        "endpoint": { "type": "string", "minLength": 1 },
+        "method": { "type": "string" },
+        "request_schema": { "type": "string" },
+        "response_schema": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "internal": { "type": "boolean" },
+        "deprecated": { "type": "boolean" },
+        "edges": { "type": "array", "items": { "$ref": "#/definitions/edge" } }
+      },
+      "additionalProperties": false
+    },
+    "authority": {
+      "type": "object",
+      "required": ["entity", "owner"],
+      "properties": {
+        "entity": { "type": "string", "minLength": 1 },
+        "owner": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "allowed_writers": { "type": "array", "items": { "type": "string" } },
+        "forbidden_writers": { "type": "array", "items": { "type": "string" } },
+        "mutation_surfaces": { "type": "array", "items": { "type": "string" } },
+        "is_mutation_authority": { "type": "boolean" },
+        "protected_invariants": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "invariant": {
+      "type": "object",
+      "required": ["id", "name", "verification_level"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "owner": { "type": "array", "items": { "type": "string" } },
+        "verification_level": { "$ref": "#/definitions/verification_level" },
+        "blast_radius": { "type": "string" },
+        "journeys": { "type": "array", "items": { "type": "string" } },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "static": { "type": "string" },
+            "test": { "type": "array", "items": { "type": "string" } },
+            "runtime": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "journey": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "controllers": { "type": "array", "items": { "type": "string" } },
+        "services": { "type": "array", "items": { "type": "string" } },
+        "events": { "type": "array", "items": { "type": "string" } },
+        "jobs": { "type": "array", "items": { "type": "string" } },
+        "tests": { "type": "array", "items": { "type": "string" } },
+        "protected_invariants": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "telemetry_entry": {
+      "type": "object",
+      "required": ["entity", "gate", "status"],
+      "properties": {
+        "entity": { "type": "string", "minLength": 1 },
+        "entity_type": { "type": "string" },
+        "file": { "type": "string" },
+        "gate": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "enum": ["passed", "triggered", "skipped", "not_applicable"] },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "violation": {
+      "type": "object",
+      "required": ["gate", "entity", "severity", "message"],
+      "properties": {
+        "gate": { "type": "string", "minLength": 1 },
+        "code": { "type": "string" },
+        "entity": { "type": "string", "minLength": 1 },
+        "severity": { "$ref": "#/definitions/severity" },
+        "message": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "traversal_step": {
+      "type": "object",
+      "required": ["step", "entity", "action"],
+      "properties": {
+        "step": { "type": "integer", "minimum": 0 },
+        "entity": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "minLength": 1 },
+        "invariants_checked": { "type": "array", "items": { "type": "string" } },
+        "edges_traversed": { "type": "array", "items": { "$ref": "#/definitions/edge" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

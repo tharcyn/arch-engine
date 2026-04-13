@@ -1,0 +1,65 @@
+[
+  {
+    "path": "/announcements/{id}/dismiss",
+    "method": "POST",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/announcements/active",
+    "method": "GET",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/machine/generate-payment-link",
+    "method": "POST",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/machine/payment-status/{uuid}",
+    "method": "GET",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/machine/request",
+    "method": "POST",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/payment/webhook",
+    "method": "POST",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  },
+  {
+    "path": "/user",
+    "method": "GET",
+    "reason": "Direct resource access / Legacy root path",
+    "owner": "Infrastructure",
+    "review_status": "APPROVED",
+    "review_interval": "Annually",
+    "permanent_or_temporary": "PERMANENT"
+  }
+]

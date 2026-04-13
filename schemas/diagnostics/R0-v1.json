@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/schemas/diagnostics/R0-v1.json",
+  "title": "Arch-Engine Diagnostic Output Schema",
+  "description": "Defines the categorical diagnostic output contract for @arch-engine/core federation diagnostics. Diagnostic surfaces are observational only — they MUST NOT participate in authority resolution, closure identity computation, replay validation, or signature verification.",
+  "schemaVersion": "R0-v1",
+  "schemaCompatibility": "minor-additive-only",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "R0-v1",
+      "description": "Immutable schema version identifier."
+    },
+    "diagnosticEntries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DiagnosticEntry"
+      }
+    }
+  },
+  "required": ["schemaVersion", "diagnosticEntries"],
+  "additionalProperties": false,
+  "$defs": {
+    "DiagnosticEntry": {
+      "type": "object",
+      "description": "A single diagnostic observation. All fields are categorical — no numeric ranking weights, floating capability scores, trust coefficients, or descriptor match gradients are permitted.",
+      "properties": {
+        "seamId": {
+          "type": "string",
+          "description": "Identifier of the seam being diagnosed."
+        },
+        "activationDecision": {
+          "type": "string",
+          "enum": ["ACTIVATED", "REJECTED", "DEFERRED", "SKIPPED"],
+          "description": "Categorical activation outcome."
+        },
+        "conflictDetected": {
+          "type": "boolean",
+          "description": "Whether a conflict was detected during resolution."
+        },
+        "resolutionOutcome": {
+          "type": "string",
+          "enum": ["deterministic", "fallback", "mirror-equivalent", "rejected", "unresolved"],
+          "description": "Categorical resolution outcome."
+        },
+        "rejectionReasons": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Human-readable categorical rejection reasons."
+        },
+        "strategyUsed": {
+          "type": "string",
+          "description": "Name of the resolution strategy applied."
+        },
+        "registryTrustPreferenceApplied": {
+          "type": "boolean",
+          "description": "Whether registry trust preference influenced resolution."
+        },
+        "authorityPreferenceApplied": {
+          "type": "boolean",
+          "description": "Whether authority preference influenced resolution."
+        },
+        "versionPreferenceApplied": {
+          "type": "boolean",
+          "description": "Whether version preference influenced resolution."
+        },
+        "selectionConfidence": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "Categorical confidence classification. NOT a numeric score."
+        },
+        "tieBreakerApplied": {
+          "type": "boolean",
+          "description": "Whether a tiebreaker was used."
+        },
+        "tieBreakerType": {
+          "type": ["string", "null"],
+          "enum": ["namespace", "overlayId", "compatibility", null],
+          "description": "Type of tiebreaker applied, if any."
+        },
+        "lifecycleState": {
+          "type": "string",
+          "enum": ["active", "deprecated", "superseded", "revoked", "pending"],
+          "description": "Overlay lifecycle state classification."
+        },
+        "admissionStatus": {
+          "type": "string",
+          "enum": ["admitted", "rejected", "pending"],
+          "description": "Overlay admission status."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ForbiddenFields": {
+      "description": "The following field categories are PERMANENTLY FORBIDDEN from diagnostic output surfaces. This definition exists as a governance annotation, not a runtime schema element.",
+      "type": "object",
+      "properties": {
+        "_GOVERNANCE_NOTE": {
+          "const": "The following are NEVER permitted in diagnostic output: numericRankingWeights, floatingCapabilityScores, trustCoefficients, descriptorMatchGradients, rawComparatorInternals, candidateEvaluationIndexes, iterationOrderArtifacts, registryArrivalOrdering, transportDiscoveryOrder, mirrorArrivalOrder, timeDependentMetadata"
+        }
+      }
+    }
+  }
+}

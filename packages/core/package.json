@@ -1,0 +1,69 @@
+{
+  "name": "@arch-engine/core",
+  "version": "0.1.0-preview",
+  "description": "Capability-driven architecture topology reasoning engine — validate dependency direction, detect authority boundary violations, score topology stability, and reconcile conflicting graph edges across multiple code scanners.",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./analysis": {
+      "types": "./dist/analysis.d.ts",
+      "import": "./dist/analysis.js",
+      "require": "./dist/analysis.cjs"
+    },
+    "./parsers": {
+      "types": "./dist/parsers.d.ts",
+      "import": "./dist/parsers.js",
+      "require": "./dist/parsers.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ],
+      "analysis": [
+        "./dist/analysis.d.ts"
+      ],
+      "parsers": [
+        "./dist/parsers.d.ts"
+      ]
+    }
+  },
+  "keywords": [
+    "architecture",
+    "topology",
+    "dependency-graph",
+    "authority-boundary",
+    "blast-radius",
+    "code-analysis",
+    "governance",
+    "graph-validation",
+    "confidence-scoring",
+    "adapter-sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arch-engine/core",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@arch-engine/schema": "^4.0.0",
+    "yaml": "^2.8.3"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}

@@ -1,0 +1,1561 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`public types surface — declaration file freeze contract > analysis.d.ts exists and snapshot is stable 1`] = `
+"import { R as ReasoningProtocolV1 } from './reasoning-protocol-v1-BAfq7-0n.js';
+export { C as CONFIDENCE_SCORE_MAP, M as MUTATION_WEIGHTING_COEFFICIENTS, c as classifyEdgeConfidence, b as computeDistanceAwareConfidence, g as getConfidenceScore, h as higherConfidence, i as isAsyncMutation, d as isAuthoritySensitive, e as isConcreteMutationSubtype, f as isMutationEdge, j as isReadOnly, k as isWriteMutation } from './reasoning-protocol-v1-BAfq7-0n.js';
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Impact Simulator — Phase 6 Pilot
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Computes strict separated blast-radius scores from a graph trace
+ *  while safely navigating authority boundaries.
+ *
+ *  Uses canonical taxonomy predicates for mutation detection
+ *  instead of substring matching. See edge-confidence.ts for
+ *  the full mutation vocabulary hierarchy.
+ */
+interface ImpactSimulationRequest {
+    source_entity: string;
+    target_node: string;
+    execution_topology: {
+        source: string;
+        target: string;
+        type: string;
+    }[];
+    authority_boundaries?: Record<string, string[]>;
+}
+type ImpactSimulationResponse = ReasoningProtocolV1;
+declare class ImpactSimulator {
+    simulateImpact(request: ImpactSimulationRequest): ImpactSimulationResponse;
+}
+
+export { ImpactSimulator };
+"
+`;
+
+exports[`public types surface — declaration file freeze contract > index.d.ts exists and snapshot is stable 1`] = `
+"import { E as EdgeConfidenceLevel, T as TraversalConfidenceDecayConfig } from './reasoning-protocol-v1-BAfq7-0n.js';
+export { a as EdgeConfidenceMetadata, R as ReasoningProtocolV1 } from './reasoning-protocol-v1-BAfq7-0n.js';
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Adapter Capability Registry — Stage 7A Identity Freeze
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Framework-agnostic adapter registry with:
+ *    - Normalized capability map (10 semantic layers)
+ *    - Explicit registration (no built-in adapters)
+ *    - Registration validation + freeze semantics
+ *    - Adapter compatibility checking
+ *
+ *  Adapters are registered by adapter packs (e.g. vendoor, laravel, rails).
+ *  Core engine starts with ZERO adapters and discovers nothing implicitly.
+ *
+ *  Forward-portable to: @arch-engine/core/contracts
+ */
+type CoverageLevel = 'full' | 'partial' | 'none' | 'unknown';
+interface CapabilityMap {
+    /** Route/endpoint topology (route registration, surface discovery) */
+    surfaceTopology: CoverageLevel;
+    /** FQCN handler identity resolution */
+    handlerResolution: CoverageLevel;
+    /** Dependency invocation chains (includes job dispatch, structured topology) */
+    invocationEdges: CoverageLevel;
+    /** Event emission/subscription topology */
+    eventEdges: CoverageLevel;
+    /** Data access edges (reads_from, writes_to) */
+    dataAccessEdges: CoverageLevel;
+    /** Mutation hierarchy edges (writes_state, reads_state, creates_state, etc.) */
+    mutationTopology: CoverageLevel;
+    /** Authority ownership, boundaries, and mutation authority */
+    authorityMetadata: CoverageLevel;
+    /** API contract surface (OpenAPI, GraphQL, etc.) */
+    contractSurface: CoverageLevel;
+    /** Frontend consumer-to-handler linkage */
+    frontendTopology: CoverageLevel;
+    /** ORM/model relationship graph edges */
+    modelRelationships: CoverageLevel;
+}
+interface AdapterCapabilityDescriptor {
+    /** Unique adapter identifier */
+    adapter_id: string;
+    /** Human-readable adapter name */
+    adapter_name: string;
+    /** Language/runtime: 'php', 'typescript', 'runtime', 'spec' */
+    adapter_language: string;
+    /** Semantic version of the adapter */
+    adapter_version: string;
+    /** Normalized capability map */
+    capabilities: CapabilityMap;
+    /** Entity types this adapter produces */
+    entity_types: string[];
+    /** Output files this adapter generates */
+    output_files: string[];
+}
+interface AdapterRegistrationResult {
+    registered: boolean;
+    adapter_id: string;
+    validation_errors: string[];
+    warnings: string[];
+}
+/**
+ * Central registry of adapter capability descriptors.
+ *
+ * Starts EMPTY — no built-in adapters.
+ * Adapters are registered via adapter packs:
+ *
+ *   const registry = new AdapterCapabilityRegistry();
+ *   registerVendoorAdapters(registry);
+ *   registry.freeze();
+ */
+declare class AdapterCapabilityRegistry {
+    private adapters;
+    private frozen;
+    /**
+     * Register an adapter descriptor with validation.
+     *
+     * @param descriptor Adapter capability descriptor
+     * @returns Registration result with validation status
+     */
+    register(descriptor: AdapterCapabilityDescriptor): AdapterRegistrationResult;
+    /**
+     * Freeze the registry — no further registrations allowed.
+     * Call after all adapter packs have registered.
+     */
+    freeze(): void;
+    /** Check if the registry is frozen */
+    isFrozen(): boolean;
+    /** Get a specific adapter's capabilities */
+    get(adapterId: string): AdapterCapabilityDescriptor | undefined;
+    /** Get all registered adapters */
+    getAll(): AdapterCapabilityDescriptor[];
+    /** Get adapters that provide a specific capability at a given level */
+    getProvidersOf(capability: keyof CapabilityMap, minLevel?: CoverageLevel): AdapterCapabilityDescriptor[];
+    /** Export registry snapshot for telemetry output */
+    toSnapshot(): Record<string, {
+        adapter_name: string;
+        adapter_language: string;
+        entity_types: string[];
+        capabilities: Record<string, CoverageLevel>;
+    }>;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Architecture Adapter SDK — Public Contracts
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Provides framework-agnostic types to bridge code scanners
+ *  and language parsers into the engine's capability registry.
+ */
+interface AdapterContext {
+    adapter_id: string;
+    config: Record<string, unknown>;
+    log: (message: string) => void;
+}
+interface AdapterManifest {
+    adapter_id: string;
+    adapter_name: string;
+    adapter_language: string;
+    /** Contract bindings required to successfully load */
+    engine_version: string;
+    capability_schema: string;
+    reasoning_protocol: string;
+}
+interface ArchitectureAdapter {
+    readonly manifest: AdapterManifest;
+    /** Initialize adapter context */
+    onInitialize(context: AdapterContext): void | Promise<void>;
+    /**
+     * Return declared coverage levels before runtime freeze.
+     */
+    onCapabilityNegotiation(): CapabilityMap | Promise<CapabilityMap>;
+    /**
+     * Final opportunity to finalize descriptors or hints
+     * right before runtime execution locks the registry.
+     */
+    onRegistryFreeze(context: AdapterContext): void | Promise<void>;
+    /**
+     * Graph hook to extract semantic topology boundaries (edges, metadata).
+     */
+    onGraphExtraction(): void | Promise<void>;
+}
+interface AdapterPack {
+    pack_id: string;
+    adapters: ArchitectureAdapter[];
+    trust_scores: Array<{
+        adapter_id: string;
+        base_trust: number;
+        category: 'ast' | 'reflection' | 'runtime' | 'heuristic' | 'manual' | 'spec';
+        rationale: string;
+    }>;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Engine Manifest — Types & Validation
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Pure computational manifest parsing and validation.
+ *  No filesystem dependencies — all I/O is the consumer's
+ *  responsibility.
+ *
+ *  The fs-based \`loadEngineManifest\` overload lives in
+ *  manifest-fs.ts for workspace-internal usage only.
+ */
+interface EngineManifest {
+    engine_id: string;
+    engine_version: string;
+    schema_versions: {
+        capability_schema: string;
+        topology_schema: string;
+        entity_identity_schema: string;
+        reasoning_protocol: string;
+        adapter_contract: string;
+        mutation_model: string;
+        authority_model: string;
+        confidence_model: string;
+    };
+    supported_adapter_contract_versions: string[];
+    minimum_adapter_contract_version: string;
+    models: {
+        mutation_hierarchy: string;
+        authority_scoring: string;
+        confidence_propagation: string;
+    };
+}
+interface CompatibilityResult {
+    compatible: boolean;
+    adapter_id: string;
+    adapter_contract_version: string;
+    engine_version: string;
+    errors: string[];
+    warnings: string[];
+}
+/**
+ * Parse and validate a raw engine manifest object.
+ * This is the primary public API — accepts pre-loaded data,
+ * not file paths. The consumer is responsible for I/O.
+ *
+ * @param raw  Parsed JSON object (e.g. from JSON.parse)
+ * @returns    Validated EngineManifest
+ * @throws     Error if manifest is structurally invalid
+ */
+declare function parseEngineManifest(raw: Record<string, unknown>): EngineManifest;
+/**
+ * Load engine manifest from filesystem.
+ *
+ * WORKSPACE-INTERNAL: This function requires Node.js \`fs\`.
+ * External consumers should use \`parseEngineManifest()\` with
+ * their own file-loading strategy.
+ *
+ * @param manifestPath  Absolute path to engine-manifest.json
+ * @returns             Parsed and validated manifest
+ * @throws              Error if manifest is missing or malformed
+ */
+declare function loadEngineManifest(manifestPath: string): EngineManifest;
+/**
+ * Validate adapter compatibility against engine manifest.
+ *
+ * @param manifest   Loaded engine manifest
+ * @param adapter    Adapter descriptor with contract version
+ * @returns          Compatibility result
+ */
+declare function validateAdapterCompatibility(manifest: EngineManifest, adapter: {
+    adapter_id: string;
+    engine_version: string;
+    capability_schema: string;
+    reasoning_protocol: string;
+}): CompatibilityResult;
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Cross-Adapter Edge Reconciliation Engine — Shadow Mode
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Detects duplicate and conflicting edges across multiple
+ *  adapter outputs without modifying the entity graph.
+ *
+ *  Shadow mode: produces reconciliation-trace.json as a
+ *  diagnostic side-car. Does NOT alter existing graph edges.
+ *
+ *  Forward-portable to: @arch-engine/core/reconciliation
+ */
+
+interface ReconcilableEdge {
+    source: string;
+    target: string;
+    type: string;
+    confidence?: EdgeConfidenceLevel;
+    confidence_score?: number;
+    adapter_id: string;
+}
+type ConflictResolution = 'higher_confidence_wins' | 'adapter_priority_wins' | 'consensus_required' | 'preserve_all';
+interface ReconciliationConflict {
+    edge_key: string;
+    source: string;
+    target: string;
+    type: string;
+    adapters: Array<{
+        adapter_id: string;
+        confidence: EdgeConfidenceLevel;
+        confidence_score: number;
+    }>;
+    resolution: ConflictResolution;
+    resolved_confidence: number;
+    resolved_adapter: string;
+}
+interface ReconciliationDuplicate {
+    edge_key: string;
+    source: string;
+    target: string;
+    type: string;
+    adapter_count: number;
+    adapters: string[];
+    merged_confidence: number;
+    confidence_sources: string[];
+}
+interface ReconciliationMissing {
+    /** Edge that exists in one adapter but not another */
+    edge_key: string;
+    source: string;
+    target: string;
+    type: string;
+    present_in: string[];
+    absent_from: string[];
+    confidence_impact: string;
+}
+interface ReconciliationTrace {
+    /** When this reconciliation was computed */
+    reconciled_at: string;
+    /** Total edges processed */
+    total_edges: number;
+    /** Edges confirmed by multiple adapters */
+    duplicates: ReconciliationDuplicate[];
+    /** Edges with conflicting confidence/type across adapters */
+    conflicts: ReconciliationConflict[];
+    /** Edges present in one adapter but absent from another with overlap */
+    missing: ReconciliationMissing[];
+    /** Summary statistics */
+    summary: {
+        unique_edges: number;
+        duplicate_edges: number;
+        conflicting_edges: number;
+        missing_edges: number;
+        adapters_processed: string[];
+        average_confidence: number;
+    };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Consensus Confidence Boost Engine — Phase 2.5
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Increases confidence scores when edges are confirmed
+ *  by multiple independent adapters.
+ *
+ *  Formula:
+ *    boosted_score = base_score + (adapter_count - 1) × multiplier
+ *    clamped to [0.0, 1.0]
+ *
+ *  Forward-portable to: @arch-engine/core/reconciliation
+ */
+
+interface BoostedEdge {
+    edge_key: string;
+    source: string;
+    target: string;
+    type: string;
+    /** Original (pre-boost) confidence score */
+    original_confidence: number;
+    /** Boosted confidence score */
+    boosted_confidence: number;
+    /** Number of adapters confirming this edge */
+    adapter_count: number;
+    /** Adapters that confirmed this edge */
+    confirming_adapters: string[];
+    /** Whether boost was applied */
+    boost_applied: boolean;
+    /** Boost delta */
+    boost_delta: number;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Canonical Edge Promoter — Phase 2.6
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Promotes consensus-confirmed edges to canonical authority
+ *  status. Does NOT mutate original edges — stores promotion
+ *  metadata in a separate canonical-edge-index.json.
+ *
+ *  Authority hierarchy:
+ *    heuristic → inferred → verified → consensus_verified
+ *
+ *  Promotion rule:
+ *    edge confirmed by N adapters AND confidence >= threshold
+ *    → promote authority level
+ *
+ *  Forward-portable to: @arch-engine/core/reconciliation
+ */
+
+type EdgeAuthorityLevel = 'heuristic' | 'inferred' | 'verified' | 'consensus_verified';
+interface CanonicalEdgeEntry {
+    edge_key: string;
+    source: string;
+    target: string;
+    type: string;
+    /** Promoted authority level */
+    authority_level: EdgeAuthorityLevel;
+    /** Base authority level before promotion */
+    base_authority_level: EdgeAuthorityLevel;
+    /** Was this edge promoted from a lower authority? */
+    promoted: boolean;
+    /** Confidence score at time of promotion */
+    confidence_score: number;
+    /** Number of adapters confirming this edge */
+    adapter_count: number;
+    /** Adapters that produced/confirmed this edge */
+    adapters: string[];
+    /** Promotion reason */
+    promotion_reason: string;
+}
+interface CanonicalEdgeIndex {
+    generated_at: string;
+    total_edges: number;
+    promoted_edges: number;
+    authority_distribution: Record<EdgeAuthorityLevel, number>;
+    edges: CanonicalEdgeEntry[];
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Adapter Trust Ranking Strategy — Phase 2.6
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Introduces a trust hierarchy for adapters. When edges
+ *  conflict, the adapter with the higher trust score wins.
+ *
+ *  Trust ranking influences:
+ *    - edge reconciliation (conflict resolution)
+ *    - consensus promotion (weighting)
+ *    - confidence aggregation
+ *    - authority promotion
+ *
+ *  Supports project-level, pack-level, and edge-type overrides.
+ *
+ *  Forward-portable to: @arch-engine/core/reconciliation
+ */
+interface AdapterTrustScore {
+    adapter_id: string;
+    /** Base trust score (0.0 – 1.0). Higher = more trusted. */
+    base_trust: number;
+    /** Trust category for human readability */
+    category: 'ast' | 'reflection' | 'runtime' | 'heuristic' | 'manual' | 'spec';
+    /** Description of why this trust level is assigned */
+    rationale: string;
+}
+interface EdgeTypeTrustOverride {
+    /** Edge type this override applies to */
+    edge_type: string;
+    /** Adapter trust scores for this specific edge type */
+    adapter_scores: Record<string, number>;
+}
+interface TrustRankingConfig {
+    /** Base trust scores for all adapters */
+    adapter_scores: AdapterTrustScore[];
+    /** Per-edge-type trust overrides */
+    edge_type_overrides: EdgeTypeTrustOverride[];
+    /** Per-pack trust overrides (pack_id → adapter_id → score) */
+    pack_overrides: Record<string, Record<string, number>>;
+    /** Project-level trust overrides (adapter_id → score) */
+    project_overrides: Record<string, number>;
+}
+declare class AdapterTrustRegistry {
+    private config;
+    constructor(config?: TrustRankingConfig);
+    /**
+     * Get effective trust score for an adapter.
+     *
+     * Resolution order:
+     *  1. Project-level override
+     *  2. Pack-level override (if pack context provided)
+     *  3. Edge-type override (if edge type provided)
+     *  4. Base trust score
+     *  5. Default 0.50
+     */
+    getTrustScore(adapterId: string, context?: {
+        pack_id?: string;
+        edge_type?: string;
+    }): number;
+    /**
+     * Rank adapters by trust for a given context.
+     * Returns array sorted highest trust first.
+     */
+    rankAdapters(adapterIds: string[], context?: {
+        pack_id?: string;
+        edge_type?: string;
+    }): Array<{
+        adapter_id: string;
+        trust_score: number;
+    }>;
+    /**
+     * Resolve a conflicting edge using trust ranking.
+     * Returns the adapter_id that should win.
+     */
+    resolveConflict(adapterIds: string[], edgeType: string, packId?: string): {
+        winner: string;
+        trust_score: number;
+        rankings: Array<{
+            adapter_id: string;
+            trust_score: number;
+        }>;
+    };
+    /**
+     * Export trust registry snapshot for telemetry.
+     */
+    toSnapshot(): {
+        base_scores: Record<string, number>;
+        edge_type_overrides: Record<string, Record<string, number>>;
+        pack_overrides: Record<string, Record<string, number>>;
+        project_overrides: Record<string, number>;
+    };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Graph Stability Index — Phase 2.6
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Computes a composite topology reliability score from:
+ *    - multi-adapter agreement ratio
+ *    - confidence variance
+ *    - reconciliation conflict rate
+ *    - authority promotion coverage
+ *    - confidence-weighted blast radius estimates
+ *    - confidence-ranked authority boundary crossings
+ *
+ *  Consolidates Phase 6 (blast-radius), Phase 7 (authority
+ *  crossings), and Phase 9 (stability index) into a single
+ *  module emitting unified telemetry.
+ *
+ *  Forward-portable to: @arch-engine/core/telemetry
+ */
+
+interface ConfidenceWeightedBlastRadius {
+    entity: string;
+    entity_id: string;
+    /** Original blast radius from adjacency map */
+    original_blast_radius: string;
+    /** Confidence-weighted blast radius (may be downgraded) */
+    weighted_blast_radius: string;
+    /** Average confidence of edges reaching this entity */
+    average_edge_confidence: number;
+    /** Number of entry points reaching this entity */
+    reachable_from_count: number;
+    /** Consensus ratio: fraction of edges confirmed by multiple adapters */
+    consensus_ratio: number;
+    /** Distance-decayed confidence (from deepest reachable path) */
+    distance_decayed_confidence: number;
+    /** Whether radius was attenuated due to low confidence */
+    attenuated: boolean;
+}
+interface RankedAuthorityCrossing {
+    source_entity: string;
+    target_entity: string;
+    authority_domain: string;
+    crossing_type: string;
+    route_identity: string;
+    /** Edge authority level for this crossing */
+    edge_authority_level: EdgeAuthorityLevel;
+    /** Confidence score of the crossing edge */
+    confidence_score: number;
+    /** Trust-weighted confidence (adapter trust × edge confidence) */
+    trust_weighted_confidence: number;
+    /** Recommended severity based on confidence */
+    recommended_severity: 'BLOCKER' | 'CRITICAL' | 'WARNING' | 'INFO';
+}
+interface GraphStabilityIndex {
+    generated_at: string;
+    /** Overall topology reliability score (0.0 – 1.0) */
+    topology_reliability_score: number;
+    /** Component scores contributing to the overall score */
+    components: {
+        /** Multi-adapter agreement ratio (0 – 1) */
+        agreement_ratio: number;
+        /** Confidence variance (lower = more stable) */
+        confidence_variance: number;
+        /** Conflict rate (fraction of edges in conflict) */
+        conflict_rate: number;
+        /** Authority promotion coverage (fraction of edges with verified+ authority) */
+        authority_coverage: number;
+        /** Average trust-weighted confidence */
+        average_trust_weighted_confidence: number;
+    };
+    /** Confidence-weighted blast radius analysis */
+    blast_radius_analysis: {
+        total_entities: number;
+        attenuated_entities: number;
+        entries: ConfidenceWeightedBlastRadius[];
+    };
+    /** Confidence-ranked authority crossings */
+    authority_crossings: {
+        total_crossings: number;
+        blocker_crossings: number;
+        warning_crossings: number;
+        entries: RankedAuthorityCrossing[];
+    };
+    /** Diagnostic metadata */
+    diagnostics: {
+        total_edges: number;
+        consensus_edges: number;
+        heuristic_edges: number;
+        low_confidence_edges: number;
+        adapters_contributing: string[];
+    };
+}
+/**
+ * Compute confidence-weighted blast radii from the adjacency map.
+ */
+declare function computeWeightedBlastRadii(adjacencyMap: Record<string, any>, canonicalIndex: CanonicalEdgeIndex | null, decayConfig?: TraversalConfidenceDecayConfig): ConfidenceWeightedBlastRadius[];
+/**
+ * Rank authority crossings by confidence.
+ */
+declare function rankAuthorityCrossings(crossings: any[], canonicalIndex: CanonicalEdgeIndex | null, trustRegistry: AdapterTrustRegistry | null): RankedAuthorityCrossing[];
+/**
+ * Compute the composite graph stability index.
+ */
+declare function computeGraphStabilityIndex(reconciliation: ReconciliationTrace, canonicalIndex: CanonicalEdgeIndex | null, adjacencyMap: Record<string, any>, crossings: any[], trustRegistry: AdapterTrustRegistry | null, decayConfig?: TraversalConfidenceDecayConfig): GraphStabilityIndex;
+
+type PolicyMode = 'enforce' | 'advisory';
+/**
+ * PROTOCOL-LOCKED: MergeAuthority discriminated union.
+ * Typed enum prevents string-based authority spoofing and
+ * ensures lineage analytics pipelines interpret authority correctly.
+ */
+type MergeAuthority = 'local' | 'additive' | 'inherited' | 'overridden' | 'resolved-severity';
+type PolicyTier = 'high' | 'medium' | 'low';
+interface PolicyDomainDef {
+    tier?: PolicyTier;
+    enforceTier?: boolean;
+}
+type PolicySeverity = 'error' | 'warning' | 'notice';
+interface PolicyRuleDef {
+    id?: string;
+    from: string;
+    to: string;
+    severity?: PolicySeverity;
+    deleted?: boolean;
+    deletedReason?: 'authoritative' | 'inherited' | 'overridden';
+}
+interface PolicyRules {
+    allow?: PolicyRuleDef[];
+    forbid?: PolicyRuleDef[];
+}
+interface PolicyConfig {
+    version: number;
+    mode?: PolicyMode;
+    extends?: string | string[];
+    extendsResolution?: 'lazy' | 'eager';
+    deleted?: boolean;
+    severityLock?: boolean;
+    severityPolicy?: 'strict' | 'permissive' | 'override' | 'loose';
+    domains?: Record<string, PolicyDomainDef>;
+    rules?: PolicyRules;
+}
+interface PolicyStackEntry {
+    policyId: string;
+    config: PolicyConfig;
+    hash: string;
+    /** Registry namespace origin, e.g. 'github.com/org' */
+    policyNamespace?: string;
+    /** Transport origin URI, e.g. 'policy://registry/org/repo' */
+    policyOrigin?: string;
+    /** Issuing authority identifier, bound to signature verification later */
+    policyIssuer?: string;
+    transitiveRequiredCapabilities?: string[];
+    negotiationWarnings?: {
+        code: string;
+        missingCapabilities: string[];
+        policyId: string;
+    }[];
+    executionMetadata?: {
+        capabilityFallbackApplied?: boolean;
+        capabilityClosureHash?: string;
+        capabilityExplainabilityGraph?: any;
+        snapshotClosureGraphHash?: string;
+        trustScopeExplainabilityGraph?: any;
+        compositionHints?: any;
+        dependencyAdjacencySurface?: any;
+        snapshotEnvelope?: any;
+        policyStackFingerprint?: string;
+        extendedPolicyStackFingerprint?: string;
+        dependencyDepth?: number;
+        stackIndex?: number;
+        stackTopologicalOrder?: number[];
+    };
+    loaderTrustMetadata?: {
+        namespaceTrustPolicyVersion: string;
+        namespaceTrustPolicyHash: string;
+        namespaceTrustScopeHash?: string;
+        activeTrustScopes?: string[];
+    };
+    loaderClosureMetadata?: {
+        snapshotClosureGraphHash: string;
+        closureGraphContractVersion: string;
+        closureProvenance?: {
+            manifestContentHash: string;
+            signatureDigest: string;
+            registryTrustRootId: string;
+            trustRootEpoch: number;
+        };
+    };
+    simulatedCapabilityCompatibility?: {
+        missingCapabilities: string[];
+        incompatibleLayers: string[];
+        incompatibleDomains: string[];
+    };
+}
+interface ComposedRuleDef extends PolicyRuleDef {
+    originPolicyId: string;
+    originRuleId: string;
+    compositionDepth: number;
+    inheritedFromPolicyId?: string;
+    originPolicyChain: string[];
+    mergeAuthority: MergeAuthority;
+    severityLock?: boolean;
+    severityPolicy?: 'strict' | 'permissive' | 'override' | 'loose';
+    deleted?: boolean;
+}
+interface ComposedRules {
+    allow?: ComposedRuleDef[];
+    forbid?: ComposedRuleDef[];
+}
+interface ComposedPolicy {
+    version: number;
+    mode?: PolicyMode;
+    domains?: Record<string, PolicyDomainDef>;
+    rules?: ComposedRules;
+    effectiveHash: string;
+}
+type ViolationCategory = 'tier_violation' | 'explicit_forbid' | 'implicit_crossing_candidate' | 'classification_gap';
+interface PolicyViolation {
+    violationCategory: ViolationCategory;
+    from: string;
+    to: string;
+    severity: PolicySeverity;
+    ruleId?: string;
+    ruleSource: string;
+    confidenceContext: string;
+    /**
+     * SOFT-LOCKED: Evaluator-derived prefix bounds. Maps the canonical graph segment limits.
+     * Extensible: May hold canonicalDomainId or domainOriginLayer in future compositions.
+     */
+    matchedDomainSource?: string;
+    matchedDomainTarget?: string;
+    tierSource?: string;
+    tierTarget?: string;
+    /**
+     * SOFT-LOCKED: tierDelta = sourceRank - targetRank.
+     * Positive = upward dependency. Zero = lateral. Negative = downward dependency.
+     */
+    tierDelta?: number;
+    /**
+     * HARD-LOCKED: suppressionEligible. Dictates architectural lifecycle suppressability limits natively.
+     * INHERITANCE: Attachment is at the edge-instance level. Child suppression overlays override parent constraints.
+     */
+    suppressionEligible: boolean;
+    originPolicyId?: string;
+    originRuleId?: string;
+    compositionDepth?: number;
+    inheritedFromPolicyId?: string;
+    originPolicyChain?: string[];
+    mergeAuthority?: MergeAuthority;
+    /** GOVERNANCE TOMBSTONE TELEMETRY */
+    suppressedByDeletion?: boolean;
+    deletedReason?: 'authoritative' | 'inherited' | 'overridden';
+}
+/**
+ * COMPOSITION RESOLUTION STRATEGY
+ * Defines the deterministic merge law for overlapping policy stacks.
+ */
+declare function resolveSeverity(parentSeverity: PolicySeverity, childSeverity: PolicySeverity, policy?: 'strict' | 'permissive' | 'override' | 'loose'): PolicySeverity;
+declare const GOVERNANCE_TELEMETRY_SCHEMA_VERSION = "1.0.0";
+/**
+ * PROVENANCE RECORD: Tracks when an allow rule silently bypasses a forbid rule.
+ * Without this, governance escapes are invisible in the audit trail.
+ */
+interface AllowMatch {
+    /** The allow rule ID that matched (or 'anonymous' if no id) */
+    matchedAllowRuleId: string;
+    /** Policy that contributed the matching allow rule */
+    matchedAllowPolicyId: string;
+    /** Composition depth of the allow rule */
+    allowCompositionDepth: number;
+    /** Edge source that was allowed */
+    from: string;
+    /** Edge target that was allowed */
+    to: string;
+}
+interface PolicyEvaluationResult {
+    violations: PolicyViolation[];
+    matchedEdges: number;
+    policyMode: PolicyMode;
+    policyVersion: number;
+    policyHash?: string;
+    effectivePolicyHash?: string;
+    policyNamespace?: string;
+    stackExpansionDeterminismSeed?: string;
+    stackExpansionTopologyVersion?: string;
+    policyGovernanceContractVersion?: string;
+    policyTransportContractVersion?: string;
+    policyRegistryContractVersion?: string;
+    policyManifestSchemaVersion?: string;
+    policyStackIds?: string[];
+    policyStackHashes?: string[];
+    evaluationStrategyVersion: number;
+    /**
+     * ORCHESTRATION INVARIANT: policyDetected = false specifies no local \`.archengine/policy.yml\`
+     * existed at evaluation time natively. It does NOT imply the absence of inherited multi-policy logic.
+     */
+    policyDetected: boolean;
+    /**
+     * COUNT INVARIANT: policyRuleHits[ruleId] tracks the number of violating edges matched
+     * by the rule during the current evaluation pass.
+     */
+    policyRuleHits: Record<string, number>;
+    /**
+     * GOVERNANCE BYPASS AUDIT: Records every edge that matched an allow rule,
+     * making governance escapes visible in the evaluation output.
+     */
+    allowMatches: AllowMatch[];
+}
+
+interface ParsedPolicy {
+    config: PolicyConfig;
+    hash: string;
+    sourcePath: string;
+}
+declare function loadPolicyConfig(cwd: string): ParsedPolicy | null;
+
+interface EvaluatorEdge {
+    source: string;
+    target: string;
+}
+declare function evaluatePolicy(edges: EvaluatorEdge[], config: ComposedPolicy, confidenceContext: string, policyHash: string): PolicyEvaluationResult;
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Edge Provenance Normalization Schema — Phase 2.7
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Canonical provenance record for every edge in the graph.
+ *  Normalizes scattered metadata into a single schema:
+ *    confidence, source, authority, trust, reconciliation
+ *
+ *  Properties:
+ *    - deterministic
+ *    - serializable (JSON-safe)
+ *    - adapter-neutral
+ *    - extraction-safe
+ *
+ *  Forward-portable to: @arch-engine/schema
+ */
+
+type ClassificationStrategy = 'import_resolution' | 'reflection_scan' | 'constructor_injection' | 'method_call_analysis' | 'event_registration' | 'route_registration' | 'manual_declaration' | 'naming_convention' | 'unknown';
+type ReconciliationStrategy = 'none' | 'higher_confidence' | 'adapter_priority' | 'consensus_verified' | 'conflict_unresolved';
+interface EdgeProvenanceRecord {
+    /** Adapter that originated this edge */
+    origin_adapter: string;
+    /** How confident we are in this edge */
+    confidence_level: EdgeConfidenceLevel;
+    /** Numeric confidence score */
+    confidence_score: number;
+    /** Authority level of this edge */
+    authority_level: EdgeAuthorityLevel;
+    /** List of adapters that confirmed this edge (for consensus edges) */
+    consensus_participants: string[];
+    /** Trust weight of the originating adapter (from trust registry) */
+    trust_weight: number;
+    /** How the edge was classified */
+    classification_strategy: ClassificationStrategy;
+    /** How conflicts were resolved (if any) */
+    reconciliation_strategy: ReconciliationStrategy;
+    /** Whether this edge was promoted by the canonical promoter */
+    promotion_status: boolean;
+}
+interface ProvenanceIndex {
+    generated_at: string;
+    total_edges: number;
+    /** Distribution of classification strategies */
+    strategy_distribution: Record<ClassificationStrategy, number>;
+    /** Distribution of reconciliation strategies */
+    reconciliation_distribution: Record<ReconciliationStrategy, number>;
+    /** Provenance records keyed by edge key */
+    edges: Record<string, EdgeProvenanceRecord>;
+}
+
+type EngineLogger = (message: string) => void;
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Confidence Propagation Engine — Phase 2.5 Substrate Hardening
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Side-car implementation: does NOT modify existing traversal
+ *  or reachable_from_routes().
+ *
+ *  Computes path-level confidence scores by analyzing edge
+ *  confidence along traversal paths.
+ *
+ *  Forward-portable to: @arch-engine/core/traversal
+ */
+
+type PropagationStrategy = 'minimum' | 'multiplicative' | 'average' | 'consensus_boost';
+interface ConfidenceAwareReachabilityEntry {
+    entity: string;
+    entity_id: string;
+    reachable_from: string;
+    path_confidence: number;
+    path_length: number;
+    strategy: PropagationStrategy;
+    edge_scores: number[];
+    confidence_sources: string[];
+    /** Indicates if this traversal path is reliable. True unless traversing through known blind spots. */
+    isConclusive: boolean;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Capability Negotiation Layer — Stage 7A Identity Freeze
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Passive mode: detects missing topology coverage and emits
+ *  warnings. Does NOT disable gates — only annotates.
+ *
+ *  Each governance gate declares its required adapter
+ *  capabilities. The negotiation layer cross-references
+ *  against the capability registry and flags gaps.
+ *
+ *  Forward-portable to: @arch-engine/core/enforcement
+ */
+
+interface CapabilityWarning {
+    gate_id: string;
+    gate_name: string;
+    missing_capability: string;
+    required_level: CoverageLevel;
+    best_available_level: CoverageLevel;
+    providing_adapters: string[];
+    message: string;
+}
+interface NegotiationResult {
+    /** All warnings generated */
+    warnings: CapabilityWarning[];
+    /** Gates with full capability coverage */
+    fully_covered_gates: string[];
+    /** Gates with partial or missing coverage */
+    degraded_gates: string[];
+    /** Summary for governance report annotation */
+    summary: {
+        total_gates: number;
+        fully_covered: number;
+        degraded: number;
+        missing_capabilities: string[];
+    };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Strict Capability Enforcement — Phase 2.6
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Upgrades the passive capability negotiation layer with
+ *  enforcement semantics. When strict mode is enabled,
+ *  missing required capabilities can downgrade or block
+ *  gate execution.
+ *
+ *  Default: strictMode = false (passive mode, backward compatible)
+ *
+ *  Forward-portable to: @arch-engine/core/enforcement
+ */
+
+type CapabilityRequirementLevel = 'optional' | 'recommended' | 'required' | 'blocking';
+type GateExecutionDecision = 'execute_full' | 'execute_degraded' | 'execute_advisory' | 'skip_blocked';
+interface PackEnforcementResult {
+    pack_id: string;
+    pack_name: string;
+    decision: GateExecutionDecision;
+    missing_capabilities: Array<{
+        capability: string;
+        requirementLevel: CapabilityRequirementLevel;
+        requiredLevel: CoverageLevel;
+        availableLevel: CoverageLevel;
+    }>;
+    warnings: string[];
+    meets_confidence_requirements: boolean;
+}
+interface CapabilityEnforcementResult {
+    strict_mode: boolean;
+    packs: PackEnforcementResult[];
+    summary: {
+        total_packs: number;
+        execute_full: number;
+        execute_degraded: number;
+        execute_advisory: number;
+        skip_blocked: number;
+    };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Adapter Capability Coverage Index — Phase 2.7
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Answers: "Which topology layer lacks evidence?"
+ *
+ *  Derives per-layer coverage scores from:
+ *    - adapter capability registry (declared capabilities)
+ *    - generated output files (realized data)
+ *    - entity graph density (observed edges per type)
+ *    - confidence index (evidence quality)
+ *
+ *  Forward-portable to: @arch-engine/core/telemetry
+ */
+
+interface CoverageLayerScore {
+    /** Coverage score (0.0 – 1.0) */
+    score: number;
+    /** Adapters contributing to this layer */
+    contributing_adapters: string[];
+    /** Best declared capability level across all adapters */
+    best_declared_level: CoverageLevel;
+    /** Number of entities/edges observed for this layer */
+    observed_count: number;
+    /** Total possible entities (if determinable) */
+    total_possible: number;
+    /** Evidence quality: average confidence of edges in this layer */
+    evidence_quality: number;
+    /** Human-readable gap description */
+    gap_description: string;
+}
+interface CoverageIndex {
+    generated_at: string;
+    /** Per-topology-layer coverage scores */
+    layers: {
+        surface_topology: CoverageLayerScore;
+        handler_resolution: CoverageLayerScore;
+        invocation_edges: CoverageLayerScore;
+        authority_metadata: CoverageLayerScore;
+        contract_topology: CoverageLayerScore;
+        event_topology: CoverageLayerScore;
+        frontend_consumers: CoverageLayerScore;
+        data_access_edges: CoverageLayerScore;
+    };
+    /** Overall coverage score */
+    overall_coverage: number;
+    /** Ordered list of layers by gap severity (worst first) */
+    gap_priority: Array<{
+        layer: string;
+        score: number;
+        gap_description: string;
+    }>;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Cross-Language Identity Parity Verification Harness
+ *  — Phase 2.7
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Ensures identity determinism across PHP and TS generators.
+ *
+ *  Validation layers:
+ *    1. entity_id hash stability (TS engine self-check)
+ *    2. entity_id uniqueness (no collisions)
+ *    3. surface identity stability (route keys)
+ *    4. cross-file identity determinism (same input → same output)
+ *
+ *  This harness becomes critical once:
+ *    adapter-laravel/ is introduced
+ *    because PHP and TS must produce identical entity IDs.
+ *
+ *  Forward-portable to: @arch-engine/core/identity
+ */
+interface ParityCheckResult {
+    check_name: string;
+    status: 'PASS' | 'FAIL' | 'WARN';
+    entities_checked: number;
+    mismatches: number;
+    details: string[];
+}
+interface IdentityParityReport {
+    generated_at: string;
+    overall_status: 'PASS' | 'FAIL';
+    checks: ParityCheckResult[];
+    summary: {
+        total_entities_verified: number;
+        total_mismatches: number;
+        total_collisions: number;
+        total_checks: number;
+        passed_checks: number;
+    };
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Topology Layer Completeness Heatmap — Phase 2.7
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Measures per-layer completeness at a finer granularity
+ *  than coverage-index. Heatmap answers:
+ *    - Which specific entity types have weak topology?
+ *    - Where are the structural holes in the graph?
+ *
+ *  Supports: adapter insertion planning, governance confidence
+ *  interpretation, topology reliability diagnostics.
+ *
+ *  Forward-portable to: @arch-engine/core/telemetry
+ */
+
+interface HeatmapCell {
+    /** Completeness score (0.0 – 1.0) */
+    completeness: number;
+    /** Color band: 'red' | 'yellow' | 'green' */
+    band: 'red' | 'yellow' | 'green';
+    /** Number of entities in this cell */
+    entity_count: number;
+    /** Number of entities with relevant edges */
+    entities_with_edges: number;
+    /** Average edge density per entity */
+    average_edge_density: number;
+    /** Description of completeness state */
+    description: string;
+}
+interface TopologyCompletenessHeatmap {
+    generated_at: string;
+    /** Per-graph-layer completeness */
+    layers: {
+        entity_graph: HeatmapCell;
+        surface_graph: HeatmapCell;
+        handler_graph: HeatmapCell;
+        authority_graph: HeatmapCell;
+        contract_graph: HeatmapCell;
+        event_graph: HeatmapCell;
+        consumer_graph: HeatmapCell;
+        callback_graph: HeatmapCell;
+    };
+    /** Per-entity-type completeness breakdown */
+    entity_types: Record<string, HeatmapCell>;
+    /** Overall heatmap score */
+    overall_completeness: number;
+    /** Structural holes: layers below threshold */
+    structural_holes: Array<{
+        layer: string;
+        completeness: number;
+        recommendation: string;
+    }>;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Coverage ↔ Stability Index Correlation Engine — Phase 2.7
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Answers: "Which missing adapter capability would improve
+ *  topology stability the most?"
+ *
+ *  Enables evidence-driven adapter prioritization before
+ *  extraction.
+ *
+ *  Forward-portable to: @arch-engine/core/telemetry
+ */
+
+interface CorrelationEntry {
+    /** Topology layer name */
+    layer: string;
+    /** Current coverage score for this layer */
+    coverage_score: number;
+    /** Estimated stability impact of filling this gap */
+    estimated_stability_impact: number;
+    /** Whether this layer affects authority coverage (high weight) */
+    affects_authority: boolean;
+    /** Whether this layer affects agreement ratio (high weight) */
+    affects_agreement: boolean;
+    /** Priority rank (1 = highest impact gap) */
+    priority_rank: number;
+    /** Recommended adapter action */
+    recommendation: string;
+}
+interface IndexCorrelationReport {
+    generated_at: string;
+    /** Current topology reliability score */
+    current_stability: number;
+    /** Current overall coverage */
+    current_coverage: number;
+    /** Estimated max stability achievable by filling all gaps */
+    estimated_max_stability: number;
+    /** Per-layer correlations, sorted by impact */
+    correlations: CorrelationEntry[];
+    /** Top 3 actionable recommendations */
+    top_recommendations: string[];
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  Adapter Priority Plan Generator — Phase 2.8
+ * ═══════════════════════════════════════════════════════════
+ *
+ *  Correlation-driven adapter evolution engine.
+ *
+ *  Ingests all Phase 2.5–2.7 telemetry and produces a
+ *  self-directed adapter sequencing roadmap:
+ *    adapter-priority-plan.json
+ *
+ *  The plan ranks missing adapters by:
+ *    1. Stability impact (from correlation engine)
+ *    2. Coverage gap (from coverage index)
+ *    3. Topology completeness deficit (from heatmap)
+ *    4. Confidence quality (from confidence index)
+ *    5. Capability dependency feasibility (from registry)
+ *
+ *  Properties:
+ *    - deterministic
+ *    - diff-stable
+ *    - adapter-agnostic
+ *    - extraction-safe
+ *    - CI-gatable
+ *
+ *  Forward-portable to: @arch-engine/core/planning
+ */
+
+type PriorityConfidenceLevel = 'high' | 'medium' | 'low';
+type BlockingSeverity = 'critical' | 'important' | 'opportunistic' | 'future';
+interface AdapterPriorityEntry {
+    /** Adapter/capability area name */
+    adapter: string;
+    /** Composite priority score (0.0 – 1.0) */
+    priority_score: number;
+    /** Estimated stability gain if this adapter is implemented */
+    stability_gain: number;
+    /** Estimated coverage gain (0.0 – 1.0 scale) */
+    coverage_gain: number;
+    /** Estimated topology completeness gain */
+    completeness_gain: number;
+    /** Confidence in this priority assessment */
+    confidence: PriorityConfidenceLevel;
+    /** How urgently this adapter is needed */
+    blocking_severity: BlockingSeverity;
+    /** Topology layers this adapter would improve */
+    topology_layers: string[];
+    /** Capability keys this adapter would provide */
+    capabilities_provided: string[];
+    /** Adapters that must be implemented before this one */
+    dependencies: string[];
+    /** Evidence-based justification for this ranking */
+    justification: string;
+}
+interface AdapterPriorityPlan {
+    /** Ordered list of adapter priorities (highest first) */
+    priority_order: AdapterPriorityEntry[];
+    /** Summary statistics */
+    summary: {
+        total_adapters: number;
+        critical_count: number;
+        important_count: number;
+        opportunistic_count: number;
+        future_count: number;
+        total_stability_gain_potential: number;
+        total_coverage_gain_potential: number;
+    };
+    /** CI integration status */
+    status: {
+        highest_priority_adapter_missing: string;
+        recommended_next_stage: string;
+        extraction_readiness: number;
+        stability_ceiling: number;
+    };
+    /** Source telemetry versions (for reproducibility) */
+    sources: string[];
+}
+
+/** Impact classification for blast-radius analysis */
+type BlastRadius = 'LOCAL' | 'SERVICE' | 'CROSS_SERVICE' | 'PLATFORM' | 'SYSTEM_CRITICAL';
+/**
+ * A single node in the entity adjacency graph.
+ *
+ * The 29 named properties below form the canonical node
+ * contract. Any adapter-contributed edge arrays or metadata
+ * that fall outside this shape belong in \`extensions\`.
+ *
+ * DESIGN LAW: The root-level shape is strict. Custom
+ * adapter data goes through \`extensions\`, never as
+ * ad-hoc top-level keys. This prevents unnamed fields
+ * from silently polluting the canonical contract.
+ */
+interface AdjacencyNode {
+    /** Deterministic entity identity hash */
+    entity_id: string;
+    reads_state: string[];
+    writes_state: string[];
+    creates_state: string[];
+    deletes_state: string[];
+    dispatches_state_change: string[];
+    eventual_state_change: string[];
+    async_state_change: string[];
+    repository_read: string[];
+    repository_write: string[];
+    cache_read: string[];
+    cache_write: string[];
+    external_read: string[];
+    external_write: string[];
+    reads_from: string[];
+    writes_to: string[];
+    invokes: string[];
+    emits: string[];
+    subscribes_to: string[];
+    contracts_with: string[];
+    consumes: string[];
+    exposes: string[];
+    uses_layout: string[];
+    requires_permission: string[];
+    requires_role: string[];
+    redirects_to: string[];
+    /** Route identity keys this entity is reachable from */
+    reachable_from_routes: string[];
+    /** Whether this entity is a mutation authority */
+    mutation_authority: boolean;
+    /** Impact classification for blast-radius analysis */
+    blast_radius: BlastRadius;
+    /**
+     * Adapter-contributed edge arrays or metadata that are
+     * not part of the canonical 29-field contract.
+     *
+     * This keeps the root shape strict while allowing
+     * adapters to attach domain-specific data.
+     */
+    extensions?: Record<string, string[] | string | boolean | undefined>;
+}
+/**
+ * Individual route-to-handler resolution record.
+ *
+ * Maps a frontend route to its backend handler resolution,
+ * including controller identity, reachable services, and
+ * OpenAPI operation bindings.
+ *
+ * @stability stable (evolution-sensitive)
+ *
+ * @remarks
+ * This is the most shape-sensitive public type in the graph
+ * schema contract. The index signature (\`[key: string]: unknown\`)
+ * and diagnostic fields (e.g. \`controller_resolution_status\`)
+ * are refinement candidates for future versions.
+ *
+ * Treat this as the **primary versioning watch point** within
+ * the public contract surface. Field additions are minor bumps;
+ * field removals or type narrowing are major bumps.
+ */
+interface RouteServiceEntry {
+    /** Corresponding frontend route (null if backend-only) */
+    frontend_route: string | null;
+    /** Full backend route identity string */
+    backend_route: string;
+    /** HTTP method */
+    method: string;
+    /** Controller short name */
+    controller: string;
+    /** Fully-qualified controller class name */
+    controller_fqcn: string;
+    /** Deterministic controller entity identity hash */
+    controller_entity_id: string;
+    /** Resolution status from handler resolution pass */
+    controller_resolution_status: string;
+    /** Services reachable from this handler */
+    services: string[];
+    /** OpenAPI operation IDs mapped to this route */
+    operation_ids: string[];
+    /** Extension fields from consumer-specific route resolution */
+    [key: string]: unknown;
+}
+/** Bidirectional route-to-handler resolution map */
+interface RouteServiceMap {
+    /** Route identity → handler resolution record */
+    forward: Record<string, RouteServiceEntry>;
+    /** Handler FQCN → route identity keys (reverse lookup) */
+    reverse: Record<string, string[]>;
+}
+/** An authority boundary crossing between two entities */
+interface AuthorityCrossing {
+    /** Source entity identity */
+    source_entity_id: string;
+    /** Target entity identity */
+    target_entity_id: string;
+    /** Authority domain being crossed */
+    authority_domain: string;
+    /** Type of crossing (e.g. invocation, data access) */
+    crossing_type: string;
+    /** Route through which this crossing is reachable */
+    route_identity: string;
+}
+/**
+ * An entity record with enough identity fields for
+ * parity verification (hash stability, uniqueness,
+ * stored-ID cross-checks).
+ *
+ * Fields use optional properties because scanner outputs
+ * use fallback chains (e.g. \`class_name || fqcn\`).
+ */
+interface IdentifiableEntity {
+    /** Primary class/component name */
+    class_name?: string;
+    /** Fully-qualified class name (fallback for class_name) */
+    fqcn?: string;
+    /** Source file path */
+    file_path?: string;
+    /** Entity type classification */
+    entity_type?: string;
+    /** Pre-computed entity identity hash */
+    entity_id?: string;
+    /** Scanner-specific extra fields */
+    [key: string]: unknown;
+}
+/** A collection of entities from a single scanner source */
+interface EntitySourceCollection {
+    /** Entity records from this scanner */
+    entities: IdentifiableEntity[];
+    /** Default entity type for this collection (used when entity_type is absent on individual records) */
+    entity_type_field?: string;
+}
+interface EngineRunnerOptions {
+    /** Trust ranking config for adapter conflict resolution */
+    trustConfig?: TrustRankingConfig;
+    /** Logger function — defaults to no-op. Never console.log. */
+    logger?: EngineLogger;
+}
+/**
+ * The orchestration input for \`EngineRunner.executePipeline()\`.
+ *
+ * Each field represents a distinct semantic domain:
+ *   - graph:    adjacencyMap, crossings
+ *   - routing:  routeServiceMap
+ *   - adapters: edgesByAdapter
+ *   - identity: entitySources
+ *
+ * INVARIANT: This interface is a versioned public contract.
+ * Adding required fields is a major version bump. Adding
+ * optional fields is a minor version bump.
+ */
+interface EngineExecutionState {
+    /** Entity adjacency graph keyed by entity identity string */
+    adjacencyMap: Record<string, AdjacencyNode>;
+    /** Bidirectional route-to-handler resolution map */
+    routeServiceMap?: RouteServiceMap;
+    /** Authority boundary crossings to analyze */
+    crossings?: AuthorityCrossing[];
+    /** Edges grouped by adapter ID for cross-adapter reconciliation */
+    edgesByAdapter: Record<string, ReconcilableEdge[]>;
+    /** Scanner output collections for identity parity verification */
+    entitySources?: EntitySourceCollection[];
+}
+/**
+ * The immutable result from \`EngineRunner.executePipeline()\`.
+ *
+ * Every field is a snapshot or computed report — never a live
+ * reference to engine internals. All types are explicitly
+ * declared interfaces, not inferred implementation details.
+ *
+ * INVARIANT: Removing or renaming a field is a major version
+ * bump. Adding a field is a minor version bump.
+ */
+interface EngineExecutionResult {
+    /** Frozen capability registry snapshot */
+    capabilitySnapshot: ReturnType<AdapterCapabilityRegistry['toSnapshot']>;
+    /** Frozen trust ranking snapshot */
+    trustSnapshot: ReturnType<AdapterTrustRegistry['toSnapshot']>;
+    /** Cross-adapter edge reconciliation diagnostic trace */
+    reconciliationTrace: ReconciliationTrace;
+    /** Consensus-boosted duplicate edges */
+    boostedEdges: BoostedEdge[];
+    /** Confidence-aware entity reachability from routes */
+    reachability: ConfidenceAwareReachabilityEntry[];
+    /** Governance gate capability coverage assessment */
+    capabilityNegotiation: NegotiationResult;
+    /** Canonical promoted edge authority index */
+    canonicalIndex: CanonicalEdgeIndex;
+    /** Governance pack enforcement results */
+    capabilityEnforcement: CapabilityEnforcementResult;
+    /** Composite topology reliability score and blast-radius analysis */
+    stabilityIndex: GraphStabilityIndex;
+    /** Per-layer adapter coverage assessment */
+    coverageIndex: CoverageIndex;
+    /** Edge provenance attribution index */
+    provenanceIndex: ProvenanceIndex;
+    /** Cross-language identity parity verification */
+    identityParity: IdentityParityReport;
+    /** Per-layer topology completeness heatmap */
+    heatmap: TopologyCompletenessHeatmap;
+    /** Coverage↔stability gap correlation report */
+    correlation: IndexCorrelationReport;
+    /** Adapter evolution priority plan */
+    priorityPlan: AdapterPriorityPlan;
+}
+declare class EngineRunner {
+    private registry;
+    private trustRegistry;
+    private engineManifest;
+    private activeAdapters;
+    private logger;
+    constructor(engineManifest: EngineManifest, options?: EngineRunnerOptions);
+    /**
+     * Load an adapter pack into this engine instance.
+     * Must be called before executePipeline().
+     */
+    loadAdapterPack(pack: AdapterPack): Promise<void>;
+    /**
+     * Deterministically evaluate the full reasoning topology pipeline.
+     *
+     * Freezes the adapter registry, then executes reconciliation,
+     * confidence propagation, and topology synthesis in fixed order.
+     *
+     * Returns immutable snapshots — never live registry references.
+     */
+    executePipeline(state: EngineExecutionState): Promise<EngineExecutionResult>;
+}
+
+export { type AdapterCapabilityDescriptor, type AdapterContext, type AdapterManifest, type AdapterPack, type AdapterTrustScore, type AdjacencyNode, type AllowMatch, type ArchitectureAdapter, type AuthorityCrossing, type BlastRadius, type CapabilityMap, type ClassificationStrategy, type CompatibilityResult, type ComposedPolicy, type ComposedRuleDef, type ComposedRules, type ConfidenceWeightedBlastRadius, type CoverageLevel, EdgeConfidenceLevel, type EdgeTypeTrustOverride, type EngineExecutionResult, type EngineExecutionState, type EngineManifest, EngineRunner, type EngineRunnerOptions, type EvaluatorEdge, GOVERNANCE_TELEMETRY_SCHEMA_VERSION, type GraphStabilityIndex, type MergeAuthority, type ParsedPolicy, type PolicyConfig, type PolicyDomainDef, type PolicyEvaluationResult, type PolicyMode, type PolicyRuleDef, type PolicyRules, type PolicySeverity, type PolicyStackEntry, type PolicyTier, type PolicyViolation, type RankedAuthorityCrossing, type ReconcilableEdge, type RouteServiceEntry, type RouteServiceMap, type TrustRankingConfig, type ViolationCategory, computeGraphStabilityIndex, computeWeightedBlastRadii, evaluatePolicy, loadEngineManifest, loadPolicyConfig, parseEngineManifest, rankAuthorityCrossings, resolveSeverity, validateAdapterCompatibility };
+"
+`;
+
+exports[`public types surface — declaration file freeze contract > parsers.d.ts exists and snapshot is stable 1`] = `
+"declare function parseAuthorityRegistry(content: string): any[];
+declare function parseInvariantRegistry(content: string): any[];
+declare function parseJourneyCoverage(content: string): any[];
+declare function parseDecisionImpactMap(content: string): any[];
+declare function parseDeploymentDependencies(content: string): any[];
+declare function parseContractsParity(content: string): any[];
+declare function parsePeripheralSurfaceTaxonomy(content: string): any[];
+declare function parseServiceIndex(content: string): {
+    name: string;
+    domain: string;
+    path: string;
+}[];
+declare function parseModelIndex(content: string): {
+    name: string;
+    domain: string;
+}[];
+declare function parseJobIndex(content: string): {
+    name: string;
+    domain: string;
+}[];
+declare function parseEventIndex(content: string): {
+    name: string;
+    domain: string;
+    broadcast: boolean;
+}[];
+
+export { parseAuthorityRegistry, parseContractsParity, parseDecisionImpactMap, parseDeploymentDependencies, parseEventIndex, parseInvariantRegistry, parseJobIndex, parseJourneyCoverage, parseModelIndex, parsePeripheralSurfaceTaxonomy, parseServiceIndex };
+"
+`;

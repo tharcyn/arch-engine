@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://vendoor.com/schemas/traversal-output.schema.json",
+  "title": "Traversal Pilot Output Schema",
+  "type": "object",
+  "required": [
+    "traversal_id",
+    "trigger_route",
+    "entry_controller",
+    "execution_path",
+    "terminal_state",
+    "invariants_evaluated",
+    "breaches"
+  ],
+  "properties": {
+    "traversal_id": { "type": "string" },
+    "trigger_route": { "type": "string" },
+    "entry_controller": { "type": "string" },
+    "execution_path": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "entity", "action"],
+        "properties": {
+          "step": { "type": "integer" },
+          "entity": { "type": "string" },
+          "action": { "type": "string" }
+        }
+      }
+    },
+    "terminal_state": { "type": "string" },
+    "invariants_evaluated": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "breaches": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

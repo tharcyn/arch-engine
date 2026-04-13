@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`deterministic build replay — identity reproducibility proof > snapshot: hash outputs are frozen as protocol contract 1`] = `
+{
+  "closureHash": "80a845184f8f144d06617f62f8a28d5931720fc828598dfc488f250aa3e46787",
+  "effectiveHash": "39cefe141a7d5930cc484050fdc0e9487bd5520b36450e3ad6092bb1432fb4f9",
+}
+`;

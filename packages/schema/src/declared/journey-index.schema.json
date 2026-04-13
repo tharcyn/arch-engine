@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/journey-index",
+  "title": "Declared Journey Index",
+  "description": "Schema for normalized journey coverage map output. Each entry maps a user journey to all participating architecture components.",
+  "type": "object",
+  "required": ["declared_journeys"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_journeys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/journey_entry"
+      }
+    }
+  },
+  "definitions": {
+    "journey_entry": {
+      "type": "object",
+      "required": ["journey_name", "controllers", "services", "events", "jobs"],
+      "additionalProperties": false,
+      "properties": {
+        "journey_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical journey identifier using kebab-case."
+        },
+        "routes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Route paths participating in this journey."
+        },
+        "controllers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Controller classes and methods involved."
+        },
+        "services": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Service classes and methods orchestrating this journey."
+        },
+        "events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Domain events emitted during this journey."
+        },
+        "jobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Background jobs triggered by this journey."
+        },
+        "contracts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "API contracts consumed by this journey."
+        },
+        "frontend_composables": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Vue composables bound to this journey."
+        },
+        "frontend_routes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Frontend route paths for this journey."
+        },
+        "tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Test classes validating this journey."
+        },
+        "runtime_sentinels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Runtime guards or sentinels protecting journey integrity."
+        },
+        "protected_invariants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Invariant references this journey depends on."
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Optional freeform notes."
+        }
+      }
+    }
+  }
+}

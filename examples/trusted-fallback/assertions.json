@@ -1,0 +1,13 @@
+{
+  "providerSelected": "fallback-provider",
+  "fallbackUsed": true,
+  "mirrorEquivalent": true,
+  "conflictDetected": false,
+  "resolutionOutcome": "deterministic",
+  "identityReproducibility": {
+    "descriptorMatrixSchemaVersion": "R0-v1",
+    "topologyVersion": "1.0.0",
+    "registryId": "registry-central",
+    "executionInvariant": "deterministic"
+  }
+}

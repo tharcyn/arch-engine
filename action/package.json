@@ -1,0 +1,18 @@
+{
+  "name": "arch-engine-action",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/action.ts --format esm --target node20 --outDir dist"
+  },
+  "dependencies": {
+    "@arch-engine/core": "4.0.0",
+    "@arch-engine/adapter-monorepo": "4.0.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

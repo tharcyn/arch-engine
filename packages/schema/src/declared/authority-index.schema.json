@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vendoor-kb/declared/authority-index",
+  "title": "Declared Authority Index",
+  "description": "Schema for normalized authority registry output. Each entry defines a single mutable entity's authority boundary: who may write, what surfaces are exposed, and what invariants are protected.",
+  "type": "object",
+  "required": ["declared_authorities"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_authorities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/authority_entry"
+      }
+    }
+  },
+  "definitions": {
+    "authority_entry": {
+      "type": "object",
+      "required": ["entity", "authority_owner_entity", "allowed_writers", "forbidden_writers", "mutation_surfaces", "protected_invariants", "mutation_authority", "source_file"],
+      "additionalProperties": false,
+      "properties": {
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The mutable entity this authority boundary governs."
+        },
+        "mutation_authority": {
+          "type": "boolean",
+          "description": "Whether this entity governs writes to financial, ledger, inventory, order lifecycle, or settlement state."
+        },
+        "authority_owner_entity": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "The service or component entities that hold sole mutation authority."
+        },
+        "allowed_writers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Controllers and services permitted to invoke the authority path."
+        },
+        "forbidden_writers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Discrete forbidden-zone rules. Each entry is a single prohibition. Must NOT be a concatenated string blob."
+        },
+        "mutation_surfaces": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Specific method calls that constitute the write path."
+        },
+        "protected_invariants": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^INV-" },
+          "description": "Invariant IDs protected by this authority boundary."
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Optional freeform notes from the source document."
+        },
+        "source_file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Source markdown file this entry was extracted from."
+        }
+      }
+    }
+  }
+}

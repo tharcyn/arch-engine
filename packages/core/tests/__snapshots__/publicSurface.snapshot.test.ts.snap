@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`public surface snapshot — root barrel boundary > snapshot matches approved export surface 1`] = `
+[
+  "EngineRunner",
+  "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
+  "computeGraphStabilityIndex",
+  "computeWeightedBlastRadii",
+  "evaluatePolicy",
+  "loadEngineManifest",
+  "loadPolicyConfig",
+  "parseEngineManifest",
+  "rankAuthorityCrossings",
+  "resolveSeverity",
+  "validateAdapterCompatibility",
+]
+`;

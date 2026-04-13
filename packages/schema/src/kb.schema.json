@@ -1,0 +1,246 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vendoor KB Architecture Schema",
+  "description": "Machine-consumable architecture enforcement schema. All definitions use additionalProperties: false to prevent silent drift.",
+  "type": "object",
+  "required": ["entities", "services", "models", "controllers", "jobs", "events", "frontend_routes", "frontend_composables", "frontend_stores", "openapi_paths"],
+  "additionalProperties": false,
+  "definitions": {
+    "verification_level": {
+      "type": "string",
+      "enum": ["declared", "static_verified", "test_verified", "runtime_verified"]
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": ["model", "service", "controller", "job", "event", "route", "composable", "store", "openapi_path", "enum", "middleware", "policy", "observer", "listener", "notification", "action"]
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "auth", "merchants", "machines", "inventory", "orders", "wallets",
+        "payments", "settlements", "analytics", "support", "notifications",
+        "machine-callbacks", "admin-monitoring", "design-system"
+      ]
+    },
+    "entity": {
+      "type": "object",
+      "required": [
+        "id", "type", "domain", "authority_owner", "source_of_truth",
+        "blast_radius", "invariants", "journeys", "code_refs", "verification_level"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/definitions/entity_type" },
+        "domain": { "$ref": "#/definitions/domain" },
+        "authority_owner": { "type": "string", "minLength": 1 },
+        "source_of_truth": { "type": "string", "minLength": 1 },
+        "blast_radius": { "type": "array", "items": { "type": "string" } },
+        "invariants": { "type": "array", "items": { "type": "string" } },
+        "journeys": { "type": "array", "items": { "type": "string" } },
+        "code_refs": { "type": "array", "items": { "type": "string" } },
+        "verification_level": { "$ref": "#/definitions/verification_level" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "dependency_entry": {
+      "oneOf": [
+        {
+          "type": "string",
+          "deprecated": true,
+          "description": "DEPRECATED: Use structured dependency_entry object form. String form will be removed post-Phase 6."
+        },
+        {
+          "type": "object",
+          "required": ["name", "type"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "type": { "type": "string", "enum": ["reads_from", "writes_to", "invokes", "emits", "subscribes_to", "contracts_with", "exposes", "consumes", "uses_layout", "requires_permission", "requires_role", "redirects_to"] },
+            "confidence": { "type": "string", "enum": ["namespace_inferred", "ast_verified", "runtime_verified", "manual_override"] }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "service": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies", "events_emitted", "jobs_dispatched", "models_touched"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } },
+        "interfaces": { "type": "array", "items": { "type": "string" } },
+        "events_emitted": { "type": "array", "items": { "type": "string" } },
+        "jobs_dispatched": { "type": "array", "items": { "type": "string" } },
+        "models_touched": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies", "events_emitted"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "events_emitted": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "controller": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies", "routes_exposed"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } },
+        "routes_exposed": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "job": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies", "models_touched", "events_emitted"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } },
+        "models_touched": { "type": "array", "items": { "type": "string" } },
+        "events_emitted": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } }
+      },
+      "additionalProperties": false
+    },
+    "backend_route": {
+      "type": "object",
+      "required": ["file_path", "method", "uri", "controller", "controller_method"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "file_path": { "type": "string", "minLength": 1 },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "uri": { "type": "string", "minLength": 1 },
+        "controller": { "type": "string", "minLength": 1 },
+        "controller_fqcn": {
+          "type": ["string", "null"],
+          "description": "Fully-qualified controller class name resolved from PHP use-import statements in the route file"
+        },
+        "controller_resolution": {
+          "type": "string",
+          "enum": ["use_import", "fqcn_literal", "unresolved", "artisan_verified", "closure_literal"],
+          "description": "Resolution provenance: artisan_verified, closure_literal, use_import, fqcn_literal, unresolved."
+        },
+        "controller_method": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } }
+      },
+      "additionalProperties": false
+    },
+    "listener": {
+      "type": "object",
+      "required": ["class_name", "file_path", "dependencies"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "class_name": { "type": "string", "minLength": 1 },
+        "file_path": { "type": "string", "minLength": 1 },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } }
+      },
+      "additionalProperties": false
+    },
+    "frontend_route": {
+      "type": "object",
+      "required": ["route_name", "view_file", "api_clients_used", "query_keys", "mutation_keys", "stores_used"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "route_name": { "type": "string", "minLength": 1 },
+        "view_file": { "type": "string" },
+        "api_clients_used": { "type": "array", "items": { "type": "string" } },
+        "query_keys": { "type": "array", "items": { "type": "string" } },
+        "mutation_keys": { "type": "array", "items": { "type": "string" } },
+        "stores_used": { "type": "array", "items": { "type": "string" } },
+        "route_component": { "type": "string" },
+        "route_layout": { "type": "string" },
+        "route_guard": { "type": "string" },
+        "route_permissions": { "type": "array", "items": { "type": "string" } },
+        "redirect_target": { "type": "string" },
+        "route_namespace": { "type": "string" },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } }
+      },
+      "additionalProperties": false
+    },
+    "composable": {
+      "type": "object",
+      "required": ["file_path", "query_keys", "mutation_keys"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "file_path": { "type": "string", "minLength": 1 },
+        "query_keys": { "type": "array", "items": { "type": "string" } },
+        "mutation_keys": { "type": "array", "items": { "type": "string" } },
+        "api_clients_used": { "type": "array", "items": { "type": "string" } },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } }
+      },
+      "additionalProperties": false
+    },
+    "store": {
+       "type": "object",
+       "required": ["file_path", "api_clients_used"],
+       "properties": {
+         "entity_id": { "type": "string" },
+         "file_path": { "type": "string", "minLength": 1 },
+         "api_clients_used": { "type": "array", "items": { "type": "string" } }
+       },
+       "additionalProperties": false
+    },
+    "openapi_path": {
+      "type": "object",
+      "required": ["endpoint", "method", "operationId"],
+      "properties": {
+        "entity_id": { "type": "string" },
+        "endpoint": { "type": "string", "minLength": 1 },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "operationId": { "type": "string", "minLength": 1 },
+        "controller": { "type": "string" },
+        "frontend_client": { "type": "string" },
+        "request_schema": { "type": "string" },
+        "response_schema": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "dependencies": { "type": "array", "items": { "$ref": "#/definitions/dependency_entry" } },
+        "x-internal": { "type": "boolean" },
+        "deprecated": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "entities": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/entity" }
+    },
+    "services": { "type": "array", "items": { "$ref": "#/definitions/service" } },
+    "models": { "type": "array", "items": { "$ref": "#/definitions/model" } },
+    "controllers": { "type": "array", "items": { "$ref": "#/definitions/controller" } },
+    "jobs": { "type": "array", "items": { "$ref": "#/definitions/job" } },
+    "events": { "type": "array", "items": { "$ref": "#/definitions/event" } },
+    "routes": { "type": "array", "items": { "$ref": "#/definitions/backend_route" } },
+    "frontend_routes": { "type": "array", "items": { "$ref": "#/definitions/frontend_route" } },
+    "frontend_composables": { "type": "array", "items": { "$ref": "#/definitions/composable" } },
+    "frontend_stores": { "type": "array", "items": { "$ref": "#/definitions/store" } },
+    "openapi_paths": { "type": "array", "items": { "$ref": "#/definitions/openapi_path" } }
+  }
+}

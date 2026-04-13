@@ -1,0 +1,102 @@
+[
+  {
+    "qualified_name": "App\\Models\\Order",
+    "file_path": "app/Models/Order.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Models\\CustomerWallet",
+    "file_path": "app/Models/CustomerWallet.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Models\\MerchantWallet",
+    "file_path": "app/Models/MerchantWallet.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Models\\VendingMachine",
+    "file_path": "app/Models/VendingMachine.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Models\\InventoryMovement",
+    "file_path": "app/Models/InventoryMovement.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Services\\Inventory\\InventoryLedgerService",
+    "file_path": "app/Services/Inventory/InventoryLedgerService.php",
+    "entity_type": "service"
+  },
+  {
+    "qualified_name": "App\\Services\\Finance\\SettlementService",
+    "file_path": "app/Services/Finance/SettlementService.php",
+    "entity_type": "service"
+  },
+  {
+    "qualified_name": "App\\Services\\Customer\\WalletService",
+    "file_path": "app/Services/Customer/WalletService.php",
+    "entity_type": "service"
+  },
+  {
+    "qualified_name": "App\\Services\\Order\\OrderStateService",
+    "file_path": "app/Services/Order/OrderStateService.php",
+    "entity_type": "service"
+  },
+  {
+    "qualified_name": "App\\Http\\Controllers\\Commerce\\OrderController",
+    "file_path": "app/Http/Controllers/Commerce/OrderController.php",
+    "entity_type": "controller"
+  },
+  {
+    "qualified_name": "App\\Http\\Controllers\\Webhook\\PaymentWebhookController",
+    "file_path": "app/Http/Controllers/Webhook/PaymentWebhookController.php",
+    "entity_type": "controller"
+  },
+  {
+    "qualified_name": "App\\Http\\Controllers\\Admin\\FinanceController",
+    "file_path": "app/Http/Controllers/Admin/FinanceController.php",
+    "entity_type": "controller"
+  },
+  {
+    "qualified_name": "App\\Jobs\\ProcessPaymentVerification",
+    "file_path": "app/Jobs/ProcessPaymentVerification.php",
+    "entity_type": "job"
+  },
+  {
+    "qualified_name": "App\\Jobs\\MonitorFleetHealth",
+    "file_path": "app/Jobs/MonitorFleetHealth.php",
+    "entity_type": "job"
+  },
+  {
+    "qualified_name": "App\\Events\\OrderCreated",
+    "file_path": "app/Events/OrderCreated.php",
+    "entity_type": "event"
+  },
+  {
+    "qualified_name": "App\\Events\\PaymentVerified",
+    "file_path": "app/Events/PaymentVerified.php",
+    "entity_type": "event"
+  },
+  {
+    "qualified_name": "App\\Events\\VendDispenseCompleted",
+    "file_path": "app/Events/VendDispenseCompleted.php",
+    "entity_type": "event"
+  },
+  {
+    "qualified_name": "App\\Models\\WalletTransaction",
+    "file_path": "app/Models/WalletTransaction.php",
+    "entity_type": "model"
+  },
+  {
+    "qualified_name": "App\\Services\\Machine\\MachineStatusService",
+    "file_path": "app/Services/Machine/MachineStatusService.php",
+    "entity_type": "service"
+  },
+  {
+    "qualified_name": "App\\Http\\Controllers\\Customer\\WalletController",
+    "file_path": "app/Http/Controllers/Customer/WalletController.php",
+    "entity_type": "controller"
+  }
+]
