@@ -3,7 +3,13 @@
   "version": "1.0.0-rc.3",
   "private": true,
   "description": "Framework-agnostic architecture reasoning engine — topology intelligence, contract parity validation, invariant enforcement, and simulation traversal.",
-  "keywords": ["architecture", "topology", "determinism", "policy-engine", "federation"],
+  "keywords": [
+    "architecture",
+    "topology",
+    "determinism",
+    "policy-engine",
+    "federation"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/tharcyn/arch-engine.git"

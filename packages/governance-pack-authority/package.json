@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/governance-pack-authority",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0",
   "description": "Authority ownership governance pack — invariant protection, authority boundary, blast radius safety, deployment cascade.",
   "license": "MIT",
   "type": "module",
@@ -32,8 +32,12 @@
       "require": "./dist/index.js"
     }
   },
-  "scripts": { "build": "tsc --project tsconfig.json" },
-  "dependencies": { "@arch-engine/core": "1.0.0-rc.3" },
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@arch-engine/core": "^1.0.0"
+  },
   "files": [
     "dist",
     "README.md",

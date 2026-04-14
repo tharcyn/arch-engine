@@ -4,7 +4,7 @@ Architecture governance policy pack extending topology validation rules for jour
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/governance-pack-journey@rc
+npm install @arch-engine/governance-pack-journey
 \`\`\`
 
 ## Usage

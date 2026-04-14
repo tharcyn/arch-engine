@@ -26,7 +26,7 @@ import { detectRegressions, type RegressionResult } from './regressionDetector.j
 import { mapAnnotations, emitAnnotations, type CrossingEntry } from './annotationMapper.js';
 import { writeBadges } from './badgeRenderer.js';
 import { renderSummary, type SummaryInput } from './summaryRenderer.js';
-import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';
+import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type AdjacencyNode } from '@arch-engine/core';
 
 // ─── GitHub Actions Helpers ─────────────────────────────
 
@@ -145,10 +145,10 @@ async function run(): Promise<void> {
     const runner = new EngineRunner(manifest, { logger: () => {} });
     const pipelineStart = Date.now();
     const engineResult = await runner.executePipeline({
-      adjacencyMap: extraction.adjacencyMap,
-      routeServiceMap: extraction.routeServiceMap,
+      adjacencyMap: extraction.adjacencyMap as any as Record<string, AdjacencyNode>,
+      routeServiceMap: { forward: extraction.routeServiceMap.forward as any, reverse: {} },
       crossings: extraction.authorityCrossings,
-      edgesByAdapter: extraction.edgesByAdapter,
+      edgesByAdapter: extraction.edgesByAdapter as any,
     });
     const pipelineMs = Date.now() - pipelineStart;
     const totalMs = Date.now() - totalStart;
@@ -189,7 +189,7 @@ async function run(): Promise<void> {
     });
 
     // Global policy detected computation
-    const policyCfgPath = `${cwd}/.archengine/policy.yml`;
+    const policyCfgPath = `${cwd}/.arch-engine/policy.yml`;
     const policyExists = fs.existsSync(policyCfgPath);
 
     // Policy Evaluation
@@ -201,7 +201,7 @@ async function run(): Promise<void> {
       for (const [src, targets] of Object.entries(extraction.adjacencyMap)) {
         for (const t of targets) edges.push({ source: src, target: t });
       }
-      policyEval = evaluatePolicy(edges, policyDoc.config, confLabel, policyDoc.hash);
+      policyEval = evaluatePolicy(edges, { ...policyDoc.config, effectiveHash: policyDoc.hash } as any, confLabel, policyDoc.hash);
     }
 
     // 7. Set action outputs
@@ -319,9 +319,11 @@ async function run(): Promise<void> {
       blockerCount,
       domainDistribution,
       regression,
-      config,
+      config: {
+        ...config,
+        failOnFallback: config.failOnFallbackMode,
+      },
       policyEval, // Pass policy eval object
-      policyExists, // Pass to summary template
       executionMetrics: { extractionMs, pipelineMs, totalMs },
     });
 

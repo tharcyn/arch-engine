@@ -4,7 +4,7 @@ Canonical schema contracts and shared types for Arch-Engine topology reasoning.
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/schema@rc
+npm install @arch-engine/schema
 \`\`\`
 
 ## Usage

@@ -4,7 +4,7 @@ Architecture governance policy pack extending topology validation rules for auth
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/governance-pack-authority@rc
+npm install @arch-engine/governance-pack-authority
 \`\`\`
 
 ## Usage

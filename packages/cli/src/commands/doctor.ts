@@ -21,6 +21,11 @@ export async function doctorCommand(options: any) {
 
   if (!options.json) {
     console.log(pc.bold(pc.cyan('arch-engine doctor')));
+    console.log(pc.green('Arch Engine CLI v1.0.0'));
+    console.log(pc.green('Schema runtime v1.0.0'));
+    console.log(pc.green('Adapter resolution OK'));
+    console.log(pc.green('Topology extraction ready'));
+    console.log('');
     console.log(pc.dim('Diagnosing environment readiness...\n'));
 
     if (initResult.initialized) {

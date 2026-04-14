@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/governance-pack-journey",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0",
   "description": "Journey lifecycle governance pack — journey coverage regression detection.",
   "license": "MIT",
   "type": "module",
@@ -32,8 +32,12 @@
       "require": "./dist/index.js"
     }
   },
-  "scripts": { "build": "tsc --project tsconfig.json" },
-  "dependencies": { "@arch-engine/core": "1.0.0-rc.3" },
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@arch-engine/core": "^1.0.0"
+  },
   "files": [
     "dist",
     "README.md",

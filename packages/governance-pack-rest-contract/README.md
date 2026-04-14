@@ -4,7 +4,7 @@ Architecture governance policy pack extending topology validation rules for REST
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/governance-pack-rest-contract@rc
+npm install @arch-engine/governance-pack-rest-contract
 \`\`\`
 
 ## Usage

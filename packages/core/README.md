@@ -4,7 +4,7 @@ Capability-driven architecture topology reasoning runtime.
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/core@rc
+npm install @arch-engine/core
 \`\`\`
 
 ## Usage

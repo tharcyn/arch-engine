@@ -46,8 +46,8 @@ export interface BridgeExecutionResult {
   engineResult: EngineExecutionResult;
   extractionMetadata: import('@arch-engine/adapter-monorepo').ExtractionMetadata;
   adjacencyMap: Record<string, string[]>;
-  isAutodiscovered: boolean;
-  autodiscoveryMessage?: string;
+  isAutoDiscovered: boolean;
+  autoDiscoveryMessage?: string;
   durationMs: number;
   executionMetrics: ExecutionMetrics;
 }
@@ -98,10 +98,10 @@ export async function executeRunnerBridge(
 
   // 3. Map adapter output to EngineExecutionState
   const state: EngineExecutionState = {
-    adjacencyMap: extraction.adjacencyMap,
-    routeServiceMap: extraction.routeServiceMap,
+    adjacencyMap: extraction.adjacencyMap as any,
+    routeServiceMap: { forward: extraction.routeServiceMap.forward as any, reverse: {} },
     crossings: extraction.authorityCrossings,
-    edgesByAdapter: extraction.edgesByAdapter,
+    edgesByAdapter: extraction.edgesByAdapter as any,
   };
 
   // 4. Execute reasoning pipeline (timed)
@@ -115,8 +115,8 @@ export async function executeRunnerBridge(
     engineResult,
     extractionMetadata: extraction.metadata,
     adjacencyMap: extraction.adjacencyMap,
-    isAutodiscovered: discoveryResult.isFallback,
-    autodiscoveryMessage: discoveryResult.message,
+    isAutoDiscovered: discoveryResult.isFallback,
+    autoDiscoveryMessage: discoveryResult.message,
     durationMs: totalMs,
     executionMetrics: {
       extractionMs,

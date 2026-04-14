@@ -3,7 +3,7 @@
  *  @arch-engine/cli — Auto-Init Fallback Engine
  * ═══════════════════════════════════════════════════════════
  *
- *  Bootstraps the `.archengine/` runtime context directory
+ *  Bootstraps the `.arch-engine/` runtime context directory
  *  on first run without requiring user configuration.
  *
  *  INVARIANTS:
@@ -29,11 +29,11 @@ export interface AutoInitResult {
 }
 
 /**
- * Detect absence of `.archengine/` and bootstrap it if missing.
+ * Detect absence of `.arch-engine/` and bootstrap it if missing.
  * Returns a result describing what was created.
  */
 export function autoInitializeArchitectureContext(rootDir: string): AutoInitResult {
-  const contextDir = path.join(rootDir, '.archengine');
+  const contextDir = path.join(rootDir, '.arch-engine');
   const filesCreated: string[] = [];
 
   // Already initialized — do nothing
@@ -97,7 +97,7 @@ export function computeRepoHash(rootDir: string): string {
 }
 
 /**
- * Ensure `.archengine/` is in .gitignore if the file exists.
+ * Ensure `.arch-engine/` is in .gitignore if the file exists.
  * Never creates .gitignore — only appends if it exists.
  */
 function ensureGitignoreEntry(rootDir: string): void {
@@ -106,9 +106,9 @@ function ensureGitignoreEntry(rootDir: string): void {
 
   try {
     const content = fs.readFileSync(gitignorePath, 'utf-8');
-    if (!content.includes('.archengine/')) {
+    if (!content.includes('.arch-engine/')) {
       // Do NOT append — respect existing gitignore. Just note it.
-      // Users should add .archengine/ themselves if desired.
+      // Users should add .arch-engine/ themselves if desired.
     }
   } catch {
     // Permission error — skip silently

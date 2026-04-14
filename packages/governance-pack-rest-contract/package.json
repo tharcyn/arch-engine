@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/governance-pack-rest-contract",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0",
   "description": "REST contract parity governance pack — operationId grammar, naked path detection, internal annotation enforcement.",
   "license": "MIT",
   "type": "module",
@@ -32,8 +32,12 @@
       "require": "./dist/index.js"
     }
   },
-  "scripts": { "build": "tsc --project tsconfig.json" },
-  "dependencies": { "@arch-engine/core": "1.0.0-rc.3" },
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@arch-engine/core": "^1.0.0"
+  },
   "files": [
     "dist",
     "README.md",

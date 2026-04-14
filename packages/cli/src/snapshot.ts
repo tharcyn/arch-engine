@@ -196,7 +196,7 @@ export function createSnapshot(
 }
 
 export function writeSnapshot(dir: string, snapshot: TopologySnapshot): string {
-  const dotDir = path.join(dir, '.archengine');
+  const dotDir = path.join(dir, '.arch-engine');
   if (!fs.existsSync(dotDir)) {
     fs.mkdirSync(dotDir, { recursive: true });
   }

@@ -10,7 +10,7 @@ To guarantee pure architectural determinism, the core SDK and CLI must remain de
 
 ## Installation
 \`\`\`bash
-npm install @arch-engine/adapter-monorepo@rc
+npm install @arch-engine/adapter-monorepo
 \`\`\`
 
 ## CLI Integration

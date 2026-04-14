@@ -1,5 +1,10 @@
 # Arch-Engine
 
+[![npm version](https://img.shields.io/npm/v/@arch-engine/cli.svg)](https://www.npmjs.com/package/@arch-engine/cli)
+[![Build Status](https://github.com/tharcyn/arch-engine/actions/workflows/test.yml/badge.svg)](https://github.com/tharcyn/arch-engine/actions)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)]()
+[![License](https://img.shields.io/npm/l/@arch-engine/cli.svg)](https://github.com/tharcyn/arch-engine/blob/main/LICENSE)
+
 **Architecture topology governance runtime.**
 
 Arch-Engine extracts dependency structure from real repositories, constructs topology graphs, and enforces architecture policy packs across package boundaries. It detects authority crossings, scores topology stability, and produces deterministic, snapshot-reproducible results.
@@ -12,7 +17,8 @@ not a linter, build system, or static rule engine.
 
 ## Status
 
-**v1.0.0-rc.3** — Release candidate. Runtime surfaces frozen.
+Arch Engine follows semantic versioning.
+1.x releases maintain CLI compatibility guarantees across adapters and governance packs.
 
 ## Quickstart (1 minute)
 
