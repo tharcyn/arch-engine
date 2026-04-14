@@ -166,7 +166,7 @@ export async function checkCommand(options: any) {
     if (!options.json) {
       console.error(pc.red(`\n✖ Detected ${blockerCount} internal BLOCKER violation(s).`));
       const blockers = engineResult.stabilityIndex.authority_crossings.entries
-        .filter(c => c.recommended_severity === 'BLOCKER');
+        .filter((c: any) => c.recommended_severity === 'BLOCKER');
       for (const b of blockers.slice(0, 5)) {
         console.error(pc.red(`  ${b.source_entity} → ${b.target_entity} [${b.authority_domain}]`));
       }

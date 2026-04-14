@@ -37,8 +37,8 @@ export async function analyzeCommand(options: any) {
   // Domain distribution (adapter resolved lazily via runner-bridge)
   const adapter = await loadMonorepoAdapter();
   const extraction = adapter.runMonorepoExtraction(cwd);
-  const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward).map(
-    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
+  const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward as Record<string, unknown>).map(
+    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain((entry as any).backend_route) }),
   );
   const domainDist = countDomainDistribution(fwdDomainPkgs);
   const domainIntegrity = checkDomainIntegrity(domainDist);
@@ -85,12 +85,12 @@ export async function analyzeCommand(options: any) {
   }
 
   // ── Authority Domain Distribution ───────────────────────
-  const activeDomains = Object.entries(domainDist).filter(([, c]) => c > 0);
+  const activeDomains = Object.entries(domainDist as Record<string, unknown>).filter(([, c]) => (c as number) > 0);
   if (activeDomains.length > 0) {
     console.log(`\n  ${pc.bold('Authority Domains:')}`);
     for (const [domain, count] of activeDomains) {
       const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
-      console.log(`    ${icon} ${domain}: ${pc.bold(count)}`);
+      console.log(`    ${icon} ${domain}: ${pc.bold(count as number)}`);
     }
   }
 

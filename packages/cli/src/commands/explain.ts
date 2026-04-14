@@ -45,7 +45,7 @@ export async function explainCommand(target: string, options: any) {
 
   // Tolerant match: search both source and target fields
   const matches = canonicalIndex.edges.filter(
-    e => e.source.toLowerCase().includes(target.toLowerCase()) ||
+    (e: any) => e.source.toLowerCase().includes(target.toLowerCase()) ||
          e.target.toLowerCase().includes(target.toLowerCase()),
   );
 
@@ -58,7 +58,7 @@ export async function explainCommand(target: string, options: any) {
     }
 
     const suggestions = [...allEntities]
-      .filter(e => e.toLowerCase().includes(target.toLowerCase().slice(0, 3)))
+      .filter((e: string) => e.toLowerCase().includes(target.toLowerCase().slice(0, 3)))
       .slice(0, 5);
 
     if (options.json) {
@@ -239,7 +239,7 @@ async function explainPolicy(cwd: string, options: any) {
 
   let violations = evalResult.violations;
   if (targetRuleId) {
-    violations = violations.filter(v => v.ruleId === targetRuleId || v.ruleSource === targetRuleId);
+    violations = violations.filter((v: any) => v.ruleId === targetRuleId || v.ruleSource === targetRuleId);
   }
 
   if (options.json) {

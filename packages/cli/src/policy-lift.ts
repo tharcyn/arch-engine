@@ -47,8 +47,8 @@ export function liftToComposedPolicy(
     effectiveHash: policyHash,
     rules: config.rules
       ? {
-          allow: config.rules.allow?.map(r => liftRule(r, policyHash)),
-          forbid: config.rules.forbid?.map(r => liftRule(r, policyHash)),
+          allow: config.rules.allow?.map((r: PolicyRuleDef) => liftRule(r, policyHash)),
+          forbid: config.rules.forbid?.map((r: PolicyRuleDef) => liftRule(r, policyHash)),
         }
       : undefined,
   };

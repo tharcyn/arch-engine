@@ -27,8 +27,8 @@ export async function inspectCommand(options: any) {
   const meta = extraction.metadata;
 
   // Domain distribution
-  const domainPackages = Object.entries(extraction.routeServiceMap.forward).map(
-    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
+  const domainPackages = Object.entries(extraction.routeServiceMap.forward as Record<string, unknown>).map(
+    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain((entry as any).backend_route) }),
   );
   const domainDist = countDomainDistribution(domainPackages);
   const domainIntegrity = checkDomainIntegrity(domainDist);
@@ -68,10 +68,10 @@ export async function inspectCommand(options: any) {
 
   // Domain Distribution
   console.log(`\n${pc.bold('Domain Distribution:')}`);
-  for (const [domain, count] of Object.entries(data.domainDistribution)) {
-    if (count > 0) {
+  for (const [domain, count] of Object.entries(data.domainDistribution as Record<string, unknown>)) {
+    if ((count as number) > 0) {
       const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
-      console.log(`  ${icon} ${domain}: ${pc.bold(count)}`);
+      console.log(`  ${icon} ${domain}: ${pc.bold(count as number)}`);
     }
   }
 
