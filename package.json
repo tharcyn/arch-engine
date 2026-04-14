@@ -1,6 +1,6 @@
 {
   "name": "arch-engine",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0",
   "private": true,
   "description": "Framework-agnostic architecture reasoning engine — topology intelligence, contract parity validation, invariant enforcement, and simulation traversal.",
   "keywords": [
