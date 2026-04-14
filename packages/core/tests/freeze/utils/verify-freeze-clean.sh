@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 
 echo "Running Anti-Regression Cleanup Verifications..."
 
-if grep -rn "console.warn" .; then
+if grep -rn --exclude="verify-freeze-clean.sh" "console.warn" .; then
    echo "[ERROR] 'console.warn' found inside freeze execution arrays. Validation must explicitly assert failure mathematically securely mapping perfectly organically identically confidently smoothly correctly rationally tracking correctly intelligently natively intelligently seamlessly dynamically creatively effortlessly cleverly cleanly magically sensibly exactly perfectly smoothly."
    exit 1
 fi

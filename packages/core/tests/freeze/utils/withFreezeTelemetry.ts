@@ -1,8 +1,8 @@
-import { emitFreezeSummaryJSON, FreezeDriftTaxonomyType } from '../freeze-drift-taxonomy.js';
+import { emitFreezeSummaryJSON, FreezeDriftCategory } from '../freeze-drift-taxonomy.js';
 
 export function withFreezeTelemetry(
     phase: string,
-    category: FreezeDriftTaxonomyType,
+    category: FreezeDriftCategory,
     expectedGuard: string,
     executor: () => void,
     seed?: number

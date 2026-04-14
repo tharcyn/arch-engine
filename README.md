@@ -25,7 +25,7 @@ npm install @arch-engine/core@preview
 ```
 
 ```typescript
-import { EngineRunner, loadEngineManifest } from '@arch-engine/core';
+import { EngineRunner, loadEngineManifest } from "@arch-engine/core";
 ```
 
 ## Example Pack
@@ -47,19 +47,19 @@ See [examples/policy-pack-minimal](examples/policy-pack-minimal/) for a determin
 
 ## Export Surface
 
-| Path | Description |
-|---|---|
-| `@arch-engine/core` | Core engine runner, manifest loader, policy system |
-| `@arch-engine/core/analysis` | Stability scoring, blast radius, graph analysis |
-| `@arch-engine/core/parsers` | Topology file parsers (experimental) |
+| Path                         | Description                                        |
+| ---------------------------- | -------------------------------------------------- |
+| `@arch-engine/core`          | Core engine runner, manifest loader, policy system |
+| `@arch-engine/core/analysis` | Stability scoring, blast radius, graph analysis    |
+| `@arch-engine/core/parsers`  | Topology file parsers (experimental)               |
 
 ## Schema Contracts
 
-| Schema | Version | Location |
-|---|---|---|
-| Diagnostic output | `R0-v1` | `schemas/diagnostics/R0-v1.json` |
-| Capability descriptor | `v1` | `schemas/descriptors/v1.json` |
-| CLI output contract | `R0-v1` | `schemas/cli-output-contract.json` |
+| Schema                | Version | Location                           |
+| --------------------- | ------- | ---------------------------------- |
+| Diagnostic output     | `R0-v1` | `schemas/diagnostics/R0-v1.json`   |
+| Capability descriptor | `v1`    | `schemas/descriptors/v1.json`      |
+| CLI output contract   | `R0-v1` | `schemas/cli-output-contract.json` |
 
 ## Documentation
 
