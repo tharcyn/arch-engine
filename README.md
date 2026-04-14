@@ -4,6 +4,12 @@
 
 Arch-Engine extracts dependency structure from real repositories, constructs topology graphs, and enforces architecture policy packs across package boundaries. It detects authority crossings, scores topology stability, and produces deterministic, snapshot-reproducible results.
 
+Arch-Engine extracts dependency topology from real repositories,
+constructs deterministic architecture graphs,
+and enforces composable governance policy packs over that structure.
+It operates as a runtime substrate for architecture reasoning —
+not a linter, build system, or static rule engine.
+
 ## Status
 
 **v1.0.0-rc.3** — Release candidate. Runtime surfaces frozen.
@@ -49,15 +55,6 @@ Arch-Engine is not a linter, static analyzer, or config validator. It operates o
 | **Snapshot replay** | Supported — byte-stable across environments | Not applicable |
 | **Architecture extraction** | Adapter-driven (npm, yarn, pnpm workspaces) | Manual config |
 | **Federation** | Overlay composition across registry boundaries | Not applicable |
-
-## Features
-
-- **Topology extraction** — Adapter-driven workspace detection for npm, yarn, and pnpm monorepos
-- **Dependency graph governance** — Authority boundary detection, blast radius scoring, connectivity analysis
-- **Policy pack composition** — Multiple packs compose deterministically with provenance chains
-- **Deterministic execution** — Hash-stable identity computation, canonical serialization, snapshot verification
-- **Federation overlays** — Cross-registry policy composition with mirror fallback and trust-tier enforcement
-- **CLI diagnostics** — `doctor`, `inspect`, `check`, `analyze`, `explain` with `--json` output
 
 ## Packages
 
@@ -114,6 +111,15 @@ governance policy pack layer
 - **governance packs** — Apply architecture policy rules to validate boundaries, contracts, and system invariants.
 
 Adapters and governance packs are optional extensions that increase topology signal quality and enforcement coverage without modifying core runtime behavior.
+
+## Features
+
+- **Topology extraction** — Adapter-driven workspace detection for npm, yarn, and pnpm monorepos
+- **Dependency graph governance** — Authority boundary detection, blast radius scoring, connectivity analysis
+- **Policy pack composition** — Multiple packs compose deterministically with provenance chains
+- **Deterministic execution** — Hash-stable identity computation, canonical serialization, snapshot verification
+- **Federation overlays** — Cross-registry policy composition with mirror fallback and trust-tier enforcement
+- **CLI diagnostics** — `doctor`, `inspect`, `check`, `analyze`, `explain` with `--json` output
 
 ## Extending Arch-Engine with policy packs
 
