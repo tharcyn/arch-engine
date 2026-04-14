@@ -6,7 +6,7 @@ import { executeRunnerBridge } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { classifyStability, classifyConfidence, confidenceDescription, checkQualityFloor, formatWarnings, formatWarningHeader } from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
-import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';
+import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthorityCrossing } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
 
 export async function checkCommand(options: any) {
@@ -166,7 +166,7 @@ export async function checkCommand(options: any) {
     if (!options.json) {
       console.error(pc.red(`\n✖ Detected ${blockerCount} internal BLOCKER violation(s).`));
       const blockers = engineResult.stabilityIndex.authority_crossings.entries
-        .filter((c: any) => c.recommended_severity === 'BLOCKER');
+        .filter((c: RankedAuthorityCrossing) => c.recommended_severity === 'BLOCKER');
       for (const b of blockers.slice(0, 5)) {
         console.error(pc.red(`  ${b.source_entity} → ${b.target_entity} [${b.authority_domain}]`));
       }

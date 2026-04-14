@@ -1,6 +1,7 @@
 import pc from 'picocolors';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { loadMonorepoAdapter } from '../runner-bridge.js';
+import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import {
   confidenceDescription,
@@ -42,8 +43,8 @@ export async function doctorCommand(options: any) {
   const meta = extraction.metadata;
 
   // Domain distribution
-  const domainPackages = Object.entries(extraction.routeServiceMap.forward as Record<string, unknown>).map(
-    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain((entry as any).backend_route) }),
+  const domainPackages = Object.entries(extraction.routeServiceMap.forward as Record<string, RouteServiceEntry>).map(
+    ([route, entry]: [string, RouteServiceEntry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
   const domainDist = countDomainDistribution(domainPackages);
   const domainIntegrity = checkDomainIntegrity(domainDist);
@@ -93,7 +94,7 @@ export async function doctorCommand(options: any) {
   console.log(`${pc.green('✔')} Authority crossings observed: ${pc.bold(extraction.authorityCrossings.length)}`);
 
   // Domain Distribution
-  const activeDomains = Object.entries(domainDist as Record<string, unknown>).filter(([, c]) => (c as number) > 0);
+  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([domain, c]: [string, number]) => c > 0);
   if (activeDomains.length > 0) {
     console.log(`\n${pc.bold('Domain Distribution:')}`);
     for (const [domain, count] of activeDomains) {

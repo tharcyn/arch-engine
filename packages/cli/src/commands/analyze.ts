@@ -2,6 +2,7 @@ import pc from 'picocolors';
 import Table from 'cli-table3';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge, loadMonorepoAdapter } from '../runner-bridge.js';
+import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import {
   classifyStability,
@@ -37,8 +38,8 @@ export async function analyzeCommand(options: any) {
   // Domain distribution (adapter resolved lazily via runner-bridge)
   const adapter = await loadMonorepoAdapter();
   const extraction = adapter.runMonorepoExtraction(cwd);
-  const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward as Record<string, unknown>).map(
-    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain((entry as any).backend_route) }),
+  const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward as Record<string, RouteServiceEntry>).map(
+    ([route, entry]: [string, RouteServiceEntry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
   const domainDist = countDomainDistribution(fwdDomainPkgs);
   const domainIntegrity = checkDomainIntegrity(domainDist);
@@ -85,7 +86,7 @@ export async function analyzeCommand(options: any) {
   }
 
   // ── Authority Domain Distribution ───────────────────────
-  const activeDomains = Object.entries(domainDist as Record<string, unknown>).filter(([, c]) => (c as number) > 0);
+  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([domain, c]: [string, number]) => c > 0);
   if (activeDomains.length > 0) {
     console.log(`\n  ${pc.bold('Authority Domains:')}`);
     for (const [domain, count] of activeDomains) {

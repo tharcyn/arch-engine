@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
-import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';
+import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
 
 export async function explainCommand(target: string, options: any) {
@@ -45,7 +45,7 @@ export async function explainCommand(target: string, options: any) {
 
   // Tolerant match: search both source and target fields
   const matches = canonicalIndex.edges.filter(
-    (e: any) => e.source.toLowerCase().includes(target.toLowerCase()) ||
+    (e: EvaluatorEdge) => e.source.toLowerCase().includes(target.toLowerCase()) ||
          e.target.toLowerCase().includes(target.toLowerCase()),
   );
 
@@ -239,7 +239,7 @@ async function explainPolicy(cwd: string, options: any) {
 
   let violations = evalResult.violations;
   if (targetRuleId) {
-    violations = violations.filter((v: any) => v.ruleId === targetRuleId || v.ruleSource === targetRuleId);
+    violations = violations.filter((v: PolicyViolation) => v.ruleId === targetRuleId || v.ruleSource === targetRuleId);
   }
 
   if (options.json) {
