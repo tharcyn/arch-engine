@@ -1,103 +1,77 @@
-# @arch-engine/core
+# Arch-Engine
 
-**Capability-driven architecture topology reasoning engine.**
+**Architecture topology governance runtime.**
 
-Validate dependency direction, detect authority boundary violations, score topology stability, and reconcile conflicting graph edges across multiple code scanners.
+Arch-Engine extracts dependency structure from real repositories, constructs topology graphs, and enforces architecture policy packs across package boundaries. It detects authority crossings, scores topology stability, and produces deterministic, snapshot-reproducible results.
 
 ## Status
 
-**v1.0.0-rc.1** — Deterministic release candidate.
+**v1.0.0-rc.3** — Release candidate. Runtime surfaces frozen.
 
-The core execution surface is strictly partitioned between foundational infrastructure invariants and observation tooling.
+## Quickstart (1 minute)
 
-### Stable Surfaces
+```bash
+npm install @arch-engine/cli
+npm install @arch-engine/adapter-monorepo
+npx arch-engine doctor
+```
 
-- Execution model
-- Determinism contract
-- Capability model
-- Policy-pack participation surface
-- Registry federation neutrality
-- `closureGraphHash` invariance
+### Example output
 
-### Preview Surface
+```
+✔ Workspace type resolved as: single (highest confidence)
+✔ Packages detected: 1 / 1 expected
+✔ Connected nodes: 1
+✔ Coverage: 100%
+✔ Connectivity: 100%
+✔ Confidence: HIGH (Structured single workspace extraction)
+✔ Authority crossings observed: 0
+```
 
-- **CLI Operator Interface**: The `arch-engine` CLI surface is currently **preview-grade**. It is non-breaking-change tolerant but remains strictly an observation layer and is intentionally **not** part of the deterministic execution identity surface.
+**Reading the output:**
 
-### Foundational Contracts
+- **Coverage** — Percentage of repository nodes extracted into the topology graph.
+- **Connectivity** — Whether dependency relationships resolved into a coherent graph.
+- **Confidence** — Extraction confidence based on workspace detection and adapter signal strength.
+- **Authority crossings** — Architectural boundary violations between layers or domains.
 
-- [Determinism Contract](docs/determinism-contract.md)
-- [Execution Model Contract](docs/execution-model.md)
-- [Capability Model Contract](docs/capability-model.md)
-- [Policy Pack Contract](docs/policy-pack-contract.md)
-- [Registry Federation Contract](docs/registry-federation-contract.md)
-- [Execution Identity Contract](docs/identity-surface-contract.md)
+See the [CLI README](packages/cli/README.md) for detailed signal interpretation.
 
-## Versioning Guarantees
+## What makes Arch-Engine different?
 
-Arch-Engine guarantees the following versioning behaviors natively:
+Arch-Engine is not a linter, static analyzer, or config validator. It operates on **topology** — the structural dependency graph of your repository — rather than individual files or syntax trees.
 
-- **`closureGraphHash` stability window** — Strict boundary protection over execution identity mappings.
-- **Snapshot replay compatibility expectations** — Cryptographic footprint equality locks reliably.
-- **Policy-pack compatibility contract expectations** — Native participation grammar evaluates structurally.
-- **Registry mirror neutrality guarantee** — Native transport structures isolate execution state cleanly.
-- **Transport independence guarantee** — Cross-host network operations protect deterministic hashes seamlessly.
+| Capability | Arch-Engine | Linters / Static Analyzers |
+| --- | --- | --- |
+| **Operates on** | Package dependency topology | Individual files / ASTs |
+| **Policy model** | Composable policy packs | Rule configs |
+| **Execution** | Deterministic (`closureGraphHash` stable) | Non-deterministic |
+| **Snapshot replay** | Supported — byte-stable across environments | Not applicable |
+| **Architecture extraction** | Adapter-driven (npm, yarn, pnpm workspaces) | Manual config |
+| **Federation** | Overlay composition across registry boundaries | Not applicable |
 
 ## Features
 
-- **Deterministic topology governance** — hash-stable identity computation, canonical serialization, snapshot closure graph verification
-- **Overlay lifecycle admission** — signature verification, namespace ownership, authority ladder enforcement, revocation propagation
-- **Capability federation (F-12)** — deterministic negotiation ordering, descriptor matrix compatibility, mirror equivalence enforcement
-- **Diagnostic sovereignty** — categorical-only diagnostics governed by `R0-v1` schema, no numeric weight leakage
-- **CLI subsystem** — `doctor`, `inspect`, `check`, `analyze`, `explain` with `--json` deterministic output
-
-## Quick Start
-
-```bash
-npm install @arch-engine/core@1.0.0-rc.1
-```
-
-```typescript
-import { EngineRunner, loadEngineManifest } from "@arch-engine/core";
-```
-
-## Example Pack
-
-A self-contained deterministic example is included:
-
-```
-examples/trusted-fallback/
-├── topology.json
-├── execution-config.json
-├── expected-output.json
-├── providers/
-└── requirements/
-```
-
-This example operates fully offline with no registry dependencies.
-
-See [examples/policy-pack-minimal](examples/policy-pack-minimal/) for a deterministic architecture enforcement walkthrough.
-
-See [examples/multi-policy-composition](examples/multi-policy-composition/) for a two-policy composition example with severity escalation and provenance chains.
-
-See [examples/federation-overlay](examples/federation-overlay/) for cross-registry overlay composition with mirror fallback routing and closure hash parity.
-
-See [examples/signed-policy-pack](examples/signed-policy-pack/) for signature-backed overlay authority enforcement with unsigned rejection and signed acceptance.
-
-See [examples/snapshot-replay-certification](examples/snapshot-replay-certification/) for demonstrating explicit structural graph serialization and subsequent semantic identity checks.
+- **Topology extraction** — Adapter-driven workspace detection for npm, yarn, and pnpm monorepos
+- **Dependency graph governance** — Authority boundary detection, blast radius scoring, connectivity analysis
+- **Policy pack composition** — Multiple packs compose deterministically with provenance chains
+- **Deterministic execution** — Hash-stable identity computation, canonical serialization, snapshot verification
+- **Federation overlays** — Cross-registry policy composition with mirror fallback and trust-tier enforcement
+- **CLI diagnostics** — `doctor`, `inspect`, `check`, `analyze`, `explain` with `--json` output
 
 ## Packages
 
-Arch-Engine ships as a constellation of focused packages. The **core runtime** is the only required dependency — adapters and governance packs are **optional extensions**.
+Arch-Engine ships as a constellation of focused packages. The **core runtime** is the only required install — adapters and governance packs are **optional extensions**.
 
 | Package | Role | Version |
 | --- | --- | --- |
 | [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types | `1.0.0-rc.3` |
-| [@arch-engine/core](./packages/core) | Capability-driven topology reasoning runtime | `1.0.0-rc.3` |
-| [@arch-engine/cli](./packages/cli) | Command-line interface for extraction and validation | `1.0.0-rc.3` |
-| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | _(Optional)_ Workspace topology extraction adapter | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | _(Optional)_ Authority boundary governance pack | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | _(Optional)_ REST contract parity governance pack | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | _(Optional)_ Journey lifecycle governance pack | `1.0.0-rc.4` |
+| [@arch-engine/core](./packages/core) | Topology reasoning runtime | `1.0.0-rc.3` |
+| [@arch-engine/cli](./packages/cli) | Command-line interface | `1.0.0-rc.3` |
+| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | _(Optional)_ Workspace topology extraction | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | _(Optional)_ Authority boundary governance | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | _(Optional)_ REST contract parity governance | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | _(Optional)_ Journey lifecycle governance | `1.0.0-rc.4` |
 
 ### Install
 
@@ -117,44 +91,6 @@ npm install @arch-engine/governance-pack-rest-contract
 npm install @arch-engine/governance-pack-journey
 ```
 
-## Quickstart (1 minute)
-
-Install the CLI:
-
-```bash
-npm install @arch-engine/cli
-```
-
-Install a workspace adapter:
-
-```bash
-npm install @arch-engine/adapter-monorepo
-```
-
-Run architecture diagnostics:
-
-```bash
-npx arch-engine doctor
-```
-
-This command analyzes repository topology structure and reports extraction coverage, dependency connectivity, authority boundary crossings, and classification confidence.
-
-Adapters improve topology detection signal quality. Governance policy packs extend validation coverage.
-
-### Example output
-
-```
-✔ Workspace type resolved as: single (highest confidence)
-✔ Packages detected: 1 / 1 expected
-✔ Connected nodes: 1
-✔ Coverage: 100%
-✔ Connectivity: 100%
-✔ Confidence: HIGH (Structured single workspace extraction)
-✔ Authority crossings observed: 0
-```
-
-This indicates a structurally consistent topology extraction with no boundary violations detected. Installing governance packs enables deeper architectural validation beyond structural connectivity.
-
 ## Architecture layering model
 
 ```
@@ -172,12 +108,54 @@ governance policy pack layer
 **Layer responsibilities:**
 
 - **schema** — Defines canonical contracts and shared topology structures.
-- **core** — Executes capability-driven architecture reasoning and graph construction.
+- **core** — Executes architecture reasoning and dependency graph construction.
 - **cli** — Provides developer-facing execution surface for topology diagnostics and validation.
 - **adapters** — Extend topology extraction by detecting workspace structure and dependency signals.
 - **governance packs** — Apply architecture policy rules to validate boundaries, contracts, and system invariants.
 
 Adapters and governance packs are optional extensions that increase topology signal quality and enforcement coverage without modifying core runtime behavior.
+
+## Extending Arch-Engine with policy packs
+
+Policy packs are optional governance overlays that enforce architecture contracts on top of the extracted topology graph. They do not modify runtime behavior.
+
+```bash
+npm install @arch-engine/governance-pack-authority
+```
+
+Key properties:
+
+- **Composable** — Multiple packs compose deterministically with severity escalation and provenance chains.
+- **Structural** — Packs operate on topology relationships, not file-level syntax.
+- **Optional** — Core extraction and analysis work without any packs installed.
+- **Deterministic** — Policy evaluation produces identical output across environments.
+
+See the [Policy Pack Contract](docs/policy-pack-contract.md) and [Reference Policy Pack Authoring](docs/reference-policy-pack-authoring.md) for authoring guidance.
+
+## Snapshot replay and execution determinism
+
+Arch-Engine guarantees deterministic execution. The `closureGraphHash` provides a cryptographic fingerprint of the full topology evaluation, ensuring:
+
+- **Snapshot replay** — Captured evaluation output is byte-stable across runs and environments.
+- **Lineage integrity** — Hash identity is preserved through policy composition and federation overlays.
+- **Transport independence** — Results remain stable regardless of registry routing path.
+
+See the [Determinism Contract](docs/determinism-contract.md) and [Identity Surface Contract](docs/identity-surface-contract.md).
+
+## Examples
+
+- [Sample Monorepo Topology Extraction](docs/examples/sample-monorepo-topology.md)
+  - 3-package workspace with adapter-driven extraction walkthrough
+- [Reference Policy Pack](examples/reference-policy-pack/)
+  - Canonical topology specimen, overlay participation, authority-tier enforcement
+- [Multi-Policy Composition](examples/multi-policy-composition/)
+  - Severity escalation, provenance chains, composition hash stability
+- [Federation Overlay](examples/federation-overlay/)
+  - Cross-registry composition, mirror fallback, closure hash parity
+- [Signed Policy Pack](examples/signed-policy-pack/)
+  - Cryptographic authority enforcement, unsigned rejection
+- [Snapshot Replay Certification](examples/snapshot-replay-certification/)
+  - Structural hash reproducibility, execution identity portability
 
 ## Export Surface
 
@@ -187,51 +165,29 @@ Adapters and governance packs are optional extensions that increase topology sig
 | `@arch-engine/core/analysis` | Stability scoring, blast radius, graph analysis    |
 | `@arch-engine/core/parsers`  | Topology file parsers (experimental)               |
 
-## Schema Contracts
+## Documentation
 
-| Schema                | Version | Location                           |
-| --------------------- | ------- | ---------------------------------- |
-| Diagnostic output     | `R0-v1` | `schemas/diagnostics/R0-v1.json`   |
-| Capability descriptor | `v1`    | `schemas/descriptors/v1.json`      |
-| CLI output contract   | `R0-v1` | `schemas/cli-output-contract.json` |
-
-## Execution Determinism
-
-- [Deterministic Execution Contract](docs/determinism-contract.md)
-- [Ecosystem Positioning](docs/ecosystem-positioning.md)
-- [Public Surface Contract](docs/public-surface-contract.md)
-- [Versioning Strategy](docs/versioning-strategy.md)
+- [Determinism Contract](docs/determinism-contract.md)
 - [Execution Model Contract](docs/execution-model.md)
 - [Capability Model Contract](docs/capability-model.md)
 - [Policy Pack Contract](docs/policy-pack-contract.md)
 - [Registry Federation Contract](docs/registry-federation-contract.md)
-- [Reference Registry Layout](docs/reference-registry-layout.md)
-- [Reference Policy Pack Authoring](docs/reference-policy-pack-authoring.md)
-- [Reference Policy Pack Example Blueprint](docs/reference-policy-pack-example-blueprint.md)
 - [Identity Surface Contract](docs/identity-surface-contract.md)
-- [Public Surface Freeze Certificate](docs/public-surface-freeze-certificate.md)
+- [Public Surface Contract](docs/public-surface-contract.md)
 - [CLI Surface Contract](docs/cli-surface-contract.md)
-- [CLI Implementation Plan](docs/cli-implementation-plan.md)
-- [Release Candidate Tagging Plan](docs/release-candidate-tagging-plan.md)
-- [RC Verification Checklist](docs/rc-verification-checklist.md)
+- [Versioning Strategy](docs/versioning-strategy.md)
+- [Ecosystem Positioning](docs/ecosystem-positioning.md)
+- [Release Notes — v1.0.0-rc.3](docs/releases/v1.0.0-rc.3.md)
 
-## Documentation
+## Repository structure
 
-- [Preview Scope](docs/contracts/preview-scope.md)
-- [Public API Freeze Contract](docs/contracts/public-api-freeze.md)
-- [Release Notes](docs/release-notes-v1.0.0-rc.1.md)
-- [CLI Readiness Matrix](docs/cli/cli-readiness-matrix.md)
-
-## Examples
-
-- [Sample Monorepo Topology Extraction](docs/examples/sample-monorepo-topology.md)
-  - 3-package workspace with adapter-driven extraction walkthrough
-- [Reference Policy Pack](examples/reference-policy-pack/)
-  - Canonical topology specimen
-  - Overlay participation example
-  - Authority-tier participation example
-  - Snapshot-compatible example
-  - Registry-portable example
+```
+packages/     Runtime packages (schema, core, cli, adapters, governance packs)
+examples/     Self-contained topology extraction and policy composition examples
+docs/         Architecture contracts, specifications, and release notes
+scripts/      Internal maintenance tooling (not part of runtime surface)
+schemas/      JSON schema definitions for diagnostic output and descriptors
+```
 
 ## Out of Scope (Preview)
 
