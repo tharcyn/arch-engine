@@ -57,7 +57,7 @@ export async function executeRunnerBridge(
   // 2. Create engine manifest
   const manifest = parseEngineManifest({
     engine_id: 'arch-engine-cli',
-    engine_version: '4.0.0',
+    engine_version: '1.0.0-rc.1',
     schema_versions: {
       capability_schema: '1.0.0',
       topology_schema: '1.0.0',

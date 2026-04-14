@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/core",
-  "version": "0.1.0-preview",
+  "version": "1.0.0-rc.1",
   "description": "Capability-driven architecture topology reasoning engine — validate dependency direction, detect authority boundary violations, score topology stability, and reconcile conflicting graph edges across multiple code scanners.",
   "type": "module",
   "license": "MIT",
@@ -71,7 +71,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@arch-engine/schema": "^4.0.0",
+    "@arch-engine/schema": "^1.0.0-rc.1",
     "yaml": "^2.8.3"
   },
   "files": [

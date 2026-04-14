@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/schema",
-  "version": "4.0.0",
+  "version": "1.0.0-rc.1",
   "description": "Canonical JSON schemas and TypeScript types for architecture reasoning.",
   "type": "module",
   "main": "./dist/types/index.js",

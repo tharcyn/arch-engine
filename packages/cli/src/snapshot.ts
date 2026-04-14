@@ -94,7 +94,7 @@ export function createStabilityArtifact(
   return {
     snapshotVersion: SNAPSHOT_VERSION,
     schemaVersion: SCHEMA_VERSION,
-    engineVersion: '4.0.0',
+    engineVersion: '1.0.0-rc.1',
     timestamp: new Date().toISOString(),
     repoHash: computeRepoHash(rootDir),
 

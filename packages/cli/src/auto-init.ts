@@ -56,7 +56,7 @@ export function autoInitializeArchitectureContext(rootDir: string): AutoInitResu
     const session = {
       schemaVersion: '1.0',
       createdAt: new Date().toISOString(),
-      engineVersion: '4.0.0',
+      engineVersion: '1.0.0-rc.1',
       repoHash: computeRepoHash(rootDir),
       initMode: 'auto',
     };
