@@ -1,5 +1,5 @@
 import pc from 'picocolors';
-import { runMonorepoExtraction, classifyAuthorityDomain } from '@arch-engine/adapter-monorepo';
+import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import {
   classifyConfidence,
@@ -22,12 +22,13 @@ export async function inspectCommand(options: any) {
     console.log(pc.dim('Summarizing canonical topology...\n'));
   }
 
-  const extraction = runMonorepoExtraction(cwd);
+  const adapter = await loadMonorepoAdapter();
+  const extraction = adapter.runMonorepoExtraction(cwd);
   const meta = extraction.metadata;
 
   // Domain distribution
   const domainPackages = Object.entries(extraction.routeServiceMap.forward).map(
-    ([, entry]) => ({ authorityDomain: classifyAuthorityDomain(entry.backend_route) }),
+    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
   const domainDist = countDomainDistribution(domainPackages);
   const domainIntegrity = checkDomainIntegrity(domainDist);

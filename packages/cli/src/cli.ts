@@ -65,7 +65,7 @@ export async function run() {
 
   try {
     cli.help();
-    cli.version('1.0.0-rc.1');
+    cli.version('1.0.0-rc.3');
     cli.parse(process.argv, { run: false });
     
     if (!cli.matchedCommandName && !cli.options.help && !cli.options.version) {

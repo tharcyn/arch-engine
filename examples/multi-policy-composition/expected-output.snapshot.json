@@ -1,0 +1,111 @@
+{
+  "policyHash": "c6cc15decca2c8acd72a2de9133ac645fe1887ed369685c07889223cc5bff1ff",
+  "policyVersion": 1,
+  "policyMode": "enforce",
+  "evaluationStrategyVersion": 1,
+  "policyDetected": true,
+  "matchedEdges": 7,
+  "violations": [
+    {
+      "violationCategory": "explicit_forbid",
+      "from": "frontend/app.ts",
+      "to": "infrastructure/database.ts",
+      "severity": "error",
+      "ruleId": "no-cross-layer-imports",
+      "ruleSource": "forbid_rule",
+      "confidenceContext": "multi-policy-composition",
+      "matchedDomainSource": "frontend",
+      "matchedDomainTarget": "infrastructure",
+      "tierSource": "high",
+      "tierTarget": "low",
+      "tierDelta": 2,
+      "suppressionEligible": true,
+      "originPolicyId": "org/data-isolation-overlay",
+      "originRuleId": "no-cross-layer-imports",
+      "compositionDepth": 1,
+      "inheritedFromPolicyId": "org/base-architecture",
+      "originPolicyChain": [
+        "org/base-architecture",
+        "org/data-isolation-overlay"
+      ],
+      "mergeAuthority": "resolved-severity"
+    },
+    {
+      "violationCategory": "explicit_forbid",
+      "from": "infrastructure/cache.ts",
+      "to": "frontend/app.ts",
+      "severity": "error",
+      "ruleId": "no-reverse-dependencies",
+      "ruleSource": "forbid_rule",
+      "confidenceContext": "multi-policy-composition",
+      "matchedDomainSource": "infrastructure",
+      "matchedDomainTarget": "frontend",
+      "tierSource": "low",
+      "tierTarget": "high",
+      "tierDelta": -2,
+      "suppressionEligible": true,
+      "originPolicyId": "org/data-isolation-overlay",
+      "originRuleId": "no-reverse-dependencies",
+      "compositionDepth": 1,
+      "originPolicyChain": [
+        "org/data-isolation-overlay"
+      ],
+      "mergeAuthority": "additive"
+    }
+  ],
+  "allowMatches": [
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "org/base-architecture",
+      "allowCompositionDepth": 0,
+      "from": "frontend/app.ts",
+      "to": "services/user-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "org/base-architecture",
+      "allowCompositionDepth": 0,
+      "from": "frontend/app.ts",
+      "to": "services/auth-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "frontend-to-services",
+      "matchedAllowPolicyId": "org/base-architecture",
+      "allowCompositionDepth": 0,
+      "from": "frontend/components/header.ts",
+      "to": "services/user-service.ts"
+    },
+    {
+      "matchedAllowRuleId": "services-to-infrastructure",
+      "matchedAllowPolicyId": "org/base-architecture",
+      "allowCompositionDepth": 0,
+      "from": "services/user-service.ts",
+      "to": "infrastructure/database.ts"
+    },
+    {
+      "matchedAllowRuleId": "services-to-infrastructure",
+      "matchedAllowPolicyId": "org/base-architecture",
+      "allowCompositionDepth": 0,
+      "from": "services/auth-service.ts",
+      "to": "infrastructure/cache.ts"
+    }
+  ],
+  "policyRuleHits": {
+    "no-cross-layer-imports": 1,
+    "no-reverse-dependencies": 1
+  },
+  "_meta": {
+    "snapshotVersion": "1.0.0",
+    "determinismGuarantee": "This snapshot is byte-stable across runs. It contains no timestamps, no filesystem paths, and no environment-sensitive values.",
+    "replayInstructions": "Composing the base and overlay policies against this topology must produce this exact output. If any field differs, a determinism regression has occurred.",
+    "compositionSummary": {
+      "inputPolicies": ["org/base-architecture", "org/data-isolation-overlay"],
+      "compositionBehaviors": {
+        "severity-escalation": "no-cross-layer-imports was escalated from warning (base) to error (overlay) via strict severity resolution",
+        "rule-addition": "no-reverse-dependencies was added by the overlay at composition depth 1 with mergeAuthority 'additive'",
+        "domain-inheritance": "All three domains (frontend, services, infrastructure) were inherited from the base policy unchanged",
+        "allow-rule-inheritance": "Both allow rules (frontend-to-services, services-to-infrastructure) were inherited from the base policy"
+      }
+    }
+  }
+}

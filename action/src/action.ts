@@ -185,7 +185,6 @@ async function run(): Promise<void> {
       extractionMode: meta.extractionMode,
       minCoverage: config.minCoverage,
       unclassifiedRatio,
-      unclassifiedRatio,
       warnings: [...meta.warnings],
     });
 

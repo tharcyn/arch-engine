@@ -1,0 +1,30 @@
+{
+  "snapshotVersion": "1.0.0",
+  "closureGraphHash": "1804245ce0b22a009efb4c1945aeacf0aaae19aa14bc8b5c928494b2beedee14",
+  "executionTelemetry": {
+    "authorityTier": 3,
+    "authorityTierName": "TRUSTED_POLICY_PACK",
+    "seamId": "overlay::policy::enforcement",
+    "mergeMode": "replace-if-authorized"
+  },
+  "evaluatedRules": [
+    {
+      "ruleId": "no-cross-layer-imports",
+      "severity": "error",
+      "mergeAuthority": "resolved-severity",
+      "originPolicyChain": [
+        "registry-central/base-architecture",
+        "registry-partner/security-overlay"
+      ],
+      "inheritedFromPolicyId": "registry-central/base-architecture"
+    },
+    {
+      "ruleId": "no-reverse-dependencies",
+      "severity": "error",
+      "mergeAuthority": "additive",
+      "originPolicyChain": [
+        "registry-partner/security-overlay"
+      ]
+    }
+  ]
+}

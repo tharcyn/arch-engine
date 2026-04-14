@@ -1,11 +1,42 @@
 {
   "name": "@arch-engine/governance-pack-journey",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.4",
   "description": "Journey lifecycle governance pack — journey coverage regression detection.",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
+    "directory": "packages/governance-pack-journey"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "keywords": [
+    "governance",
+    "policy-pack",
+    "architecture-rules",
+    "topology-validation",
+    "arch-engine"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": { "build": "tsc --project tsconfig.json" },
-  "dependencies": { "@arch-engine/core": "1.0.0-rc.1" },
-  "files": ["dist"]
+  "dependencies": { "@arch-engine/core": "1.0.0-rc.3" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }

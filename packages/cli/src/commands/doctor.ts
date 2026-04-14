@@ -1,6 +1,6 @@
 import pc from 'picocolors';
 import { discoverEnvironment } from '../autodiscovery.js';
-import { runMonorepoExtraction, classifyAuthorityDomain } from '@arch-engine/adapter-monorepo';
+import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import {
   confidenceDescription,
@@ -31,13 +31,14 @@ export async function doctorCommand(options: any) {
     }
   }
 
+  const adapter = await loadMonorepoAdapter();
   const discovery = discoverEnvironment(cwd);
-  const extraction = runMonorepoExtraction(cwd);
+  const extraction = adapter.runMonorepoExtraction(cwd);
   const meta = extraction.metadata;
 
   // Domain distribution
   const domainPackages = Object.entries(extraction.routeServiceMap.forward).map(
-    ([, entry]) => ({ authorityDomain: classifyAuthorityDomain(entry.backend_route) }),
+    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
   const domainDist = countDomainDistribution(domainPackages);
   const domainIntegrity = checkDomainIntegrity(domainDist);

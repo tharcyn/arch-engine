@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "enforce",
+  "rules": {
+    "forbid": [
+      { "id": "no-cross-layer-imports", "from": "frontend", "to": "infrastructure", "severity": "error" },
+      { "id": "no-reverse-dependencies", "from": "infrastructure", "to": "frontend", "severity": "error" }
+    ]
+  },
+  "_overlayTransport": {
+    "overlaySourceId": "registry-partner/security-overlay",
+    "overlayVersion": "1.0.0",
+    "overlayRegistrySource": "registry-partner",
+    "overlaySignature": null,
+    "overlayTrustTier": "SIGNED_EXTERNAL_PACK",
+    "_comment": "No signature present — authority resolution will reject this overlay at signed-tier verification"
+  }
+}

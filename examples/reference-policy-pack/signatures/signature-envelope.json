@@ -1,0 +1,8 @@
+{
+  "envelopeType": "sigstore/bundle",
+  "signatureAlgorithm": "ecdsa-sha256",
+  "identityEnvelope": "sha256:7e8c45...",
+  "timestamp": "2026-04-14T00:00:00Z",
+  "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+  "_comment_neutrality": "Signatures are structurally identity-neutral, transport-neutral, and do NOT alter the internal topology closureGraphHash payload calculation."
+}

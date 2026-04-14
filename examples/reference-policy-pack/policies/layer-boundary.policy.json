@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "DomainToInfra": {
+      "path": ["domain", "**"],
+      "mustNotDependOn": ["infrastructure", "**"],
+      "severity": "error",
+      "description": "Domain layer MUST remain strictly isolated from Infrastructure dependencies.",
+      "tags": ["architecture", "layer-boundary", "determinism-aligned"]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "enforce",
+  "domains": {
+    "frontend": { "tier": "high", "enforceTier": true },
+    "services": { "tier": "medium", "enforceTier": true },
+    "infrastructure": { "tier": "low", "enforceTier": true }
+  },
+  "rules": {
+    "allow": [
+      { "id": "frontend-to-services", "from": "frontend", "to": "services", "severity": "notice" },
+      { "id": "services-to-infrastructure", "from": "services", "to": "infrastructure", "severity": "notice" }
+    ],
+    "forbid": [
+      { "id": "no-cross-layer-imports", "from": "frontend", "to": "infrastructure", "severity": "warning" }
+    ]
+  }
+}

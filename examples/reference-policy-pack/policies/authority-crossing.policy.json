@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "CrossAuthorityInvocation": {
+      "path": ["handlers", "**"],
+      "mustNotDependOn": ["core", "security", "**"],
+      "severity": "error",
+      "description": "Standard operational handlers MUST escalate through validated service layers, not direct core security access.",
+      "tags": ["security", "authority-tier", "governance"]
+    }
+  }
+}

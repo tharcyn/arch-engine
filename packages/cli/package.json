@@ -1,18 +1,42 @@
 {
   "name": "@arch-engine/cli",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.3",
   "description": "CLI for architecture reasoning engine.",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "keywords": [
+    "cli",
+    "architecture",
+    "topology",
+    "monorepo",
+    "workspace-analysis",
+    "arch-engine"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "bin": {
     "arch-engine": "./dist/bin.js"
+  },
+  "exports": {
+    ".": "./dist/bin.js"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@arch-engine/core": "1.0.0-rc.1",
-    "@arch-engine/schema": "1.0.0-rc.1",
+    "@arch-engine/core": "^1.0.0-rc.3",
+    "@arch-engine/schema": "^1.0.0-rc.3",
     "cac": "^6.7.14",
     "picocolors": "^1.0.0",
     "cli-table3": "^0.6.3",
@@ -22,7 +46,17 @@
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   },
+  "peerDependencies": {
+    "@arch-engine/adapter-monorepo": "*"
+  },
+  "peerDependenciesMeta": {
+    "@arch-engine/adapter-monorepo": {
+      "optional": true
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ]
 }

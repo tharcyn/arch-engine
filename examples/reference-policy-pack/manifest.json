@@ -1,0 +1,21 @@
+{
+  "packName": "@arch-engine/reference-policy-pack",
+  "packVersion": "1.0.0",
+  "schemaVersion": "v1.0",
+  "authorityTier": "CoreEcosystem",
+  "policies": [
+    "policies/layer-boundary.policy.json",
+    "policies/authority-crossing.policy.json"
+  ],
+  "overlays": [
+    "overlays/frontend-overlay.policy.json"
+  ],
+  "originPolicyChain": [
+    {
+      "pack": "@arch-engine/foundation",
+      "version": "1.0.0",
+      "hash": "sha256:d8a7cff4b..."
+    }
+  ],
+  "_comment_closureGraphHash": "NOTE: Manifest structure directly impacts execution semantic identity via closureGraphHash calculation. Modifying inputs alters hash evaluation."
+}

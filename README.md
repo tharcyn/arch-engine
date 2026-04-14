@@ -85,6 +85,100 @@ See [examples/signed-policy-pack](examples/signed-policy-pack/) for signature-ba
 
 See [examples/snapshot-replay-certification](examples/snapshot-replay-certification/) for demonstrating explicit structural graph serialization and subsequent semantic identity checks.
 
+## Packages
+
+Arch-Engine ships as a constellation of focused packages. The **core runtime** is the only required dependency — adapters and governance packs are **optional extensions**.
+
+| Package | Role | Version |
+| --- | --- | --- |
+| [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types | `1.0.0-rc.3` |
+| [@arch-engine/core](./packages/core) | Capability-driven topology reasoning runtime | `1.0.0-rc.3` |
+| [@arch-engine/cli](./packages/cli) | Command-line interface for extraction and validation | `1.0.0-rc.3` |
+| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | _(Optional)_ Workspace topology extraction adapter | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | _(Optional)_ Authority boundary governance pack | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | _(Optional)_ REST contract parity governance pack | `1.0.0-rc.4` |
+| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | _(Optional)_ Journey lifecycle governance pack | `1.0.0-rc.4` |
+
+### Install
+
+```bash
+# Core runtime (required)
+npm install @arch-engine/core
+
+# CLI
+npm install @arch-engine/cli
+
+# Optional: workspace topology extraction
+npm install @arch-engine/adapter-monorepo
+
+# Optional: governance packs
+npm install @arch-engine/governance-pack-authority
+npm install @arch-engine/governance-pack-rest-contract
+npm install @arch-engine/governance-pack-journey
+```
+
+## Quickstart (1 minute)
+
+Install the CLI:
+
+```bash
+npm install @arch-engine/cli
+```
+
+Install a workspace adapter:
+
+```bash
+npm install @arch-engine/adapter-monorepo
+```
+
+Run architecture diagnostics:
+
+```bash
+npx arch-engine doctor
+```
+
+This command analyzes repository topology structure and reports extraction coverage, dependency connectivity, authority boundary crossings, and classification confidence.
+
+Adapters improve topology detection signal quality. Governance policy packs extend validation coverage.
+
+### Example output
+
+```
+✔ Workspace type resolved as: single (highest confidence)
+✔ Packages detected: 1 / 1 expected
+✔ Connected nodes: 1
+✔ Coverage: 100%
+✔ Connectivity: 100%
+✔ Confidence: HIGH (Structured single workspace extraction)
+✔ Authority crossings observed: 0
+```
+
+This indicates a structurally consistent topology extraction with no boundary violations detected. Installing governance packs enables deeper architectural validation beyond structural connectivity.
+
+## Architecture layering model
+
+```
+      @arch-engine/schema
+               ↓
+       @arch-engine/core
+               ↓
+        @arch-engine/cli
+               ↓
+  adapter capability layer
+               ↓
+governance policy pack layer
+```
+
+**Layer responsibilities:**
+
+- **schema** — Defines canonical contracts and shared topology structures.
+- **core** — Executes capability-driven architecture reasoning and graph construction.
+- **cli** — Provides developer-facing execution surface for topology diagnostics and validation.
+- **adapters** — Extend topology extraction by detecting workspace structure and dependency signals.
+- **governance packs** — Apply architecture policy rules to validate boundaries, contracts, and system invariants.
+
+Adapters and governance packs are optional extensions that increase topology signal quality and enforcement coverage without modifying core runtime behavior.
+
 ## Export Surface
 
 | Path                         | Description                                        |
@@ -130,6 +224,8 @@ See [examples/snapshot-replay-certification](examples/snapshot-replay-certificat
 
 ## Examples
 
+- [Sample Monorepo Topology Extraction](docs/examples/sample-monorepo-topology.md)
+  - 3-package workspace with adapter-driven extraction walkthrough
 - [Reference Policy Pack](examples/reference-policy-pack/)
   - Canonical topology specimen
   - Overlay participation example

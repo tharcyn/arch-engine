@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "paths": {
+      "@sample/shared": ["./packages/shared/index.ts"],
+      "@sample/api": ["./packages/api/index.ts"],
+      "@sample/web": ["./packages/web/index.ts"]
+    }
+  }
+}

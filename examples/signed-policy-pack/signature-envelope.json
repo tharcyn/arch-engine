@@ -1,0 +1,26 @@
+{
+  "envelope": {
+    "algorithm": "ed25519",
+    "keyId": "partner-signing-key-001",
+    "signature": "63mJq/hmcrTDCRwmmnLHrHwRgaBVbeede3dKJ1qSEmk=",
+    "signedPayloadDigest": "454011e613201dd89c80bb6e237bf0af38de5f9e92856bb030a9378c4a8b4815"
+  },
+  "payloadComponents": {
+    "overlaySourceId": "registry-partner/security-overlay",
+    "overlayVersion": "1.0.0",
+    "manifestHash": "none"
+  },
+  "encodedEnvelope": "eyJhbGdvcml0aG0iOiJlZDI1NTE5Iiwia2V5SWQiOiJwYXJ0bmVyLXNpZ25pbmcta2V5LTAwMSIsInNpZ25hdHVyZSI6IjYzbUpxL2htY3JURENSd21tbkxIckh3UmdhQlZiZWVkZTNkS0oxcVNFbWs9Iiwic2lnbmVkUGF5bG9hZERpZ2VzdCI6IjQ1NDAxMWU2MTMyMDFkZDg5YzgwYmI2ZTIzN2JmMGFmMzhkZTVmOWU5Mjg1NmJiMDMwYTkzNzhjNGE4YjQ4MTUifQ==",
+  "_meta": {
+    "format": "Base64-encoded JSON containing algorithm, keyId, signature, and signedPayloadDigest",
+    "digestComputation": "SHA-256 of stableCanonicalStringify({ overlaySourceId, overlayVersion, manifestHash })",
+    "digestExcludes": ["mergeMode", "authorityTier", "stackPosition", "seamId"],
+    "envelopeFieldsExcludedFromClosureHash": [
+      "signatureKeyId",
+      "signatureAlgorithm",
+      "signatureTrustRoot",
+      "signatureEnvelopeValid",
+      "signedPayloadDigest"
+    ]
+  }
+}

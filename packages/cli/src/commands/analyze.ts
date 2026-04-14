@@ -1,8 +1,7 @@
 import pc from 'picocolors';
 import Table from 'cli-table3';
 import { discoverEnvironment } from '../autodiscovery.js';
-import { executeRunnerBridge } from '../runner-bridge.js';
-import { classifyAuthorityDomain } from '@arch-engine/adapter-monorepo';
+import { executeRunnerBridge, loadMonorepoAdapter } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import {
   classifyStability,
@@ -35,11 +34,11 @@ export async function analyzeCommand(options: any) {
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
   const crossingCount = engineResult.stabilityIndex.authority_crossings.total_crossings;
 
-  // Domain distribution
-  const { runMonorepoExtraction } = await import('@arch-engine/adapter-monorepo');
-  const extraction = runMonorepoExtraction(cwd);
+  // Domain distribution (adapter resolved lazily via runner-bridge)
+  const adapter = await loadMonorepoAdapter();
+  const extraction = adapter.runMonorepoExtraction(cwd);
   const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward).map(
-    ([, entry]) => ({ authorityDomain: classifyAuthorityDomain(entry.backend_route) }),
+    ([, entry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
   const domainDist = countDomainDistribution(fwdDomainPkgs);
   const domainIntegrity = checkDomainIntegrity(domainDist);

@@ -19,18 +19,32 @@ import {
   type EngineExecutionState,
 } from '@arch-engine/core';
 
-import {
-  runMonorepoExtraction,
-  type ExtractionMetadata,
-} from '@arch-engine/adapter-monorepo';
-
 import type { ExecutionMetrics } from './snapshot.js';
+
+// ─── Lazy Adapter Resolution ────────────────────────────
+// The monorepo adapter is an optional peer dependency.
+// It must never be statically imported at module scope —
+// CLI startup (--version, --help) must succeed without it.
+
+type AdapterModule = typeof import('@arch-engine/adapter-monorepo');
+
+export async function loadMonorepoAdapter(): Promise<AdapterModule> {
+  try {
+    return await import('@arch-engine/adapter-monorepo');
+  } catch {
+    throw new Error(
+      'This command requires @arch-engine/adapter-monorepo.\n\n' +
+      'Install it with:\n\n' +
+      '  npm install @arch-engine/adapter-monorepo\n',
+    );
+  }
+}
 
 // ─── Result Contract ────────────────────────────────────
 
 export interface BridgeExecutionResult {
   engineResult: EngineExecutionResult;
-  extractionMetadata: ExtractionMetadata;
+  extractionMetadata: import('@arch-engine/adapter-monorepo').ExtractionMetadata;
   adjacencyMap: Record<string, string[]>;
   isAutodiscovered: boolean;
   autodiscoveryMessage?: string;
@@ -49,15 +63,16 @@ export async function executeRunnerBridge(
 ): Promise<BridgeExecutionResult> {
   const totalStart = Date.now();
 
-  // 1. Run zero-config monorepo extraction (timed)
+  // 1. Resolve adapter lazily, then run extraction (timed)
+  const adapter = await loadMonorepoAdapter();
   const extractionStart = Date.now();
-  const extraction = runMonorepoExtraction(cwd);
+  const extraction = adapter.runMonorepoExtraction(cwd);
   const extractionMs = Date.now() - extractionStart;
 
   // 2. Create engine manifest
   const manifest = parseEngineManifest({
     engine_id: 'arch-engine-cli',
-    engine_version: '1.0.0-rc.1',
+    engine_version: '1.0.0-rc.3',
     schema_versions: {
       capability_schema: '1.0.0',
       topology_schema: '1.0.0',

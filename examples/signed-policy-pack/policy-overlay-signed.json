@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "enforce",
+  "rules": {
+    "forbid": [
+      { "id": "no-cross-layer-imports", "from": "frontend", "to": "infrastructure", "severity": "error" },
+      { "id": "no-reverse-dependencies", "from": "infrastructure", "to": "frontend", "severity": "error" }
+    ]
+  },
+  "_overlayTransport": {
+    "overlaySourceId": "registry-partner/security-overlay",
+    "overlayVersion": "1.0.0",
+    "overlayRegistrySource": "registry-partner",
+    "overlaySignature": "eyJhbGdvcml0aG0iOiJlZDI1NTE5Iiwia2V5SWQiOiJwYXJ0bmVyLXNpZ25pbmcta2V5LTAwMSIsInNpZ25hdHVyZSI6IjYzbUpxL2htY3JURENSd21tbkxIckh3UmdhQlZiZWVkZTNkS0oxcVNFbWs9Iiwic2lnbmVkUGF5bG9hZERpZ2VzdCI6IjQ1NDAxMWU2MTMyMDFkZDg5YzgwYmI2ZTIzN2JmMGFmMzhkZTVmOWU5Mjg1NmJiMDMwYTkzNzhjNGE4YjQ4MTUifQ==",
+    "overlayTrustTier": "SIGNED_EXTERNAL_PACK",
+    "_comment": "Signature present — base64-encoded ed25519 envelope with valid payload digest"
+  }
+}

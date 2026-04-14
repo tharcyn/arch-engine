@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "DomainToInfra": {
+      "severity": "warning",
+      "_comment_suppression": "OVERLAY EXPLANATION: Demotes the base error severity to a warning temporarily during the frontend monorepo migration sequence. This clearly demonstrates overlay participation safely traversing merge algebra constraints."
+    },
+    "FrontendComponentIsolation": {
+      "path": ["frontend", "components", "**"],
+      "mustNotDependOn": ["frontend", "pages", "**"],
+      "severity": "error",
+      "description": "Components MUST NOT depend directly on Pages (Additive Overlay augmentation participation)."
+    }
+  }
+}

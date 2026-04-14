@@ -16,9 +16,6 @@ export async function explainCommand(target: string, options: any) {
   // ── Special target: policy ────────────────────────────
   if (target === 'policy') {
     return explainPolicy(cwd, options);
-  // ── Special target: policy-resolution ───────────────────
-  if (target === 'policy-resolution') {
-    return explainPolicyResolution(cwd, options);
   }
 
   if (!options.json) {

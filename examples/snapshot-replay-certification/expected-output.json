@@ -1,0 +1,30 @@
+{
+  "replayVerification": {
+    "originalClosureGraphHash": "1804245ce0b22a009efb4c1945aeacf0aaae19aa14bc8b5c928494b2beedee14",
+    "replayClosureGraphHash": "1804245ce0b22a009efb4c1945aeacf0aaae19aa14bc8b5c928494b2beedee14",
+    "hashesIdentical": true
+  },
+  "semanticParity": {
+    "authorityTierPreserved": true,
+    "mergeAuthorityPreserved": true,
+    "originPolicyChainPreserved": true
+  },
+  "executionConsequences": {
+    "violationCount": 2,
+    "executionEdges": [
+      {
+        "edgeId": "frontend-to-infrastructure",
+        "appliedRule": "no-cross-layer-imports",
+        "consequence": "error"
+      },
+      {
+        "edgeId": "infrastructure-to-frontend",
+        "appliedRule": "no-reverse-dependencies",
+        "consequence": "error"
+      }
+    ]
+  },
+  "_meta": {
+    "invariant": "Closure graph hash represents semantic policy execution structure only. Transport routing decisions must not influence closure graph identity."
+  }
+}

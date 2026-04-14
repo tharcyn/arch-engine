@@ -1,0 +1,14 @@
+{
+  "name": "Reference Topology Engine Pack",
+  "description": "Canonical test-suite validating deterministic overlay semantics, authority tier parsing, and snapshot continuity.",
+  "category": "infrastructure-validation",
+  "schemaVersion": "v1.0",
+  "maintainership": {
+    "owner": "engine-core-team"
+  },
+  "compatibility": {
+    "_note_execution_participation": "Metadata MUST NOT participate in closureGraphHash semantic logic.",
+    "_note_registry_portability": "This payload routes securely via federation transport wrappers transparently.",
+    "_note_snapshot_replay": "This map avoids timestamp coupling, remaining cleanly cryptographically portable."
+  }
+}

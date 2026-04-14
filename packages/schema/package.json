@@ -1,16 +1,41 @@
 {
   "name": "@arch-engine/schema",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.3",
   "description": "Canonical JSON schemas and TypeScript types for architecture reasoning.",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
+    "directory": "packages/schema"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "keywords": [
+    "schema",
+    "contracts",
+    "types",
+    "architecture-schema",
+    "arch-engine"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "main": "./dist/types/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": "./dist/types/index.js",
-    "./schemas/*": "./src/*.schema.json"
+    "./schemas/*": "./dist/schemas/*.schema.json"
   },
   "scripts": {
-    "build": "tsc --project tsconfig.json"
+    "build": "tsc --project tsconfig.json && mkdir -p dist/schemas && cp src/*.schema.json dist/schemas/"
   },
-  "files": ["dist", "src/*.schema.json"]
+  "files": [
+    "dist",
+    "dist/schemas",
+    "README.md",
+    "LICENSE"
+  ]
 }

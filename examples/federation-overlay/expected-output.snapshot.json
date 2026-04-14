@@ -1,0 +1,195 @@
+{
+  "evaluationResult": {
+    "policyHash": "c631c16bd237214bcb6f1b9cf4de074249e30a5e1d1fbc82438cc263574744ff",
+    "policyVersion": 1,
+    "policyMode": "enforce",
+    "evaluationStrategyVersion": 1,
+    "policyDetected": true,
+    "matchedEdges": 7,
+    "violations": [
+      {
+        "violationCategory": "explicit_forbid",
+        "from": "frontend/app.ts",
+        "to": "infrastructure/database.ts",
+        "severity": "error",
+        "ruleId": "no-cross-layer-imports",
+        "ruleSource": "forbid_rule",
+        "confidenceContext": "federation-overlay",
+        "matchedDomainSource": "frontend",
+        "matchedDomainTarget": "infrastructure",
+        "tierSource": "high",
+        "tierTarget": "low",
+        "tierDelta": 2,
+        "suppressionEligible": true,
+        "originPolicyId": "registry-partner/data-isolation",
+        "originRuleId": "no-cross-layer-imports",
+        "compositionDepth": 1,
+        "inheritedFromPolicyId": "registry-central/base-architecture",
+        "originPolicyChain": [
+          "registry-central/base-architecture",
+          "registry-partner/data-isolation"
+        ],
+        "mergeAuthority": "resolved-severity"
+      },
+      {
+        "violationCategory": "explicit_forbid",
+        "from": "infrastructure/cache.ts",
+        "to": "frontend/app.ts",
+        "severity": "error",
+        "ruleId": "no-reverse-dependencies",
+        "ruleSource": "forbid_rule",
+        "confidenceContext": "federation-overlay",
+        "matchedDomainSource": "infrastructure",
+        "matchedDomainTarget": "frontend",
+        "tierSource": "low",
+        "tierTarget": "high",
+        "tierDelta": -2,
+        "suppressionEligible": true,
+        "originPolicyId": "registry-partner/data-isolation",
+        "originRuleId": "no-reverse-dependencies",
+        "compositionDepth": 1,
+        "originPolicyChain": [
+          "registry-partner/data-isolation"
+        ],
+        "mergeAuthority": "additive"
+      }
+    ],
+    "allowMatches": [
+      {
+        "matchedAllowRuleId": "frontend-to-services",
+        "matchedAllowPolicyId": "registry-central/base-architecture",
+        "allowCompositionDepth": 0,
+        "from": "frontend/app.ts",
+        "to": "services/user-service.ts"
+      },
+      {
+        "matchedAllowRuleId": "frontend-to-services",
+        "matchedAllowPolicyId": "registry-central/base-architecture",
+        "allowCompositionDepth": 0,
+        "from": "frontend/app.ts",
+        "to": "services/auth-service.ts"
+      },
+      {
+        "matchedAllowRuleId": "frontend-to-services",
+        "matchedAllowPolicyId": "registry-central/base-architecture",
+        "allowCompositionDepth": 0,
+        "from": "frontend/components/header.ts",
+        "to": "services/user-service.ts"
+      },
+      {
+        "matchedAllowRuleId": "services-to-infrastructure",
+        "matchedAllowPolicyId": "registry-central/base-architecture",
+        "allowCompositionDepth": 0,
+        "from": "services/user-service.ts",
+        "to": "infrastructure/database.ts"
+      },
+      {
+        "matchedAllowRuleId": "services-to-infrastructure",
+        "matchedAllowPolicyId": "registry-central/base-architecture",
+        "allowCompositionDepth": 0,
+        "from": "services/auth-service.ts",
+        "to": "infrastructure/cache.ts"
+      }
+    ],
+    "policyRuleHits": {
+      "no-cross-layer-imports": 1,
+      "no-reverse-dependencies": 1
+    }
+  },
+  "federationTransport": {
+    "primaryResolution": {
+      "basePolicy": {
+        "policyId": "registry-central/base-architecture",
+        "registryId": "registry-central",
+        "registryTrustTier": "CORE_INTERNAL",
+        "policyContentHash": "e1876b282f0037523a5412a010a9b81103b565f4ff56a711e7ca9d69b214c7ea",
+        "mirrorFallbackUsed": false
+      },
+      "overlayPolicy": {
+        "policyId": "registry-partner/data-isolation",
+        "registryId": "registry-partner",
+        "registryTrustTier": "SIGNED_EXTERNAL_PACK",
+        "policyContentHash": "670d0d92162c1ed4a5d8ac2f0de2d7d10c6f2fdc429cd26b59af410630899c08",
+        "mirrorFallbackUsed": false,
+        "mirrorSourceId": null
+      }
+    },
+    "mirrorFallbackResolution": {
+      "basePolicy": {
+        "policyId": "registry-central/base-architecture",
+        "registryId": "registry-central",
+        "registryTrustTier": "CORE_INTERNAL",
+        "policyContentHash": "e1876b282f0037523a5412a010a9b81103b565f4ff56a711e7ca9d69b214c7ea",
+        "mirrorFallbackUsed": false
+      },
+      "overlayPolicy": {
+        "policyId": "registry-partner/data-isolation",
+        "registryId": "registry-partner-mirror",
+        "registryTrustTier": "SIGNED_EXTERNAL_PACK",
+        "policyContentHash": "670d0d92162c1ed4a5d8ac2f0de2d7d10c6f2fdc429cd26b59af410630899c08",
+        "mirrorFallbackUsed": true,
+        "mirrorSourceId": "registry-partner-mirror",
+        "mirrorEquivalenceVerified": true
+      }
+    },
+    "closureHashParity": {
+      "primaryPathClosureHash": "1b0edfde2efaea91dc8630f2dede48c3e1d8a9bc42c6d779b1c4ac543ed41bd8",
+      "mirrorPathClosureHash": "1b0edfde2efaea91dc8630f2dede48c3e1d8a9bc42c6d779b1c4ac543ed41bd8",
+      "closureHashParityVerified": true,
+      "closureGraphContractVersion": "v3"
+    },
+    "seamExecutionTelemetry": {
+      "telemetrySchemaVersion": 1,
+      "seamId": "overlay::policy::enforcement",
+      "overlaySourceId": "registry-partner/data-isolation",
+      "overlayVersion": "1.0.0",
+      "mergeMode": "replace-if-authorized",
+      "authorityTier": 3,
+      "activationDecision": "EXECUTED",
+      "conflictDetected": false,
+      "resolutionOutcome": "deterministic",
+      "hashParticipationEnabled": true,
+      "signaturePresent": true,
+      "signatureValid": true,
+      "signatureVerificationMode": "verified",
+      "seamGrantPresent": true,
+      "seamGrantMaxTier": 3,
+      "seamGrantAllowsMergeMode": true,
+      "mirrorSourceId": null,
+      "mirrorFallbackUsed": false,
+      "mirrorEquivalenceVerified": false
+    },
+    "seamExecutionTelemetryMirrorPath": {
+      "telemetrySchemaVersion": 1,
+      "seamId": "overlay::policy::enforcement",
+      "overlaySourceId": "registry-partner/data-isolation",
+      "overlayVersion": "1.0.0",
+      "mergeMode": "replace-if-authorized",
+      "authorityTier": 3,
+      "activationDecision": "EXECUTED",
+      "conflictDetected": false,
+      "resolutionOutcome": "deterministic",
+      "hashParticipationEnabled": true,
+      "signaturePresent": true,
+      "signatureValid": true,
+      "signatureVerificationMode": "verified",
+      "seamGrantPresent": true,
+      "seamGrantMaxTier": 3,
+      "seamGrantAllowsMergeMode": true,
+      "mirrorSourceId": "registry-partner-mirror",
+      "mirrorFallbackUsed": true,
+      "mirrorEquivalenceVerified": true
+    }
+  },
+  "_meta": {
+    "snapshotVersion": "1.0.0",
+    "determinismGuarantee": "This snapshot is byte-stable across runs. It contains no timestamps, no filesystem paths, and no environment-sensitive values.",
+    "replayInstructions": "Composing the base and overlay policies against this topology must produce evaluationResult exactly. The federationTransport section documents the transport-layer telemetry that the engine captures during overlay seam execution. Both primary and mirror resolution paths produce identical evaluationResult and identical closureHash.",
+    "closureHashParityExplanation": "The closure graph hash depends exclusively on seamId, overlaySourceId, overlayVersion, mergeMode, and authorityTier. Mirror routing metadata (mirrorSourceId, mirrorFallbackUsed, mirrorEquivalenceVerified) is explicitly excluded from the hash input by design. This is why the hash remains identical regardless of which registry served the overlay content.",
+    "trustTierExplanation": {
+      "CORE_INTERNAL (4)": "Maximum trust — reserved for the primary registry (registry-central)",
+      "TRUSTED_POLICY_PACK (3)": "The overlay's effective authority tier — capped by the SIGNED_EXTERNAL_PACK registry ceiling (partner registry) and elevated by seam grant to TRUSTED_POLICY_PACK",
+      "SIGNED_EXTERNAL_PACK (2)": "The partner registry's inherent ceiling — overlays from this registry cannot exceed this tier without a seam authority grant"
+    }
+  }
+}

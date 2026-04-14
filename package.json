@@ -1,6 +1,6 @@
 {
   "name": "arch-engine",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.3",
   "private": true,
   "description": "Framework-agnostic architecture reasoning engine — topology intelligence, contract parity validation, invariant enforcement, and simulation traversal.",
   "keywords": ["architecture", "topology", "determinism", "policy-engine", "federation"],
@@ -15,15 +15,34 @@
     "packages/cli",
     "packages/governance-pack-rest-contract",
     "packages/governance-pack-authority",
-    "packages/governance-pack-journey"
+    "packages/governance-pack-journey",
+    "packages/adapter-monorepo"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces && cd action && npm run build",
+    "prepack": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit --project tsconfig.json",
-    "clean": "rm -rf packages/*/dist"
+    "clean": "rm -rf packages/*/dist action/dist"
   },
+  "bin": {
+    "arch-engine": "./packages/cli/dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "packages/core/dist",
+    "packages/cli/dist",
+    "packages/schema/dist",
+    "packages/governance-pack-rest-contract/dist",
+    "packages/governance-pack-authority/dist",
+    "packages/governance-pack-journey/dist",
+    "packages/adapter-monorepo/dist",
+    "action/action.yml",
+    "action/dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/node": "^22.0.0",
     "ajv": "^8.18.0",

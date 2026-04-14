@@ -1,0 +1,6 @@
+{
+  "name": "arch-engine-sample-monorepo",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "type": "module"
+}

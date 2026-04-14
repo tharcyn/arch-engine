@@ -1,0 +1,10 @@
+{
+  "name": "multi-policy-composition",
+  "version": "1.0.0",
+  "description": "Two-policy composition demonstrating deterministic precedence, conflict resolution, and replay-stable output",
+  "policySchemaVersion": "1",
+  "schemaAuthority": "https://schemas.arch-engine.dev/",
+  "descriptorSchema": "https://schemas.arch-engine.dev/descriptors/v1.json",
+  "engine": "@arch-engine/core",
+  "engineVersion": ">=0.1.0-preview"
+}

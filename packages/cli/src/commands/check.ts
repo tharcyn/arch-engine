@@ -4,12 +4,6 @@ import * as crypto from 'node:crypto';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
-import {
-  classifyStability,
-  classifyConfidence,
-  confidenceDescription,
-  checkQualityFloor,
-  formatWarnings,
 import { classifyStability, classifyConfidence, confidenceDescription, checkQualityFloor, formatWarnings, formatWarningHeader } from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';

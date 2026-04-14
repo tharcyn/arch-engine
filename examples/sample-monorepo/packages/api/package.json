@@ -1,0 +1,8 @@
+{
+  "name": "@sample/api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@sample/shared": "*"
+  }
+}

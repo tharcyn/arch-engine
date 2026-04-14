@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/core",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.3",
   "description": "Capability-driven architecture topology reasoning engine — validate dependency direction, detect authority boundary violations, score topology stability, and reconcile conflicting graph edges across multiple code scanners.",
   "type": "module",
   "license": "MIT",
@@ -39,25 +39,16 @@
   },
   "keywords": [
     "architecture",
-    "architecture-analysis",
     "topology",
-    "topology-analysis",
     "dependency-graph",
-    "authority-boundary",
-    "blast-radius",
-    "code-analysis",
     "static-analysis",
     "governance",
-    "graph-validation",
-    "confidence-scoring",
-    "policy-engine",
-    "schema-validation",
-    "adapter-sdk",
-    "llm-infrastructure"
+    "architecture-analysis",
+    "arch-engine"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tharcyn/arch-engine.git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
     "directory": "packages/core"
   },
   "homepage": "https://github.com/tharcyn/arch-engine",
@@ -71,7 +62,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@arch-engine/schema": "^1.0.0-rc.1",
+    "@arch-engine/schema": "^1.0.0-rc.3",
     "yaml": "^2.8.3"
   },
   "files": [

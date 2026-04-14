@@ -1,0 +1,49 @@
+{
+  "federationInvariants": {
+    "crossRegistryComposition": {
+      "baseRegistryId": "registry-central",
+      "overlayRegistryId": "registry-partner",
+      "compositionDeterministic": true,
+      "provenanceChainsPreserved": true
+    },
+    "mirrorFallbackParity": {
+      "mirrorRegistryId": "registry-partner-mirror",
+      "contentEquivalenceVerified": true,
+      "evaluationResultIdentical": true,
+      "closureHashIdentical": true,
+      "closureGraphContractVersion": "v3"
+    },
+    "trustTierEnforcement": {
+      "registryCeiling": "SIGNED_EXTERNAL_PACK",
+      "seamGrantElevation": "TRUSTED_POLICY_PACK",
+      "effectiveAuthorityTier": 3,
+      "ceilingNeverExceeded": true
+    },
+    "signatureVerification": {
+      "signaturePresent": true,
+      "signatureValid": true,
+      "signatureVerificationMode": "verified"
+    }
+  },
+  "deterministicFields": [
+    "evaluationResult.policyHash",
+    "evaluationResult.violations",
+    "evaluationResult.allowMatches",
+    "evaluationResult.policyRuleHits",
+    "federationTransport.closureHashParity.primaryPathClosureHash",
+    "federationTransport.closureHashParity.mirrorPathClosureHash"
+  ],
+  "excludedFromIdentity": [
+    "mirrorSourceId",
+    "mirrorFallbackUsed",
+    "mirrorEquivalenceVerified",
+    "signatureKeyId",
+    "signatureAlgorithm",
+    "signatureTrustRoot",
+    "signatureEnvelopeValid",
+    "signedPayloadDigest",
+    "stackPosition",
+    "stackSize",
+    "stackSortKey"
+  ]
+}

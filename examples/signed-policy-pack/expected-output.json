@@ -1,0 +1,111 @@
+{
+  "unsignedOverlayPath": {
+    "authorityResolution": {
+      "overlaySourceId": "registry-partner/security-overlay",
+      "overlayVersion": "1.0.0",
+      "authorityTier": 2,
+      "authorityTierName": "SIGNED_EXTERNAL_PACK",
+      "trustAccepted": false,
+      "rejectionReason": "Signature missing for signed-tier claim on registry-partner/security-overlay@1.0.0",
+      "activationDecision": "REJECTED"
+    },
+    "signatureVerification": {
+      "signaturePresent": false,
+      "signatureValid": false,
+      "signatureVerificationMode": "missing",
+      "signatureEnvelopeValid": false,
+      "rejectionReason": "Signature missing for overlay registry-partner/security-overlay@1.0.0"
+    },
+    "compositionEffect": "none",
+    "overlayRulesApplied": false,
+    "evaluationResult": {
+      "policyMode": "enforce",
+      "matchedEdges": 7,
+      "violations": 1,
+      "violationDetails": [
+        {
+          "ruleId": "no-cross-layer-imports",
+          "from": "frontend/app.ts",
+          "to": "infrastructure/database.ts",
+          "severity": "warning",
+          "mergeAuthority": "local",
+          "originPolicyChain": ["base-architecture"],
+          "_explanation": "Base policy severity preserved — overlay was rejected, so no escalation occurred"
+        }
+      ],
+      "allowMatches": 5,
+      "policyRuleHits": {
+        "no-cross-layer-imports": 1
+      }
+    }
+  },
+  "signedOverlayPath": {
+    "authorityResolution": {
+      "overlaySourceId": "registry-partner/security-overlay",
+      "overlayVersion": "1.0.0",
+      "authorityTier": 3,
+      "authorityTierName": "TRUSTED_POLICY_PACK",
+      "trustAccepted": true,
+      "activationDecision": "EXECUTED"
+    },
+    "signatureVerification": {
+      "signaturePresent": true,
+      "signatureValid": true,
+      "signatureVerificationMode": "verified",
+      "signatureKeyId": "partner-signing-key-001",
+      "signatureAlgorithm": "ed25519",
+      "signatureTrustRoot": "registry-partner",
+      "signatureEnvelopeValid": true,
+      "signedPayloadDigest": "454011e613201dd89c80bb6e237bf0af38de5f9e92856bb030a9378c4a8b4815"
+    },
+    "compositionEffect": "severity-escalation + additive-rule",
+    "overlayRulesApplied": true,
+    "evaluationResult": {
+      "policyMode": "enforce",
+      "matchedEdges": 7,
+      "violations": 2,
+      "violationDetails": [
+        {
+          "ruleId": "no-cross-layer-imports",
+          "from": "frontend/app.ts",
+          "to": "infrastructure/database.ts",
+          "severity": "error",
+          "mergeAuthority": "resolved-severity",
+          "originPolicyChain": ["base-architecture", "registry-partner/security-overlay"],
+          "inheritedFromPolicyId": "base-architecture",
+          "_explanation": "Severity escalated from warning to error because signed overlay was accepted and composed"
+        },
+        {
+          "ruleId": "no-reverse-dependencies",
+          "from": "infrastructure/cache.ts",
+          "to": "frontend/app.ts",
+          "severity": "error",
+          "mergeAuthority": "additive",
+          "originPolicyChain": ["registry-partner/security-overlay"],
+          "_explanation": "New rule added by signed overlay — did not exist in base policy"
+        }
+      ],
+      "allowMatches": 5,
+      "policyRuleHits": {
+        "no-cross-layer-imports": 1,
+        "no-reverse-dependencies": 1
+      }
+    }
+  },
+  "closureHashParity": {
+    "signedPathSeamFingerprint": "c06d78d100b15cf3f85a169e7b60b1f56c08188e944eec7071e4551d1be74887",
+    "signedPathClosureHash": "3359989c51b90809d9188c36cbde86eb29ee8e00ebe8eb0923855cd127f1c821",
+    "unsignedPathClosureHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hashesIdentical": false,
+    "_explanation": "Closure hashes differ because the unsigned overlay was REJECTED (no seam fingerprint emitted) while the signed overlay was EXECUTED (seam fingerprint emitted). This is correct behavior: the execution structures are semantically different. The key invariant is that signature TRANSPORT metadata (keyId, algorithm, trustRoot, payloadDigest) does not participate in the closure hash — only the execution structure (seamId, overlaySourceId, overlayVersion, mergeMode, authorityTier) does."
+  },
+  "_meta": {
+    "snapshotVersion": "1.0.0",
+    "determinismGuarantee": "This snapshot is byte-stable across runs. It contains no timestamps, no filesystem paths, and no environment-sensitive values.",
+    "signatureInvariant": "Signature presence affects authority resolution (accept vs reject), which affects execution structure (EXECUTED vs REJECTED), which affects the closure hash. But signature transport metadata (algorithm, keyId, trustRoot, payloadDigest) never enters the closure hash input directly.",
+    "authorityTierExplanation": {
+      "unsigned": "SIGNED_EXTERNAL_PACK (2) — registry ceiling, but signature missing so trust rejected",
+      "signed": "TRUSTED_POLICY_PACK (3) — signature verified, seam grant elevates to tier 3"
+    }
+  }
+}

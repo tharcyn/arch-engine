@@ -1,0 +1,50 @@
+{
+  "topologyVersion": "1.0.0",
+  "nodes": [
+    { "id": "frontend/app.ts", "layer": "frontend" },
+    { "id": "frontend/components/header.ts", "layer": "frontend" },
+    { "id": "services/user-service.ts", "layer": "services" },
+    { "id": "services/auth-service.ts", "layer": "services" },
+    { "id": "infrastructure/database.ts", "layer": "infrastructure" },
+    { "id": "infrastructure/cache.ts", "layer": "infrastructure" }
+  ],
+  "edges": [
+    {
+      "source": "frontend/app.ts",
+      "target": "services/user-service.ts",
+      "type": "import"
+    },
+    {
+      "source": "frontend/app.ts",
+      "target": "services/auth-service.ts",
+      "type": "import"
+    },
+    {
+      "source": "frontend/components/header.ts",
+      "target": "services/user-service.ts",
+      "type": "import"
+    },
+    {
+      "source": "services/user-service.ts",
+      "target": "infrastructure/database.ts",
+      "type": "import"
+    },
+    {
+      "source": "services/auth-service.ts",
+      "target": "infrastructure/cache.ts",
+      "type": "import"
+    },
+    {
+      "source": "frontend/app.ts",
+      "target": "infrastructure/database.ts",
+      "type": "import",
+      "_comment": "VIOLATION: base forbids at warning, overlay escalates to error via severity resolution"
+    },
+    {
+      "source": "infrastructure/cache.ts",
+      "target": "frontend/app.ts",
+      "type": "import",
+      "_comment": "VIOLATION: overlay adds no-reverse-dependencies rule that catches this reverse flow"
+    }
+  ]
+}
