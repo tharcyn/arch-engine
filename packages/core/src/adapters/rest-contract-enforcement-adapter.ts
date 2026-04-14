@@ -28,7 +28,7 @@ export class RestContractEnforcementAdapter {
         frontendTopology: 'full',
         modelRelationships: 'none'
       }
-    });
+    } satisfies AdapterCapabilityDescriptor);
   }
 
   public getRegistryDescriptor(): AdapterCapabilityDescriptor {

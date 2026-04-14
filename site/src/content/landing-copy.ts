@@ -1,66 +1,105 @@
 export const landingCopy = {
   plain: {
-    heroTitle: "Understand your architecture before it breaks.",
-    heroSubtitle: "Arch-Engine maps how your system actually connects so teams can see dependencies, boundaries, and risk surfaces directly from their codebase.",
+    heroTitle: "Your codebase has architecture. Nothing enforces it systemically.",
+    heroSubtitle: "Arch-Engine extracts structural relationships directly from source code and enables enforcement of architectural rules via policy packs \u2014 automatically, deterministically.",
     problemLines: [
-      "Modern systems grow faster than teams can understand them.",
-      "Dependencies spread across services.\\nBoundaries blur between layers.\\nSmall changes create unexpected impact.",
-      "Most teams only see architecture problems after they reach production."
+      "Software architecture is discussed in reviews and documented in wikis. It is rarely enforced systemically by tooling.",
+      "Dependencies cross boundaries silently.\nSmall changes create unexpected blast radius.\nArchitectural rules exist only as convention.",
+      "Teams discover structural problems in production because nothing surfaces them earlier."
     ],
-    solutionIntro: "Arch-Engine reads your repository and builds a structural map of how your system actually works.",
-    solutionDetails: "It helps teams:",
+    differentiationTitle: "A New Kind of Architecture Tool",
+    differentiationLines: [
+      "This is not another linting tool.",
+      "It does not check code style or find bugs."
+    ],
+    differentiationConclusion: "Arch-Engine operates one level above \u2014 on the structural relationships between packages, modules, and boundaries. It makes your architecture visible and enforceable through policy packs as a first-class part of your development workflow.",
+    solutionIntro: "Arch-Engine reads your repository and extracts the structural relationships between every package, module, and boundary.",
+    solutionDetails: "With that structure extracted, teams can:",
     solutionBullets: [
-      "see dependencies clearly",
-      "protect important boundaries",
-      "detect architectural risk early"
+      "query dependency connections across the entire codebase",
+      "enforce boundary rules that prevent architectural drift via policy packs",
+      "detect structural risk before it reaches a pull request"
     ],
-    solutionTrailing: "without changing how they build software.",
-    cli: "Run one command to inspect your architecture:\\n\\nIt analyzes your workspace and reports structural confidence, connectivity coverage, and policy readiness immediately.",
-    adapters: "Adapters help Arch-Engine understand how different projects are structured automatically.\\n\\nAdapters make the engine work with your repository without configuration.",
-    policyPacks: "Policy packs let teams define architecture rules once and keep them enforced automatically.\\n\\nExamples: protect service boundaries, detect dependency drift, validate API contract alignment.",
-    trustIntro: "Arch-Engine is available today as a stable CLI runtime. Includes:",
+    solutionTrailing: "No annotations required. No build changes. One install. Works alongside existing tooling.",
+    cli: "Run one command to inspect your architecture.\n\nReports structural confidence, connectivity coverage, and policy readiness \u2014 instantly.",
+    cliExecSummary: [
+      "Extracts structure.",
+      "Evaluates structure.",
+      "Reports confidence immediately."
+    ],
+    cliSafetyNote: "Safe diagnostic runtime. No source files modified. No dependencies mutated. Creates a local .arch-engine/ context directory on first run.",
+    cliOffline: "No network requests. Fully offline execution by default.",
+    cliDuration: "Sub-second execution on typical small and mid-sized workspaces.",
+    cliNpxNote: "Run instantly without installation using npx.",
+    cliDoctorScope: "",
+    policyPackOptional: "Policy packs are optional. The engine runs without them.",
+    policyPacks: "Policy packs encode architecture rules as enforceable constraints. Define them once. The engine enforces them on every run.\n\nExamples: boundary protection, dependency drift detection, API contract alignment validation.",
+    federationOptIn: "",
+    adapters: "Adapters let Arch-Engine understand how your project is structured \u2014 npm, pnpm, and Yarn workspaces \u2014 monorepo, single-package, or multi-workspace.\n\nNo configuration required for supported workspace types.",
+    adapterSafety: "Adapters are read-only and never modify your project.",
+    trustIntro: "Available now. Stable CLI runtime. MIT licensed.",
     trustCard1Title: "v1.0.0 Stable Release",
-    trustCard1Desc: "Scoped npm packages.",
+    trustCard1Desc: "Scoped npm packages on the public registry. Stable public API surface.",
     trustCard2Title: "CLI Runtime",
-    trustCard2Desc: "Instant topology extraction engine.",
-    trustCard3Title: "Adapter Support",
-    trustCard3Desc: "Automatic workspace discovery.",
-    trustCard4Title: "Governance Layer",
-    trustCard4Desc: "Policy pack enforcement system.",
-    cta: "Install Arch-Engine in seconds.\\nRun your first architecture diagnostic immediately.",
-    ctaFooter: "No configuration required for first diagnostic run."
+    trustCard2Desc: "Topology extraction in a single command.",
+    trustCard3Title: "Workspace Adapters",
+    trustCard3Desc: "Automatic project structure discovery.",
+    trustCard4Title: "Governance Packs",
+    trustCard4Desc: "Composable architecture rule enforcement.",
+    cta: "See your architecture in one command.",
+    ctaFooter: "Zero configuration required. Instant diagnostic."
   },
 
   technical: {
-    heroTitle: "A topology governance runtime for real-world codebases.",
-    heroSubtitle: "Arch-Engine constructs deterministic dependency topology directly from source structure and evaluates architectural invariants continuously using policy packs.",
+    heroTitle: "Infrastructure for repository architecture reasoning.",
+    heroSubtitle: "Deterministic topology extraction from source structure.\nInvariant evaluation via composable policy packs.\nExecuted as a reproducible topology diagnostic runtime.",
     problemLines: [
-      "Architectural intent rarely exists as enforceable structure.",
-      "Cross-layer coupling accumulates silently.\\nAuthority boundaries erode over time.\\nTopology drift remains invisible to most tooling.",
-      "Syntax validation exists.\\n\\nTopology validation usually does not."
+      "Architectural intent is not systemically enforceable by any tool in the current stack.",
+      "Linters validate syntax.\nType systems validate contracts.\nCI validates builds.\nNothing validates repository topology systemically.",
+      "Cross-layer coupling, authority erosion, and blast-radius drift remain invisible \u2014 not because they\u2019re hard to detect, but because the reasoning surface doesn't exist."
     ],
-    solutionIntro: "Arch-Engine extracts a normalized topology graph from repository structure and evaluates architectural invariants using policy packs.",
-    solutionDetails: "It exposes:",
+    differentiationTitle: "Not Linting. Not Tracing. Not Config.",
+    differentiationLines: [
+      "Arch-Engine is not a linter with architecture rules.",
+      "It is not a runtime tracer with dependency graphs.",
+      "It is not policy-as-configuration."
+    ],
+    differentiationConclusion: "It is a topology governance runtime substrate \u2014 an infrastructure primitive that makes architecture structure queryable, enforceable, and federable across repository boundaries.",
+    solutionIntro: "Arch-Engine constructs the missing reasoning surface \u2014 a deterministic, closureGraphHash-stable topology graph (snapshot-stable across runs) extracted directly from source structure. No annotation, no configuration, no build step required.",
+    solutionDetails: "The extracted topology graph yields:",
     solutionBullets: [
-      "adjacency relationships",
-      "authority crossings",
-      "blast-radius surfaces",
-      "contract linkage paths"
+      "adjacency and reachability relationships",
+      "authority boundary crossing detection",
+      "blast-radius surfaces per change set",
+      "contract linkage and contract-parity paths"
     ],
-    solutionTrailing: "as first-class signals during development workflows.",
-    cli: "Initialize topology extraction and environment diagnostics:",
-    adapters: "Adapters provide capability negotiation layers that translate repository structure into normalized topology extraction surfaces.\\n\\nAdapters enable architecture reasoning without modifying build pipelines.",
-    policyPacks: "Policy packs define invariant-preserving constraint sets evaluated against extracted topology graphs.",
-    trustIntro: "Arch-Engine provides a deterministic topology extraction runtime with adapter capability negotiation and policy-pack evaluation surfaces designed for multi-repository architecture governance workflows.",
+    solutionTrailing: "These are composable primitives \u2014 consumable by policy packs, CI gates, and federated governance workflows.",
+    cli: "One command. Full topology extraction and environment diagnostic:",
+    cliExecSummary: [
+      "Extracts topology.",
+      "Evaluates structural invariants.",
+      "Reports structural confidence immediately."
+    ],
+    cliSafetyNote: "Safe diagnostic runtime. No source files modified. No dependencies mutated. Creates a local .arch-engine/ context directory on first run.",
+    cliOffline: "No network requests. Fully offline execution by default.",
+    cliDuration: "Sub-second execution on typical small and mid-sized workspaces.",
+    cliNpxNote: "Run instantly without installation using npx.",
+    cliDoctorScope: "doctor performs topology extraction and environment diagnostics only. Policy packs are evaluated separately via arch-engine check.",
+    policyPackOptional: "Policy packs are optional extensions. The core runtime executes topology extraction without governance packs installed.",
+    policyPacks: "Policy packs are composable constraint sets evaluated against the extracted topology graph. Each pack defines invariants \u2014 authority boundaries, contract parity rules, journey lifecycle constraints \u2014 that the runtime enforces deterministically.\n\nPolicy packs execute without modifying source code, build pipelines, or repository configuration.\n\nPolicy packs can be shared across repositories, organizations, and registry boundaries without mutating execution identity.",
+    federationOptIn: "Federation is opt-in and never activates implicitly.",
+    adapters: "Adapters are capability negotiation layers between workspace structure and topology extraction. They translate workspace structure into normalized topology ingestion surfaces.\n\nSupports npm, pnpm, and Yarn workspace topologies. Zero build-pipeline modification. Zero configuration for supported workspaces.",
+    adapterSafety: "Adapters are read-only. No repository modification. No build-step injection. No dependency graph mutation.",
+    trustIntro: "Shipped. Stable. Deterministic.",
     trustCard1Title: "Federation-Ready",
-    trustCard1Desc: "Designed for multi-repository governance.",
-    trustCard2Title: "Deterministic Execution",
-    trustCard2Desc: "Cryptographic topology hashing layer.",
-    trustCard3Title: "Capability Adapters",
-    trustCard3Desc: "Normalized topological ingestion endpoints.",
-    trustCard4Title: "Policy-Pack Runtime",
-    trustCard4Desc: "Invariant constraint evaluation engine.",
-    cta: "Install CLI runtime and adapter surface.\\nRun topology extraction.",
-    ctaFooter: "No configuration required for first diagnostic run."
+    trustCard1Desc: "Multi-repository topology composition across registry boundaries.",
+    trustCard2Title: "Deterministic by Design",
+    trustCard2Desc: "closureGraphHash-stable execution. Snapshot-portable topology envelopes.",
+    trustCard3Title: "Adapter Negotiation",
+    trustCard3Desc: "Capability-driven workspace ingestion. Zero configuration required.",
+    trustCard4Title: "Policy-Pack Evaluation",
+    trustCard4Desc: "Composable governance constraint runtime.",
+    cta: "Inspect your topology.",
+    ctaFooter: "Zero-configuration topology extraction. One command."
   }
 };

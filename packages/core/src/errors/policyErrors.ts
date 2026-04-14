@@ -51,7 +51,8 @@ export enum PolicyRuntimeErrorCode {
   CONTEXT_FEDERATION_INCOMPATIBLE = 'CONTEXT_FEDERATION_INCOMPATIBLE',
   CAPABILITY_DESCRIPTOR_MATRIX_PARITY_FAILURE = 'CAPABILITY_DESCRIPTOR_MATRIX_PARITY_FAILURE',
   CAPABILITY_MATRIX_CANONICALIZATION_VERSION_MISMATCH = 'CAPABILITY_MATRIX_CANONICALIZATION_VERSION_MISMATCH',
-  CAPABILITY_DESCRIPTOR_VERSION_INVALID = 'CAPABILITY_DESCRIPTOR_VERSION_INVALID'
+  CAPABILITY_DESCRIPTOR_VERSION_INVALID = 'CAPABILITY_DESCRIPTOR_VERSION_INVALID',
+  INCOMPATIBLE_CAPABILITY_DESCRIPTOR = 'INCOMPATIBLE_CAPABILITY_DESCRIPTOR'
 }
 
 export interface LoaderStageMetadata {
@@ -60,6 +61,7 @@ export interface LoaderStageMetadata {
   resolvedVersion?: string;
   validationStage?: string;
   primaryManifestHash?: string;
+  mirrorManifestHash?: string;
 }
 
 export interface PolicyRuntimeErrorOptions {
@@ -94,6 +96,12 @@ export interface PolicyRuntimeErrorOptions {
   trustScopeExplainabilityGraph?: any;
   compositionHints?: string[];
   federationRejectionDiagnostics?: any;
+  innerError?: Error;
+  metadata?: Record<string, unknown>;
+  documentNode?: string;
+  expectedType?: string;
+  actualType?: string;
+  failedRequirement?: string;
 }
 
 export class PolicyRuntimeError extends Error {
@@ -127,6 +135,12 @@ export class PolicyRuntimeError extends Error {
   public trustScopeExplainabilityGraph?: any;
   public compositionHints?: any;
   public federationRejectionDiagnostics?: any;
+  public innerError?: Error;
+  public metadata?: Record<string, unknown>;
+  public documentNode?: string;
+  public expectedType?: string;
+  public actualType?: string;
+  public failedRequirement?: string;
   constructor(options: PolicyRuntimeErrorOptions) {
     super(options.message);
     this.name = 'PolicyRuntimeError';

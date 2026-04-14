@@ -65,7 +65,7 @@ export class FederationOverlayAdapter {
         frontendTopology: 'none',
         modelRelationships: 'full' // Represents cross-domain/policy matrix stitching naturally
       }
-    });
+    } satisfies AdapterCapabilityDescriptor);
   }
 
   public getRegistryDescriptor(): AdapterCapabilityDescriptor {

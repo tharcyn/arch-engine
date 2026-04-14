@@ -115,6 +115,8 @@ export async function doctorCommand(options: any) {
 
   // Policy file
   console.log(`\n${pc.yellow('⚠')} No policy file detected (arch-policy.yml)`);
+  console.log(pc.green('  Topology extraction completed successfully.'));
+  console.log(pc.dim('  Policy packs can be added later to enforce architectural invariants.'));
 
   // Warnings
   if (meta.warnings.length > 0) {

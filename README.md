@@ -5,15 +5,29 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)]()
 [![License](https://img.shields.io/npm/l/@arch-engine/cli.svg)](https://github.com/tharcyn/arch-engine/blob/main/LICENSE)
 
-**Architecture topology governance runtime.**
+**Infrastructure for repository architecture reasoning.**
 
-Arch-Engine extracts dependency structure from real repositories, constructs topology graphs, and enforces architecture policy packs across package boundaries. It detects authority crossings, scores topology stability, and produces deterministic, snapshot-reproducible results.
-
-Arch-Engine extracts dependency topology from real repositories,
-constructs deterministic architecture graphs,
-and enforces composable governance policy packs over that structure.
+Arch-Engine extracts repository topology directly from source structure
+and enables deterministic (snapshot-stable across runs) enforcement through composable policy packs.
 It operates as a runtime substrate for architecture reasoning —
 not a linter, build system, or static rule engine.
+Works alongside existing tooling.
+
+```text
+source code
+↓
+topology extraction
+↓
+deterministic closureGraphHash graph
+↓
+policy-pack evaluation (optional)
+↓
+diagnostics / enforcement signals
+```
+
+> **Safe diagnostic runtime.** No source files modified. No dependencies mutated. Fully offline execution by default. Creates a local `.arch-engine/` context directory on first run only.
+
+Arch-Engine validates repository topology alongside existing tooling. It does not replace linters, type systems, or CI pipelines.
 
 ## Status
 
@@ -68,13 +82,13 @@ Arch-Engine ships as a constellation of focused packages. The **core runtime** i
 
 | Package | Role | Version |
 | --- | --- | --- |
-| [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types | `1.0.0-rc.3` |
-| [@arch-engine/core](./packages/core) | Topology reasoning runtime | `1.0.0-rc.3` |
-| [@arch-engine/cli](./packages/cli) | Command-line interface | `1.0.0-rc.3` |
-| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | _(Optional)_ Workspace topology extraction | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | _(Optional)_ Authority boundary governance | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | _(Optional)_ REST contract parity governance | `1.0.0-rc.4` |
-| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | _(Optional)_ Journey lifecycle governance | `1.0.0-rc.4` |
+| [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types | `1.0.0` |
+| [@arch-engine/core](./packages/core) | Topology reasoning runtime | `1.0.0` |
+| [@arch-engine/cli](./packages/cli) | Command-line interface | `1.0.0` |
+| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | _(Optional)_ Workspace topology extraction | `1.0.0` |
+| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | _(Optional)_ Authority boundary governance | `1.0.0` |
+| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | _(Optional)_ REST contract parity governance | `1.0.0` |
+| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | _(Optional)_ Journey lifecycle governance | `1.0.0` |
 
 ### Install
 
@@ -189,7 +203,7 @@ See the [Determinism Contract](docs/determinism-contract.md) and [Identity Surfa
 - [CLI Surface Contract](docs/cli-surface-contract.md)
 - [Versioning Strategy](docs/versioning-strategy.md)
 - [Ecosystem Positioning](docs/ecosystem-positioning.md)
-- [Release Notes — v1.0.0-rc.3](docs/releases/v1.0.0-rc.3.md)
+- [Release Notes — v1.0.0](docs/releases/v1.0.0.md)
 
 ## Repository structure
 

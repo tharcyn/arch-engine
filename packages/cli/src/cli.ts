@@ -1,6 +1,6 @@
 import { cac } from 'cac';
 import pc from 'picocolors';
-import { builtinModules } from 'module';
+import { createRequire } from 'module';
 
 export async function run() {
   const cli = cac('arch-engine');
@@ -63,9 +63,12 @@ export async function run() {
     process.exit(1);
   });
 
+  const require = createRequire(import.meta.url);
+  const pkg = require('../package.json');
+
   try {
     cli.help();
-    cli.version('1.0.0-rc.3');
+    cli.version(pkg.version);
     cli.parse(process.argv, { run: false });
     
     if (!cli.matchedCommandName && !cli.options.help && !cli.options.version) {

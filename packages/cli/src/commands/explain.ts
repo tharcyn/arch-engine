@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';
+import { liftToComposedPolicy } from '../policy-lift.js';
 
 export async function explainCommand(target: string, options: any) {
   const cwd = process.cwd();
@@ -231,7 +232,8 @@ async function explainPolicy(cwd: string, options: any) {
     for (const t of targets) edges.push({ source: src, target: t });
   }
 
-  const evalResult = evaluatePolicy(edges, policyDoc.config, 'EXPLAIN', policyDoc.hash);
+  const composedPolicy = liftToComposedPolicy(policyDoc.config, policyDoc.hash);
+  const evalResult = evaluatePolicy(edges, composedPolicy, 'EXPLAIN', policyDoc.hash);
   
   let targetRuleId = (options._ && options._.length > 0) ? options._[0] : null;
 

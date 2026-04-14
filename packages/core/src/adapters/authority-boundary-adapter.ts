@@ -73,7 +73,7 @@ export class AuthorityBoundaryAdapter {
         frontendTopology: 'none',
         modelRelationships: 'none'
       }
-    });
+    } satisfies AdapterCapabilityDescriptor);
   }
 
   public getRegistryDescriptor(): AdapterCapabilityDescriptor {

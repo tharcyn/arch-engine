@@ -28,7 +28,7 @@ export class JourneyRegressionAdapter {
         frontendTopology: 'full',
         modelRelationships: 'none'
       }
-    });
+    } satisfies AdapterCapabilityDescriptor);
   }
 
   public getRegistryDescriptor(): AdapterCapabilityDescriptor {

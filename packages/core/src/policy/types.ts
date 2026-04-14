@@ -45,6 +45,12 @@ export interface PolicyConfig {
   severityPolicy?: 'strict' | 'permissive' | 'override' | 'loose';
   domains?: Record<string, PolicyDomainDef>;
   rules?: PolicyRules;
+  /** Federation composition layer: fallback configuration */
+  fallback?: Record<string, unknown>;
+  /** Federation composition layer: explicit dependency declarations */
+  dependencies?: Record<string, unknown>;
+  /** Execution layer: policy-level annotation surface */
+  annotations?: Record<string, unknown>;
 }
 
 export interface PolicyStackEntry {
@@ -76,7 +82,11 @@ export interface PolicyStackEntry {
     extendedPolicyStackFingerprint?: string;
     dependencyDepth?: number;
     stackIndex?: number;
-    stackTopologicalOrder?: number[];
+    stackTopologicalOrder?: string[];
+    /** Federation negotiation mode for trust override resolution */
+    negotiationMode?: string;
+    /** Arbitrary annotations injected by execution modules */
+    arbitraryAnnotations?: Record<string, unknown>;
   };
   loaderTrustMetadata?: {
     namespaceTrustPolicyVersion: string;

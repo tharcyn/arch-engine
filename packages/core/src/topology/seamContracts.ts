@@ -91,6 +91,7 @@ export interface OverlayActivationContext {
   overlaySignature?: string;
   overlayRegistrySource?: string;
   overlayOriginRegistry?: string;
+  overlayNamespace?: string;
   overlayTrustTier?: OverlayAuthorityTier;
   allowPrecedenceOverrides?: boolean;
   includeSeamExecutionInClosureHash?: boolean;

@@ -43,9 +43,7 @@ export function validateOverlayPublishContract(request: OverlayPublishRequest, c
     return { allowed: false, reason: 'Reject publish: registryTrustRootId is not resolvable' };
   }
 
-  if (!request.compatibilityMatrix) { // Let's check compatibilityRecord below
-    // Compatibility record rename from compatibilityMatrix to compatibilityRecord
-  }
+  // compatibilityMatrix was renamed to compatibilityRecord
 
   if (!request.compatibilityRecord) {
     return { allowed: false, reason: 'Reject publish: compatibility matrix missing' };

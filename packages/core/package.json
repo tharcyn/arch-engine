@@ -1,7 +1,7 @@
 {
   "name": "@arch-engine/core",
   "version": "1.0.0",
-  "description": "Capability-driven architecture topology reasoning engine — validate dependency direction, detect authority boundary violations, score topology stability, and reconcile conflicting graph edges across multiple code scanners.",
+  "description": "Deterministic repository-topology reasoning runtime with composable policy-pack enforcement extracted directly from source structure.",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",

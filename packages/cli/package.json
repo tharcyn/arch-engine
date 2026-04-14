@@ -1,7 +1,7 @@
 {
   "name": "@arch-engine/cli",
   "version": "1.0.0",
-  "description": "CLI for architecture reasoning engine.",
+  "description": "CLI for deterministic repository-topology extraction and structural diagnostics.",
   "license": "MIT",
   "type": "module",
   "repository": {

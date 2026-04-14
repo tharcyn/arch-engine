@@ -30,7 +30,7 @@ export class BlastRadiusAdapter {
         frontendTopology: 'full',
         modelRelationships: 'none'
       }
-    });
+    } satisfies AdapterCapabilityDescriptor);
   }
 
   public getRegistryDescriptor(): AdapterCapabilityDescriptor {

@@ -7,6 +7,7 @@ import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { classifyStability, classifyConfidence, confidenceDescription, checkQualityFloor, formatWarnings, formatWarningHeader } from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge } from '@arch-engine/core';
+import { liftToComposedPolicy } from '../policy-lift.js';
 
 export async function checkCommand(options: any) {
   const cwd = process.cwd();
@@ -55,7 +56,8 @@ export async function checkCommand(options: any) {
     for (const [src, targets] of Object.entries(adjacencyMap)) {
       for (const t of targets) edges.push({ source: src, target: t });
     }
-    policyEval = evaluatePolicy(edges, policyDoc.config, confidenceLabel, policyDoc.hash);
+    const composedPolicy = liftToComposedPolicy(policyDoc.config, policyDoc.hash);
+    policyEval = evaluatePolicy(edges, composedPolicy, confidenceLabel, policyDoc.hash);
   }
 
   // Always emit stability artifact with full telemetry

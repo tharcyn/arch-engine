@@ -26,9 +26,7 @@ export interface SnapshotValidationResult {
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import { DIAMOND_TRAVERSAL_CONTRACT_VERSION } from '../../core/src/policy/contracts/diamondTraversalContract.js';
-
-import { loadPolicyConfig } from '@arch-engine/core';
+import { loadPolicyConfig, DIAMOND_TRAVERSAL_CONTRACT_VERSION } from '@arch-engine/core';
 
 // ─── External Types ──────────────────────────────────────
 
