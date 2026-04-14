@@ -7,3 +7,6 @@ coverage/
 *.tsbuildinfo
 *.tgz
 .DS_Store
+
+site/
+.tmp-site/
