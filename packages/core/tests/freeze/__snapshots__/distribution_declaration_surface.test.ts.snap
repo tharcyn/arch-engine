@@ -696,6 +696,12 @@ interface PolicyConfig {
     severityPolicy?: 'strict' | 'permissive' | 'override' | 'loose';
     domains?: Record<string, PolicyDomainDef>;
     rules?: PolicyRules;
+    /** Federation composition layer: fallback configuration */
+    fallback?: Record<string, unknown>;
+    /** Federation composition layer: explicit dependency declarations */
+    dependencies?: Record<string, unknown>;
+    /** Execution layer: policy-level annotation surface */
+    annotations?: Record<string, unknown>;
 }
 interface PolicyStackEntry {
     policyId: string;
@@ -726,7 +732,11 @@ interface PolicyStackEntry {
         extendedPolicyStackFingerprint?: string;
         dependencyDepth?: number;
         stackIndex?: number;
-        stackTopologicalOrder?: number[];
+        stackTopologicalOrder?: string[];
+        /** Federation negotiation mode for trust override resolution */
+        negotiationMode?: string;
+        /** Arbitrary annotations injected by execution modules */
+        arbitraryAnnotations?: Record<string, unknown>;
     };
     loaderTrustMetadata?: {
         namespaceTrustPolicyVersion: string;
@@ -877,6 +887,8 @@ interface EvaluatorEdge {
     target: string;
 }
 declare function evaluatePolicy(edges: EvaluatorEdge[], config: ComposedPolicy, confidenceContext: string, policyHash: string): PolicyEvaluationResult;
+
+declare const DIAMOND_TRAVERSAL_CONTRACT_VERSION = "v1";
 
 /**
  * ═══════════════════════════════════════════════════════════
@@ -1556,6 +1568,6 @@ declare class EngineRunner {
     executePipeline(state: EngineExecutionState): Promise<EngineExecutionResult>;
 }
 
-export { type AdapterCapabilityDescriptor, type AdapterContext, type AdapterManifest, type AdapterPack, type AdapterTrustScore, type AdjacencyNode, type AllowMatch, type ArchitectureAdapter, type AuthorityCrossing, type BlastRadius, type CapabilityMap, type ClassificationStrategy, type CompatibilityResult, type ComposedPolicy, type ComposedRuleDef, type ComposedRules, type ConfidenceWeightedBlastRadius, type CoverageLevel, EdgeConfidenceLevel, type EdgeTypeTrustOverride, type EngineExecutionResult, type EngineExecutionState, type EngineManifest, EngineRunner, type EngineRunnerOptions, type EvaluatorEdge, GOVERNANCE_TELEMETRY_SCHEMA_VERSION, type GraphStabilityIndex, type MergeAuthority, type ParsedPolicy, type PolicyConfig, type PolicyDomainDef, type PolicyEvaluationResult, type PolicyMode, type PolicyRuleDef, type PolicyRules, type PolicySeverity, type PolicyStackEntry, type PolicyTier, type PolicyViolation, type RankedAuthorityCrossing, type ReconcilableEdge, type RouteServiceEntry, type RouteServiceMap, type TrustRankingConfig, type ViolationCategory, computeGraphStabilityIndex, computeWeightedBlastRadii, evaluatePolicy, loadEngineManifest, loadPolicyConfig, parseEngineManifest, rankAuthorityCrossings, resolveSeverity, validateAdapterCompatibility };
+export { type AdapterCapabilityDescriptor, type AdapterContext, type AdapterManifest, type AdapterPack, type AdapterTrustScore, type AdjacencyNode, type AllowMatch, type ArchitectureAdapter, type AuthorityCrossing, type BlastRadius, type CapabilityMap, type ClassificationStrategy, type CompatibilityResult, type ComposedPolicy, type ComposedRuleDef, type ComposedRules, type ConfidenceWeightedBlastRadius, type CoverageLevel, DIAMOND_TRAVERSAL_CONTRACT_VERSION, EdgeConfidenceLevel, type EdgeTypeTrustOverride, type EngineExecutionResult, type EngineExecutionState, type EngineManifest, EngineRunner, type EngineRunnerOptions, type EvaluatorEdge, GOVERNANCE_TELEMETRY_SCHEMA_VERSION, type GraphStabilityIndex, type MergeAuthority, type ParsedPolicy, type PolicyConfig, type PolicyDomainDef, type PolicyEvaluationResult, type PolicyMode, type PolicyRuleDef, type PolicyRules, type PolicySeverity, type PolicyStackEntry, type PolicyTier, type PolicyViolation, type RankedAuthorityCrossing, type ReconcilableEdge, type RouteServiceEntry, type RouteServiceMap, type TrustRankingConfig, type ViolationCategory, computeGraphStabilityIndex, computeWeightedBlastRadii, evaluatePolicy, loadEngineManifest, loadPolicyConfig, parseEngineManifest, rankAuthorityCrossings, resolveSeverity, validateAdapterCompatibility };
 "
 `;

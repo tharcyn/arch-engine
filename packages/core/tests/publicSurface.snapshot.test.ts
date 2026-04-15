@@ -15,6 +15,7 @@ import * as coreExports from '../dist/index.js';
  */
 
 const APPROVED_EXPORTS = [
+  'DIAMOND_TRAVERSAL_CONTRACT_VERSION',
   'EngineRunner',
   'GOVERNANCE_TELEMETRY_SCHEMA_VERSION',
   'computeGraphStabilityIndex',

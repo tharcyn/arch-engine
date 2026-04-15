@@ -2,6 +2,7 @@
 
 exports[`public surface snapshot — root barrel boundary > snapshot matches approved export surface 1`] = `
 [
+  "DIAMOND_TRAVERSAL_CONTRACT_VERSION",
   "EngineRunner",
   "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
   "computeGraphStabilityIndex",

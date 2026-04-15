@@ -13,6 +13,7 @@ describe('distribution exports surface freeze contract', () => {
             surfaceName: 'root',
             exportsResolver: rootExports,
             expectedKeys: [
+                'DIAMOND_TRAVERSAL_CONTRACT_VERSION',
                 'EngineRunner',
                 'GOVERNANCE_TELEMETRY_SCHEMA_VERSION',
                 'computeGraphStabilityIndex',

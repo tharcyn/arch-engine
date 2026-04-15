@@ -2,6 +2,7 @@
 
 exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 1`] = `
 [
+  "DIAMOND_TRAVERSAL_CONTRACT_VERSION",
   "EngineRunner",
   "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
   "computeGraphStabilityIndex",

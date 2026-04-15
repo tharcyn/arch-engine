@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as CoreIndex from '../../src/index.js';
+import * as CoreIndex from '../../dist/index.js';
 
 describe('Phase 10 Hard Invariant: SDK Public Surface Freeze Verification Layer 1', () => {
 
@@ -8,6 +8,7 @@ describe('Phase 10 Hard Invariant: SDK Public Surface Freeze Verification Layer 
     
     expect(exportedKeys).toMatchInlineSnapshot(`
       [
+        "DIAMOND_TRAVERSAL_CONTRACT_VERSION",
         "EngineRunner",
         "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
         "computeGraphStabilityIndex",

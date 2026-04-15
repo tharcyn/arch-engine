@@ -36,6 +36,7 @@ exports[`distribution exports surface freeze contract > 'parsers' export boundar
 
 exports[`distribution exports surface freeze contract > 'root' export boundary mapping > matches approved export boundary precisely for root 1`] = `
 [
+  "DIAMOND_TRAVERSAL_CONTRACT_VERSION",
   "EngineRunner",
   "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
   "computeGraphStabilityIndex",
