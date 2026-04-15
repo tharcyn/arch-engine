@@ -5,11 +5,20 @@
   "description": "Framework-agnostic architecture reasoning engine — topology intelligence, contract parity validation, invariant enforcement, and simulation traversal.",
   "keywords": [
     "architecture",
+    "static-analysis",
     "topology",
-    "determinism",
+    "governance",
+    "monorepo",
+    "developer-tooling",
     "policy-engine",
+    "code-analysis",
+    "determinism",
     "federation"
   ],
+  "homepage": "https://arch-engine.dev",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tharcyn/arch-engine.git"
