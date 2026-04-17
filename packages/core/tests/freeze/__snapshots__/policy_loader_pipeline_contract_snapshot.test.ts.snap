@@ -1,0 +1,173 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 1`] = `
+[
+  "ARCH_ENGINE_VERSION",
+  "DEFAULT_ENGINE_RUNTIME_METADATA",
+  "DIAMOND_TRAVERSAL_CONTRACT_VERSION",
+  "DiffConsumerRunner",
+  "EngineRunner",
+  "GOVERNANCE_TELEMETRY_SCHEMA_VERSION",
+  "MALFORMED_CODE",
+  "POLICY_PATCH_EXPORT_SCHEMA_VERSION",
+  "POLICY_PR_PAYLOAD_SCHEMA_VERSION",
+  "PolicyPackRunner",
+  "RESERVED_CORE_CODE_PREFIX",
+  "StaticLockfileSignerStore",
+  "StaticLockfileTrustStore",
+  "TopologyDatasetIngestionError",
+  "UNKNOWN_CODE",
+  "ValidatorRunner",
+  "adviseLockfileMigration",
+  "aggregateFederationEvaluationSeverity",
+  "applyEvaluationPolicyPatchArtifact",
+  "assessDatasetRuntimeCompatibility",
+  "assessFederationEvaluationPolicyGate",
+  "assessFederationExecutionPreflight",
+  "assessLockfileRuntimeReadiness",
+  "assessPolicyPackDatasetCapabilityCompatibility",
+  "assessPolicyPackExecutionCompatibility",
+  "assessPolicyPackGovernanceSurfaceCompatibility",
+  "assessPolicyRegistryLockfileFreshness",
+  "auditTrustPolicyConfig",
+  "buildExplainReport",
+  "buildGovernanceReport",
+  "buildPolicyPatchPullRequestPayload",
+  "buildTopologyGraphIndex",
+  "buildTopologySnapshot",
+  "classifyPolicyRelevantDiff",
+  "classifyTopologyDiff",
+  "computeEvaluationContextFingerprint",
+  "computeExecutionContextHash",
+  "computeExportArtifactIntegrityHash",
+  "computeFindingStructuralHash",
+  "computeGraphStabilityIndex",
+  "computeGraphSurfaceHash",
+  "computeWeightedBlastRadii",
+  "deriveLockfileMigrationSuggestedAction",
+  "diffPolicyRegistryLockfile",
+  "diffTopologyGraphs",
+  "diffTopologyMetadata",
+  "enforcePolicyRegistryLockfileInstall",
+  "evaluatePolicy",
+  "executeLocalPolicyPack",
+  "explainFederationEvaluationResult",
+  "exportEvaluationPolicyPatchArtifact",
+  "extractLockfileDatasetIdentity",
+  "extractTopologyGraph",
+  "extractTopologyGraphFromSnapshot",
+  "formatExplainReportAsJSON",
+  "formatExplainReportForCLI",
+  "formatGovernanceReportAsJSON",
+  "formatGovernanceReportForCLI",
+  "generateEvaluationPolicyPatchArtifact",
+  "getDirectNeighbors",
+  "getIncomingEdges",
+  "getMatchingWaiver",
+  "getNodeById",
+  "getOutgoingEdges",
+  "getReachableNodeIds",
+  "hasPath",
+  "inspectFederationEvaluationFindings",
+  "lintFederationFindingRegistry",
+  "loadEngineManifest",
+  "loadExternalTopologyDataset",
+  "loadPolicyConfig",
+  "mapGovernanceReportToExitCode",
+  "materializeFederationExecutionPlan",
+  "mutateEvaluationPolicyFileAst",
+  "normalizePolicyPackFinding",
+  "normalizeRepositoryHint",
+  "parseEngineManifest",
+  "projectValidatedDatasetToValidatorView",
+  "rankAuthorityCrossings",
+  "refreshPolicyRegistryLockfile",
+  "resolveEvaluationPolicyProfile",
+  "resolveEvaluationPolicyTargetProfile",
+  "resolveFindingSeverityThreshold",
+  "resolveRepositoryHint",
+  "resolveSeverity",
+  "routeDatasetFormat",
+  "runDatasetIngestionPipeline",
+  "runFederationEvaluationPlan",
+  "scanBalancedObjectBlock",
+  "signPolicyRegistryLockfile",
+  "suggestEvaluationPolicyAdjustments",
+  "summarizePolicyEvaluations",
+  "validateAdapterCompatibility",
+  "validateEvaluationPolicyFile",
+  "validateNodeExists",
+  "validateOrNormalizePolicyPackFindingCode",
+  "validatePolicyPackCompatibility",
+  "validatePolicyPackManifest",
+  "validateReachability",
+  "validateRequiredEdge",
+  "validateRequiredNeighbors",
+  "validateTopologySnapshotCompatibility",
+  "validateTopologySnapshotLineage",
+  "validateTrustPolicyConfig",
+  "verifyCapabilityManifestCompatibility",
+  "verifyCapabilityRegistryIntegrity",
+  "verifyEvaluationCompatibilityMatrix",
+  "verifyPolicyPackSignature",
+  "verifyPolicyRegistryLockfileSignature",
+  "verifySchemaCompatibility",
+  "writeEvaluationPolicyPatch",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 2`] = `
+[
+  "resolvePolicyURI",
+  "registryAdapter",
+  "selectPolicyVersion",
+  "hydratePolicyManifest",
+  "resolvePolicyDependencies",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 3`] = `
+[
+  "lockfile",
+  "namespace",
+  "mirror",
+  "default",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 4`] = `
+[
+  "lockfile",
+  "namespace",
+  "mirror",
+  "default",
+]
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 5`] = `
+{
+  "dependencies": {
+    "policy://core/dep-1": "^1.0.0",
+  },
+  "mirrorMetadata": {
+    "active": false,
+  },
+  "name": "policy-target",
+  "namespaces": [
+    "core",
+  ],
+  "policyIdentitySignature": "sha256-12345",
+  "schemaVersion": "3.0.0",
+  "version": "1.2.5",
+}
+`;
+
+exports[`policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 6`] = `
+{
+  "roots": [
+    "policy://core/dep-1",
+  ],
+  "seed": 9382,
+  "topology": "closure_locked",
+}
+`;
