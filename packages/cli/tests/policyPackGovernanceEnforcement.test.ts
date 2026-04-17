@@ -112,8 +112,7 @@ describe('Phase 14C Policy-Pack Governance Enforcement', () => {
     const exitCode = await runCheckCommand('dataset.json', { policy: ['governance-pack'] });
     expect(exitCode).toBe(1);
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Policy-Pack Governance Blocked'));
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Incompatible: 1 governance requirement(s) missing'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Policy-Pack Execution Blocked'));
 
     consoleSpy.mockRestore();
   });

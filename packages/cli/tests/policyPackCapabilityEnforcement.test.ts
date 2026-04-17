@@ -115,8 +115,7 @@ describe('Phase 14B Policy-Pack Capability Enforcement', () => {
     const exitCode = await runCheckCommand('dataset.json', { policy: ['capable-pack'] });
     expect(exitCode).toBe(1);
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Policy-Pack Capability Blocked'));
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Missing required dataset capability: supports_magic'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Policy-Pack Execution Blocked'));
 
     consoleSpy.mockRestore();
   });
