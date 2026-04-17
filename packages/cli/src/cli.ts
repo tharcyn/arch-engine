@@ -55,6 +55,38 @@ export async function run() {
       await explainCommand(target, options);
     });
 
+  // 6. GitHub
+  cli
+    .command('github create-policy-pr [file]', 'Create a GitHub PR from a policy patch payload')
+    .option('--execute', 'Execute the live pull request creation')
+    .option('--dry-run', 'Dry-run execution plan (default)')
+    .option('--json-output-plan', 'Output structured execution plan as JSON')
+    .action(async (file, options) => {
+      const { githubCreatePolicyPrCommand } = await import('./githubCreatePolicyPrCommand.js');
+      const args: string[] = [];
+      if (options.execute) args.push('--execute');
+      else if (options.dryRun) args.push('--dry-run');
+      if (options.jsonOutputPlan) args.push('--json-output-plan');
+      if (file) args.push(file);
+      await githubCreatePolicyPrCommand(args);
+    });
+
+  // 7. GitLab
+  cli
+    .command('gitlab create-policy-mr [file]', 'Create a GitLab MR from a policy patch payload')
+    .option('--execute', 'Execute the live merge request creation')
+    .option('--dry-run', 'Dry-run execution plan (default)')
+    .option('--json-output-plan', 'Output structured execution plan as JSON')
+    .action(async (file, options) => {
+      const { gitlabCreatePolicyMrCommand } = await import('./gitlabCreatePolicyMrCommand.js');
+      const args: string[] = [];
+      if (options.execute) args.push('--execute');
+      else if (options.dryRun) args.push('--dry-run');
+      if (options.jsonOutputPlan) args.push('--json-output-plan');
+      if (file) args.push(file);
+      await gitlabCreatePolicyMrCommand(args);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {

@@ -1,4 +1,15 @@
 import { AdapterCapabilityRegistry } from '../adapters/capability-registry';
+import {
+  runDatasetIngestionPipeline,
+} from '../topology/DatasetIngestionPipeline';
+import type {
+  ValidatedTopologyDataset,
+} from '../topology/external-topology-types';
+import type { ValidatorTopologyView } from '../topology/validator-topology-view';
+import { projectValidatedDatasetToValidatorView } from '../topology/projectValidatedDatasetToValidatorView';
+import { ValidatorRunner } from '../validators/ValidatorRunner';
+import type { TopologyValidator } from '../validators/TopologyValidator';
+import type { ValidatorRunnerResultEnvelope } from '../validators/validator-runner-envelope';
 import { AdapterTrustRegistry, TrustRankingConfig, DEFAULT_TRUST_CONFIG } from '../adapters/trust-ranking';
 import { EngineManifest } from '../manifest/manifest-loader';
 import { AdapterPack, ArchitectureAdapter } from '../sdk/adapter-contract';
@@ -367,6 +378,36 @@ export class EngineRunner {
       this.activeAdapters,
       this.logger
     );
+  }
+
+  /**
+   * Load and validate an external federation-grade topology dataset.
+   *
+   * Phase 1 scope:
+   *   - file loading
+   *   - root identity validation
+   *   - dataset format routing
+   *   - schema compatibility checks
+   *   - capability / policy-pack compatibility checks
+   *
+   * This does NOT execute validators, diffing, or invariant enforcement.
+   */
+  public loadExternalTopologyDataset(datasetPath: string): ValidatedTopologyDataset {
+    return runDatasetIngestionPipeline(datasetPath);
+  }
+
+  public projectTopologyForValidation(datasetPath: string): ValidatorTopologyView {
+    const dataset = this.loadExternalTopologyDataset(datasetPath);
+    return projectValidatedDatasetToValidatorView(dataset);
+  }
+
+  public runValidators(
+    datasetPath: string,
+    validators: readonly TopologyValidator[]
+  ): ValidatorRunnerResultEnvelope {
+    const view = this.projectTopologyForValidation(datasetPath);
+    const runner = new ValidatorRunner(validators);
+    return runner.run(view);
   }
 
   /**

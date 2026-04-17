@@ -1,0 +1,19 @@
+{
+  "pullRequestPayloadSchemaVersion": "policy-patch-pr.v1",
+  "suggestedTitle": "Update policy (advisory repo mismatch)",
+  "suggestedCommitMessage": "Update policy",
+  "suggestedBodyMarkdown": "This payload has an advisory repository mismatch.",
+  "repositoryHint": "mismatch/arch-engine",
+  "repositoryHintSource": "package.json",
+  "targetProfile": "minimal",
+  "targetProfileSource": "cli-selected",
+  "authoritative": true,
+  "changedPaths": ["evaluation-policy.json"],
+  "exportArtifactIntegrityHash": "deadbeef1234567890abcdef",
+  "exportArtifactProducerIdentity": "arch-engine@1.0.0",
+  "exportArtifactSchemaVersion": "policy-patch-export.v1",
+  "disclaimerFlags": {
+    "repositoryHintDerivedFromPackageJson": true,
+    "nonAuthoritativePatch": false
+  }
+}

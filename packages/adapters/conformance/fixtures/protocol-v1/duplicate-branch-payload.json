@@ -1,0 +1,19 @@
+{
+  "pullRequestPayloadSchemaVersion": "policy-patch-pr.v1",
+  "suggestedTitle": "Update policy (duplicate branch)",
+  "suggestedCommitMessage": "Update policy for profile minimal",
+  "suggestedBodyMarkdown": "This payload simulates a duplicate branch scenario.",
+  "repositoryHint": "tharcyn/arch-engine",
+  "repositoryHintSource": "env",
+  "targetProfile": "minimal",
+  "targetProfileSource": "cli-selected",
+  "authoritative": true,
+  "changedPaths": ["evaluation-policy.json"],
+  "exportArtifactIntegrityHash": "deadbeef1234567890abcdef",
+  "exportArtifactProducerIdentity": "arch-engine@1.0.0",
+  "exportArtifactSchemaVersion": "policy-patch-export.v1",
+  "disclaimerFlags": {
+    "repositoryHintDerivedFromPackageJson": false,
+    "nonAuthoritativePatch": false
+  }
+}

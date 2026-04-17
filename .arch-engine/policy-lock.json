@@ -1,0 +1,12 @@
+{
+  "lockfileSurfaceVersion": "1.0.0",
+  "registries": [
+    {
+      "registryUrl": "https://test.dev",
+      "packs": []
+    }
+  ],
+  "signatureAlgorithm": "ed25519",
+  "signatureKeyId": "my-signer-key",
+  "signature": "d2c2bd4420191227d81e767f676e91d670cab05527f33496929713512bf08cb745fb381b24b0962f75830ca2da9f5297425b742761dfe1d4d2eb5de5f851180c"
+}

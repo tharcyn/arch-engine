@@ -131,6 +131,30 @@ governance policy pack layer        ← architecture enforcement (optional)
 
 ---
 
+## Provider Adapter Architecture
+
+Arch-Engine includes a provider adapter layer designed to automatically propose architectural policy updates directly to version control providers via Pull/Merge Requests.
+
+- **GitHub Adapter** (`@arch-engine/adapter-github`) — Complete and fully operational.
+- **GitLab Adapter** (`@arch-engine/adapter-gitlab`) — Planned next.
+
+### Adapter Execution Contract
+All adapters consume a provider-neutral JSON payload containing the cryptographic identity, proposed commits, and integrity hashes. They operate entirely off this JSON payload rather than local filesystem state, making them highly portable across CI pipelines.
+
+By default, all adapters operate in **dry-run** mode. They will validate payloads, verify the runtime repository context, and format a deterministic execution plan, but will **not** execute mutative network calls unless explicitly permitted with `--execute` and a valid provider token.
+
+### Execution-Result Telemetry
+Adapters return a highly structured `AdapterExecutionResultBase` providing explicitly boolean flags for `branchCreated`, `branchReused`, `pullRequestCreated`, and a single unified `adapterOutcome` signal (`dry-run`, `refused`, `pr-created`, `pr-reused`). This allows CI pipelines to make deterministic decisions without complex log parsing.
+
+```bash
+# Example: Pipe a deterministic patch payload into the GitHub adapter
+arch-engine policies emit-policy-pr --json | arch-engine github create-policy-pr --execute --json-output-plan
+```
+
+For a deeper dive into the adapter substrate, see [Provider Adapter Architecture](docs/architecture/adapters.md).
+
+---
+
 ## Built-in policy packs
 
 Policy packs are optional governance overlays that enforce architecture contracts against the extracted topology graph. They do not modify runtime behavior or source code.

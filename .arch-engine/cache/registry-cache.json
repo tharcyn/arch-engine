@@ -1,0 +1,30 @@
+{
+  "https://test.dev": [
+    {
+      "policyPackId": "test1",
+      "description": "",
+      "category": "",
+      "packageName": "@arch-engine/policy-pack-other",
+      "rules": [
+        {
+          "type": "forbid-edge",
+          "from": "a",
+          "to": "b"
+        }
+      ]
+    },
+    {
+      "policyPackId": "test2",
+      "description": "",
+      "category": "",
+      "packageName": "@arch-engine/policy-pack-test",
+      "rules": [
+        {
+          "type": "forbid-edge",
+          "from": "a",
+          "to": "b"
+        }
+      ]
+    }
+  ]
+}

@@ -841,7 +841,7 @@ interface AllowMatch {
     /** Edge target that was allowed */
     to: string;
 }
-interface PolicyEvaluationResult {
+interface PolicyEvaluationResult$1 {
     violations: PolicyViolation[];
     matchedEdges: number;
     policyMode: PolicyMode;
@@ -886,9 +886,961 @@ interface EvaluatorEdge {
     source: string;
     target: string;
 }
-declare function evaluatePolicy(edges: EvaluatorEdge[], config: ComposedPolicy, confidenceContext: string, policyHash: string): PolicyEvaluationResult;
+declare function evaluatePolicy(edges: EvaluatorEdge[], config: ComposedPolicy, confidenceContext: string, policyHash: string): PolicyEvaluationResult$1;
 
 declare const DIAMOND_TRAVERSAL_CONTRACT_VERSION = "v1";
+
+interface LocalPolicyRule {
+    readonly type: "forbid-edge";
+    readonly from: string;
+    readonly to: string;
+}
+
+interface PolicyPackMetadata {
+    readonly policyPackId: string;
+    readonly description: string;
+    readonly category: string;
+    readonly rules?: LocalPolicyRule[];
+    readonly engineCompatibility?: string;
+    readonly dependencies?: readonly string[];
+    readonly packageName?: string;
+    readonly signature?: string;
+    readonly requiredDatasetCapabilities?: readonly string[];
+    readonly optionalDatasetCapabilities?: readonly string[];
+    readonly requiredMutationClasses?: readonly string[];
+    readonly requiredAuthorityScopes?: readonly string[];
+    readonly requiredSurfaceConfidenceKeys?: readonly string[];
+    readonly requiredTrustBoundaryRules?: readonly string[];
+}
+
+type PolicyRelevantDiffKind = "no_policy_relevance" | "structural_expansion" | "structural_contraction" | "structural_recomposition" | "metadata_drift" | "mixed_drift";
+
+type TopologyChangeKind = "no_change" | "structural_addition" | "structural_removal" | "structural_mixed" | "metadata_only" | "metadata_and_structural";
+
+interface PolicyRelevantDiff {
+    readonly policyDiffSurfaceVersion: "1.0.0";
+    readonly kind: PolicyRelevantDiffKind;
+    readonly sourceClassificationKind: TopologyChangeKind;
+    readonly hasStructuralChanges: boolean;
+    readonly hasMetadataChanges: boolean;
+}
+
+interface TopologyNode {
+    readonly id: string;
+    readonly type: string;
+    readonly metadata?: Record<string, unknown>;
+}
+
+interface TopologyEdge {
+    readonly from: string;
+    readonly to: string;
+    readonly type: string;
+    readonly metadata?: Record<string, unknown>;
+}
+
+interface TopologyGraph {
+    readonly graphSurfaceVersion: "1.0.0";
+    readonly graphSurfaceHash: string;
+    readonly nodes: readonly TopologyNode[];
+    readonly edges: readonly TopologyEdge[];
+}
+
+interface PolicyExecutionContext {
+    readonly policyRelevantDiff: PolicyRelevantDiff;
+    readonly topologyGraph: TopologyGraph;
+}
+
+type PolicyEvaluationSeverity = "info" | "warning" | "error";
+
+interface PolicyEvaluationDiagnostic {
+    readonly code: string;
+    readonly message: string;
+    readonly severity: PolicyEvaluationSeverity;
+}
+
+interface PolicyEvaluationResult {
+    readonly policyPackId: string;
+    readonly success: boolean;
+    readonly diagnostics: readonly PolicyEvaluationDiagnostic[];
+}
+
+declare function executeLocalPolicyPack(rules: LocalPolicyRule[] | undefined, context: PolicyExecutionContext): PolicyEvaluationResult;
+
+interface PolicyPackManifest {
+    readonly policyPackId: string;
+    readonly description: string;
+    readonly category: string;
+    readonly rules?: readonly LocalPolicyRule[];
+    readonly engineCompatibility?: string;
+    readonly dependencies?: readonly string[];
+    readonly packageName?: string;
+    readonly signature?: string;
+    readonly requiredDatasetCapabilities?: readonly string[];
+    readonly optionalDatasetCapabilities?: readonly string[];
+    readonly requiredMutationClasses?: readonly string[];
+    readonly requiredAuthorityScopes?: readonly string[];
+    readonly requiredSurfaceConfidenceKeys?: readonly string[];
+    readonly requiredTrustBoundaryRules?: readonly string[];
+}
+
+declare function validatePolicyPackManifest(input: unknown): boolean;
+
+interface PolicyPackCompatibilityResult {
+    readonly compatible: boolean;
+    readonly expectedVersion?: string;
+    readonly actualVersion: string;
+}
+
+declare function validatePolicyPackCompatibility(manifest: PolicyPackManifest): PolicyPackCompatibilityResult;
+
+interface PolicyRegistryLockEntry {
+    readonly registryUrl: string;
+    readonly packs: readonly PolicyPackMetadata[];
+}
+interface PolicyRegistryLockfileSignatureEntry {
+    readonly signatureKeyId: string;
+    readonly signatureAlgorithm: 'ed25519';
+    readonly signature: string;
+}
+interface PolicyRegistryLockfileDatasetIdentity {
+    readonly topologyDatasetIdentity?: Record<string, unknown>;
+    readonly datasetSemver?: string;
+    readonly datasetFormatIdentifier?: string;
+    readonly topologySchemaVersion?: string;
+    readonly datasetLineage?: Record<string, unknown>;
+}
+interface PolicyRegistryLockfile {
+    readonly lockfileSurfaceVersion: "1.0.0";
+    readonly datasetIdentity?: PolicyRegistryLockfileDatasetIdentity;
+    readonly datasetCapabilityManifest?: Record<string, boolean>;
+    readonly datasetMutationClassRegistry?: Record<string, unknown>;
+    readonly datasetAuthorityScopeRegistry?: Record<string, unknown>;
+    readonly datasetSurfaceConfidenceRegistry?: Record<string, unknown>;
+    readonly datasetTrustBoundaryRules?: Record<string, unknown>;
+    readonly registries: readonly PolicyRegistryLockEntry[];
+    readonly signature?: string;
+    readonly signatureKeyId?: string;
+    readonly signatureAlgorithm?: 'ed25519';
+    readonly signatures?: readonly PolicyRegistryLockfileSignatureEntry[];
+}
+
+type SignerLifecycleStatus = 'active' | 'verify-only' | 'retired';
+interface LockfileSignerConfig {
+    readonly key: string;
+    readonly algorithm?: 'ed25519';
+    readonly enabled?: boolean;
+    readonly allowedOperations?: readonly ('verify' | 'sign')[];
+    readonly role?: string;
+    readonly status?: SignerLifecycleStatus;
+    readonly replacementKeyId?: string;
+    readonly note?: string;
+}
+interface ResolvedSignerIdentity {
+    readonly pem: string;
+    readonly algorithm: 'ed25519';
+    readonly enabled: boolean;
+    readonly allowedOperations: readonly ('verify' | 'sign')[];
+    readonly role?: string;
+    readonly status?: SignerLifecycleStatus;
+    readonly replacementKeyId?: string;
+    readonly note?: string;
+}
+
+interface LockfileTrustStore {
+    /**
+     * Resolves a public key by its declared ID.
+     * Return undefined if the key is unknown or untrusted.
+     */
+    getPublicKey(keyId: string): ResolvedSignerIdentity | undefined;
+}
+declare class StaticLockfileTrustStore implements LockfileTrustStore {
+    private readonly structuredSigners;
+    constructor(trustedKeys?: Record<string, string>, structuredSigners?: Record<string, LockfileSignerConfig>);
+    getPublicKey(keyId: string): ResolvedSignerIdentity | undefined;
+}
+
+interface LockfileMigrationAdvisory {
+    readonly isPreferredSignatureSet: boolean;
+    readonly legacyIdentitiesInUse: string[];
+    readonly availableReplacements: string[];
+    readonly migrationRecommended: boolean;
+    readonly recommendationStrength: 'none' | 'optional' | 'strongly-recommended';
+    readonly rationale: string;
+    readonly suggestedCommand?: string;
+}
+declare function deriveLockfileMigrationSuggestedAction(advisory: Omit<LockfileMigrationAdvisory, 'suggestedCommand'>): string | undefined;
+declare function adviseLockfileMigration(lockfile: PolicyRegistryLockfile | undefined, trustStore: LockfileTrustStore): LockfileMigrationAdvisory;
+
+type SupportedDatasetFormatIdentifier = 'arch_engine_topology_export_v1';
+type DatasetIngestionGateName = 'ExternalTopologyDatasetLoader' | 'DatasetFormatRouter' | 'SchemaCompatibilityGate' | 'CapabilityManifestGate' | 'DatasetIngestionPipeline';
+interface DatasetIngestionDiagnostic {
+    gate: DatasetIngestionGateName;
+    code: string;
+    status: 'success' | 'failure';
+    reason: string;
+    field: string;
+    expected?: string | string[];
+    received?: unknown;
+}
+interface TopologyDatasetIdentitySurface {
+    dataset?: string;
+    dataset_id?: string;
+    producer?: string;
+    dataset_semver?: string;
+    dataset_producer_version?: string;
+    [key: string]: unknown;
+}
+interface TopologySchemaVersionSurface {
+    version: string;
+    compatibility?: string;
+    [key: string]: unknown;
+}
+interface TopologyCapabilityManifest {
+    [capabilityName: string]: boolean;
+}
+interface PolicyPackCompatibilitySurface {
+    [policyPackName: string]: string;
+}
+interface ExternalTopologyDataset {
+    topology_dataset_identity: TopologyDatasetIdentitySurface;
+    dataset_format_identifier: string;
+    topology_schema_version: string | TopologySchemaVersionSurface;
+    policy_pack_compatibility: PolicyPackCompatibilitySurface;
+    topology_capability_manifest?: TopologyCapabilityManifest;
+    dataset_lineage?: Record<string, unknown>;
+    mutation_class_registry?: Record<string, unknown>;
+    authority_scope_registry?: Record<string, unknown>;
+    surface_confidence_registry?: Record<string, unknown>;
+    trust_boundary_rules?: Record<string, unknown>;
+    [key: string]: unknown;
+}
+interface ExternalTopologyDatasetLoaded {
+    datasetPath: string;
+    dataset: ExternalTopologyDataset;
+    diagnostics: DatasetIngestionDiagnostic[];
+}
+interface DatasetFormatValidated extends ExternalTopologyDatasetLoaded {
+    datasetFormatIdentifier: SupportedDatasetFormatIdentifier;
+    adapterPipeline: 'topology_export_ingestion_v1';
+}
+interface SchemaCompatibilityVerified extends DatasetFormatValidated {
+    schemaVersion: string;
+    supportedSchemaVersions: string[];
+}
+interface CapabilityManifestCompatibilityVerified extends SchemaCompatibilityVerified {
+    requiredCapabilities: string[];
+    supportedPolicyPacks: Record<string, string>;
+}
+type ValidatedTopologyDataset = CapabilityManifestCompatibilityVerified;
+type DatasetIngestionPipelineReady = ValidatedTopologyDataset;
+declare class TopologyDatasetIngestionError extends Error {
+    readonly diagnostics: DatasetIngestionDiagnostic[];
+    constructor(message: string, diagnostics: DatasetIngestionDiagnostic[]);
+}
+
+declare function extractLockfileDatasetIdentity(dataset: ExternalTopologyDataset): {
+    identity: PolicyRegistryLockfileDatasetIdentity;
+    capabilityManifest?: Record<string, boolean>;
+    mutationClassRegistry?: Record<string, unknown>;
+    authorityScopeRegistry?: Record<string, unknown>;
+    surfaceConfidenceRegistry?: Record<string, unknown>;
+    trustBoundaryRules?: Record<string, unknown>;
+};
+
+interface EngineRuntimeMetadata {
+    readonly supportedSchemaVersions: string[];
+    readonly supportedFormatIdentifiers: string[];
+    readonly installedPolicyPacks: Record<string, string>;
+    readonly engineCapabilityRegistry: Record<string, boolean>;
+}
+interface DatasetCompatibilityFinding {
+    readonly surface: string;
+    readonly code: string;
+    readonly status: 'compatible' | 'incompatible' | 'partial' | 'skipped';
+    readonly message: string;
+    readonly expected?: unknown;
+    readonly received?: unknown;
+}
+interface DatasetRuntimeCompatibilityDiagnostic {
+    readonly overallStatus: 'compatible' | 'partially-compatible' | 'incompatible' | 'unknown';
+    readonly schemaCompatible: boolean | undefined;
+    readonly formatCompatible: boolean | undefined;
+    readonly policyPackCompatible: boolean | undefined;
+    readonly capabilityCompatible: boolean | undefined;
+    readonly findings: readonly DatasetCompatibilityFinding[];
+    readonly summaryMessage: string;
+}
+declare const DEFAULT_ENGINE_RUNTIME_METADATA: EngineRuntimeMetadata;
+declare function assessDatasetRuntimeCompatibility(dataset: ExternalTopologyDataset, engineMeta?: EngineRuntimeMetadata): DatasetRuntimeCompatibilityDiagnostic;
+
+interface PolicyPackDatasetCapabilityFinding {
+    readonly policyPackId: string;
+    readonly code: string;
+    readonly status: 'compatible' | 'partially-compatible' | 'incompatible' | 'skipped';
+    readonly capability: string;
+    readonly message: string;
+}
+interface PolicyPackDatasetCapabilityDiagnostic {
+    readonly overallStatus: 'compatible' | 'partially-compatible' | 'incompatible' | 'unknown';
+    readonly findings: readonly PolicyPackDatasetCapabilityFinding[];
+    readonly summaryMessage: string;
+}
+declare function assessPolicyPackDatasetCapabilityCompatibility(activeCapabilityManifest: Record<string, boolean> | undefined, installedPacks: readonly PolicyPackMetadata[]): PolicyPackDatasetCapabilityDiagnostic;
+
+type PolicyPackGovernanceCompatibilityStatus = 'compatible' | 'incompatible' | 'partially-compatible' | 'unknown';
+type GovernanceSurfaceMissingFrom = 'mutation_class_registry' | 'authority_scope_registry' | 'surface_confidence_registry' | 'trust_boundary_rules';
+interface PolicyPackGovernanceCompatibilityFinding {
+    readonly packId: string;
+    readonly code: string;
+    readonly message: string;
+    readonly requiredKey: string;
+    readonly missingFrom: GovernanceSurfaceMissingFrom;
+}
+interface PolicyPackGovernanceCompatibilityDiagnostic {
+    readonly overallStatus: PolicyPackGovernanceCompatibilityStatus;
+    readonly findings: readonly PolicyPackGovernanceCompatibilityFinding[];
+    readonly summaryMessage: string;
+}
+declare function assessPolicyPackGovernanceSurfaceCompatibility(datasetMutationClassRegistry: Record<string, unknown> | undefined, datasetAuthorityScopeRegistry: Record<string, unknown> | undefined, datasetSurfaceConfidenceRegistry: Record<string, unknown> | undefined, datasetTrustBoundaryRules: Record<string, unknown> | undefined, policyPacks: readonly PolicyPackMetadata[]): PolicyPackGovernanceCompatibilityDiagnostic;
+
+type PolicyPackExecutionCompatibilityStatus = 'compatible' | 'partially-compatible' | 'incompatible' | 'unknown';
+interface PolicyPackExecutionFinding {
+    readonly code: 'POLICY_PACK_EXECUTION_COMPATIBLE' | 'POLICY_PACK_EXECUTION_PARTIALLY_COMPATIBLE' | 'POLICY_PACK_EXECUTION_INCOMPATIBLE';
+    readonly packId: string;
+    readonly capabilityFindings: readonly PolicyPackDatasetCapabilityFinding[];
+    readonly governanceFindings: readonly PolicyPackGovernanceCompatibilityFinding[];
+}
+interface PolicyPackExecutionResult {
+    readonly policyPackId: string;
+    readonly capabilityStatus: 'compatible' | 'partially-compatible' | 'incompatible' | 'unknown';
+    readonly governanceStatus: 'compatible' | 'partially-compatible' | 'incompatible' | 'unknown';
+    readonly executionStatus: PolicyPackExecutionCompatibilityStatus;
+    readonly capabilityFindings: readonly PolicyPackDatasetCapabilityFinding[];
+    readonly governanceFindings: readonly PolicyPackGovernanceCompatibilityFinding[];
+    readonly summaryMessage: string;
+}
+interface PolicyPackExecutionCompatibilityDiagnostic {
+    readonly overallStatus: PolicyPackExecutionCompatibilityStatus;
+    readonly packResults: readonly PolicyPackExecutionResult[];
+    readonly findings: readonly PolicyPackExecutionFinding[];
+    readonly summaryMessage: string;
+}
+declare function assessPolicyPackExecutionCompatibility(activeCapabilityManifest: Record<string, boolean> | undefined, activeMutationClassRegistry: Record<string, unknown> | undefined, activeAuthorityScopeRegistry: Record<string, unknown> | undefined, activeSurfaceConfidenceRegistry: Record<string, unknown> | undefined, activeTrustBoundaryRules: Record<string, unknown> | undefined, installedPacks: readonly PolicyPackMetadata[]): PolicyPackExecutionCompatibilityDiagnostic;
+
+interface TrustPolicyConfig {
+    readonly requireSignatures?: boolean;
+    readonly enforcementMode?: 'permissive' | 'require-signature' | 'require-signature-and-freshness';
+    readonly quorum?: number | 'all';
+    readonly allowedNamespaces?: readonly string[];
+    readonly trustedRegistries?: readonly string[];
+    readonly allowRemoteExecution?: boolean;
+    readonly trustedLockfileKeys?: Record<string, string>;
+    readonly signerLockfileKeys?: Record<string, string>;
+    readonly lockfileSigners?: Record<string, LockfileSignerConfig>;
+}
+
+type TrustPolicyReadiness = 'healthy' | 'degraded' | 'invalid';
+type TrustPolicyFindingSeverity = 'error' | 'warning' | 'info';
+interface TrustPolicyFinding {
+    readonly code: string;
+    readonly severity: TrustPolicyFindingSeverity;
+    readonly message: string;
+    readonly keyId?: string;
+}
+interface TrustPolicyAuditDiagnostic {
+    readonly readiness: TrustPolicyReadiness;
+    readonly findings: TrustPolicyFinding[];
+    readonly totalSigners: number;
+    readonly enabledVerifiers: number;
+    readonly enabledSigners: number;
+    readonly strictEnforcement: boolean;
+}
+
+type LockfileTrustFailureReason = 'MISSING_SIGNATURE' | 'UNKNOWN_SIGNER' | 'DISABLED_SIGNER' | 'UNAUTHORIZED_OPERATION' | 'ALGORITHM_MISMATCH' | 'MALFORMED_KEY_MATERIAL' | 'INVALID_SIGNATURE' | 'NON_CANONICAL_ORDER' | 'DUPLICATE_SIGNATURE';
+interface SignatureSetDiagnosticEntry {
+    readonly signatureKeyId: string;
+    readonly status: 'counted' | 'valid-but-non-counted' | 'retired' | 'duplicate' | 'invalid';
+    readonly errorReason?: LockfileTrustFailureReason;
+}
+interface LockfileTrustDiagnostic {
+    readonly success: boolean;
+    readonly signerKeyId?: string;
+    readonly signerRole?: string;
+    readonly signatureAlgorithm?: string;
+    readonly evaluatedOperation: 'verify' | 'sign';
+    readonly canonicalPayloadSurface?: 'registries';
+    readonly failureReason?: LockfileTrustFailureReason;
+    readonly message: string;
+    readonly lifecycleStatus?: 'active' | 'verify-only' | 'retired';
+    readonly signaturesPresent?: number;
+    readonly signaturesVerified?: number;
+    readonly signaturesRejected?: number;
+    readonly quorumThreshold?: number;
+    readonly quorumSatisfied?: boolean;
+    readonly signatureSet?: SignatureSetDiagnosticEntry[];
+    readonly isCanonical?: boolean;
+}
+
+type LockfileEnforcementMode = 'permissive' | 'require-signature' | 'require-signature-and-freshness';
+interface LockfileInstallEnforcementDiagnostic {
+    readonly allowed: boolean;
+    readonly mode: LockfileEnforcementMode;
+    readonly lockfilePresent: boolean;
+    readonly signaturePresent: boolean;
+    readonly verificationSuccess?: boolean;
+    readonly freshnessSuccess?: boolean;
+    readonly signerKeyId?: string;
+    readonly failureReason?: string;
+    readonly message: string;
+    readonly verificationDiagnostic?: LockfileTrustDiagnostic;
+}
+
+interface LockfileFreshnessDiagnostic {
+    readonly isFresh: boolean;
+    readonly lockfilePresent: boolean;
+    readonly signaturePresent: boolean;
+    readonly signerKeyId?: string;
+    readonly canonicalPayloadSurface: string;
+    readonly changeDetected: boolean;
+    readonly driftSummary?: string;
+    readonly message: string;
+}
+
+type RuntimeReadinessStatus = 'ready' | 'degraded' | 'blocked' | 'invalid';
+interface LockfileRuntimeReadinessDiagnostic {
+    readonly status: RuntimeReadinessStatus;
+    readonly trustDoctor: TrustPolicyAuditDiagnostic;
+    readonly enforcement?: LockfileInstallEnforcementDiagnostic;
+    readonly freshness?: LockfileFreshnessDiagnostic;
+    readonly migrationAdvisory?: LockfileMigrationAdvisory;
+    readonly datasetCompatibility?: DatasetRuntimeCompatibilityDiagnostic;
+    /**
+     * Diagnostic indicating whether the installed policy packs are compatible
+     * with the active topology dataset's capability manifest.
+     * Only populated if an active dataset's capability manifest was evaluated.
+     */
+    readonly policyPackCapabilityCompatibility?: PolicyPackDatasetCapabilityDiagnostic;
+    /**
+     * Diagnostic indicating whether the installed policy packs' governance requirements
+     * are satisfied by the active topology dataset's governance surfaces.
+     * Only populated if an active dataset's governance surfaces were evaluated.
+     */
+    readonly policyPackGovernanceCompatibility?: PolicyPackGovernanceCompatibilityDiagnostic;
+    /**
+     * Diagnostic indicating whether the installed policy packs' unified execution requirements
+     * are satisfied. Composes both capability and governance compatibility.
+     */
+    readonly policyPackExecutionCompatibility?: PolicyPackExecutionCompatibilityDiagnostic;
+    readonly summaryMessage: string;
+}
+
+/**
+ * Represents the initial execution permission stage.
+ * Preflight decides IF the runtime environment is allowed to proceed to planning and evaluation.
+ */
+interface FederationExecutionPreflightDiagnostic {
+    readonly allowed: boolean;
+    readonly overallStatus: 'ready' | 'degraded' | 'blocked' | 'invalid' | 'unknown';
+    readonly enforcementMode: string;
+    readonly lockfileReadinessStatus: string;
+    readonly datasetCompatibilityStatus: string;
+    readonly policyPackExecutionStatus: string;
+    readonly primaryBlockReason?: string;
+    readonly contributingFindings: readonly string[];
+    readonly summaryMessage: string;
+    readonly suggestedNextAction?: string;
+    readonly underlyingReadinessDiagnostic: LockfileRuntimeReadinessDiagnostic;
+}
+declare function assessFederationExecutionPreflight(trustConfig: TrustPolicyConfig, lockfilePath: string, lockfile: PolicyRegistryLockfile | undefined, liveRegistries: PolicyRegistryLockEntry[], activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>, activeDataset?: ExternalTopologyDataset, installedPolicyPacks?: readonly PolicyPackMetadata[]): FederationExecutionPreflightDiagnostic;
+
+interface FederationExecutionPlanPackEntry {
+    readonly policyPackId: string;
+    readonly executionStatus: 'runnable' | 'degraded' | 'blocked' | 'skipped';
+    readonly compatibilitySummary: string;
+    readonly blockingFindings: readonly string[];
+    readonly humanReadableReason: string;
+}
+/**
+ * Represents the execution planning stage outcome.
+ * Planning decides WHICH packs to execute based on permission granted in preflight.
+ */
+interface FederationExecutionPlanDiagnostic {
+    readonly allowed: boolean;
+    readonly overallPlanStatus: 'complete' | 'partial' | 'empty' | 'blocked' | 'invalid' | 'unknown';
+    readonly preflightStatus: string;
+    readonly totalPolicyPacks: number;
+    readonly runnablePolicyPacks: number;
+    readonly blockedPolicyPacks: number;
+    readonly degradedPolicyPacks: number;
+    readonly packResults: readonly FederationExecutionPlanPackEntry[];
+    readonly preflightDiagnostic: FederationExecutionPreflightDiagnostic;
+    readonly suggestedNextAction?: string;
+}
+declare function materializeFederationExecutionPlan(trustConfig: TrustPolicyConfig, lockfilePath: string, lockfile: PolicyRegistryLockfile | undefined, liveRegistries: PolicyRegistryLockEntry[], activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>, activeDataset?: ExternalTopologyDataset, installedPolicyPacks?: readonly PolicyPackMetadata[]): FederationExecutionPlanDiagnostic;
+
+interface PolicyPackExecutionContext {
+    readonly datasetSnapshot: ExternalTopologyDataset;
+    readonly topologyDatasetIdentity: PolicyRegistryLockfileDatasetIdentity;
+    readonly capabilityManifest: Record<string, boolean>;
+    readonly mutationClassRegistry: Record<string, unknown>;
+    readonly authorityScopeRegistry: Record<string, unknown>;
+    readonly surfaceConfidenceRegistry: Record<string, unknown>;
+    readonly trustBoundaryRules: Record<string, unknown>;
+    readonly engineRuntimeMetadata?: Record<string, unknown>;
+    readonly policyPackMetadata?: Record<string, unknown>;
+    readonly executionPlanMetadata?: Record<string, unknown>;
+}
+
+type PolicyPackFindingCategory = 'trust' | 'compatibility' | 'governance' | 'execution' | 'advisory' | 'policy-pack';
+interface PolicyPackFinding {
+    readonly severity: 'info' | 'warning' | 'error';
+    readonly message: string;
+    readonly code?: string;
+    readonly surface?: string;
+    readonly affectedEntity?: string;
+    readonly category?: PolicyPackFindingCategory;
+    readonly classification?: string;
+    /** @deprecated Use taxonomyRepaired instead */
+    readonly _taxonomyRepaired?: boolean;
+    readonly taxonomyRepaired?: boolean;
+}
+interface NormalizedPolicyPackFinding extends PolicyPackFinding {
+    readonly code: string;
+    readonly category: PolicyPackFindingCategory;
+    /**
+     * Indicates whether the taxonomy normalizer modified the original finding code
+     * during ingestion. True if the code was missing, malformed, contained illegal
+     * characters, or collided with a reserved core prefix.
+     * Safe for CI and telemetry inspection.
+     */
+    readonly taxonomyRepaired?: boolean;
+    readonly _taxonomyRepaired?: never;
+}
+
+interface PolicyPackEvaluationResult {
+    readonly status: 'success' | 'failure' | 'degraded' | 'skipped';
+    readonly findings: readonly PolicyPackFinding[];
+    readonly summaryMessage: string;
+    readonly telemetryHints?: Record<string, string | number | boolean>;
+}
+
+type PolicyPackEvaluator = (context: PolicyPackExecutionContext) => PolicyPackEvaluationResult;
+
+interface NormalizedPolicyPackEvaluationResult extends Omit<PolicyPackEvaluationResult, 'findings'> {
+    readonly findings: readonly NormalizedPolicyPackFinding[];
+}
+interface FederationEvaluationPackResult {
+    readonly policyPackId: string;
+    readonly plannedStatus: 'runnable' | 'degraded' | 'blocked' | 'skipped';
+    readonly executionStatus: 'succeeded' | 'failed' | 'skipped' | 'blocked';
+    readonly isDegraded: boolean;
+    readonly evaluationResult?: NormalizedPolicyPackEvaluationResult;
+    readonly humanReadableSummary: string;
+}
+/**
+ * Represents the final evaluation stage outcome.
+ */
+interface FederationEvaluationResult {
+    /**
+     * @deprecated Use executionSucceeded instead. This field previously overloaded execution-permission semantics and is being phased out.
+     */
+    readonly allowed: boolean;
+    /**
+     * Indicates whether the runner was allowed to begin execution at all.
+     * Derived from FederationExecutionPlanDiagnostic.overallPlanStatus.
+     * Invalid or Blocked plans mean false. Partial, Complete, or Empty mean true.
+     */
+    readonly executionPermitted: boolean;
+    /**
+     * Indicates whether execution completed without failing packs.
+     */
+    readonly executionSucceeded: boolean;
+    readonly overallResult: 'success' | 'partial-failure' | 'blocked' | 'invalid' | 'empty';
+    readonly executedPackCount: number;
+    readonly failedPackCount: number;
+    readonly skippedPackCount: number;
+    readonly blockedPackCount: number;
+    readonly packResults: readonly FederationEvaluationPackResult[];
+}
+declare function runFederationEvaluationPlan(plan: FederationExecutionPlanDiagnostic, context: PolicyPackExecutionContext, availablePacks: Record<string, PolicyPackEvaluator>): FederationEvaluationResult;
+
+interface FederationEvaluationPackSeveritySummary {
+    readonly policyPackId: string;
+    readonly highestSeverity: 'none' | 'info' | 'warning' | 'error';
+    readonly severityCounts: {
+        readonly info: number;
+        readonly warning: number;
+        readonly error: number;
+    };
+}
+interface FederationEvaluationSeveritySummary {
+    readonly highestSeverity: 'none' | 'info' | 'warning' | 'error';
+    readonly severityCounts: {
+        readonly info: number;
+        readonly warning: number;
+        readonly error: number;
+    };
+    readonly packsWithInfo: readonly string[];
+    readonly packsWithWarnings: readonly string[];
+    readonly packsWithErrors: readonly string[];
+    readonly perPack: readonly FederationEvaluationPackSeveritySummary[];
+    readonly summaryMessage: string;
+    readonly blockingSeverityReached: boolean;
+}
+declare function aggregateFederationEvaluationSeverity(result: FederationEvaluationResult): FederationEvaluationSeveritySummary;
+
+type FederationEvaluationSeverityThreshold = 'none' | 'info' | 'warning' | 'error';
+interface FederationEvaluationWaiver {
+    readonly code?: string;
+    readonly category?: PolicyPackFindingCategory;
+    readonly packName?: string;
+    readonly reason?: string;
+    readonly owner?: string;
+    readonly ticket?: string;
+    readonly validUntil?: string;
+}
+interface FederationEvaluationWaiverUsageEntry {
+    readonly waiver: FederationEvaluationWaiver;
+    readonly matchedCount: number;
+    readonly matchedPacks: readonly string[];
+}
+interface FederationEvaluationWaiverAudit {
+    readonly totalWaiversDefined: number;
+    readonly totalWaiversMatched: number;
+    readonly totalWaiversUnused: number;
+    readonly matchedWaiverEntries: readonly FederationEvaluationWaiverUsageEntry[];
+    readonly unusedWaiverEntries: readonly FederationEvaluationWaiver[];
+    readonly waivedFindingsCount: number;
+    readonly waivedPacks: readonly string[];
+    readonly waiverAffectedOutcome: boolean;
+    readonly broadWaiverWarnings: readonly string[];
+    readonly waiversMissingReason: number;
+    readonly waiversMissingOwner: number;
+    readonly waiversMissingTicket: number;
+    readonly expiredWaivers: number;
+    readonly broadWaiversWithoutReason: number;
+}
+interface FederationEvaluationGatePolicy {
+    readonly defaultThreshold: FederationEvaluationSeverityThreshold;
+    readonly extends?: string;
+    readonly categoryOverrides?: Readonly<Partial<Record<PolicyPackFindingCategory, FederationEvaluationSeverityThreshold>>>;
+    readonly codeOverrides?: Readonly<Record<string, FederationEvaluationSeverityThreshold>>;
+    readonly waivers?: readonly FederationEvaluationWaiver[];
+    readonly rejectExpiredWaivers?: boolean;
+    readonly rejectOutcomeAffectingWaiversWithoutOwner?: boolean;
+    readonly rejectOutcomeAffectingWaiversWithoutTicket?: boolean;
+    readonly rejectBroadWaiversWithoutReason?: boolean;
+}
+type FederationEvaluationSeverityThresholdInput = FederationEvaluationSeverityThreshold | FederationEvaluationGatePolicy;
+interface FederationEvaluationPolicyDecision {
+    readonly evaluationAccepted: boolean;
+    readonly evaluationPolicyStatus: 'accepted' | 'degraded' | 'rejected';
+    readonly thresholdPolicy: FederationEvaluationGatePolicy;
+    readonly highestSeverity: 'none' | 'info' | 'warning' | 'error';
+    readonly triggeringFindingsSummary: string;
+    readonly triggeringPacks: readonly string[];
+    readonly triggeringCategories: readonly PolicyPackFindingCategory[];
+    readonly triggeringCodes: readonly string[];
+    readonly waivedFindingsCount: number;
+    readonly waivedPacks: readonly string[];
+    readonly waiverAudit?: FederationEvaluationWaiverAudit;
+    readonly waiverGovernanceRejected: boolean;
+    readonly waiverGovernanceTriggers: readonly string[];
+    readonly summaryMessage: string;
+}
+declare function assessFederationEvaluationPolicyGate(result: FederationEvaluationResult, severitySummary: FederationEvaluationSeveritySummary, thresholdInput: FederationEvaluationSeverityThresholdInput): FederationEvaluationPolicyDecision;
+
+interface FederationEvaluationPackExplanation {
+    readonly policyPackId: string;
+    readonly executionStatus: 'succeeded' | 'failed' | 'skipped' | 'blocked';
+    readonly isDegraded: boolean;
+    readonly summaryMessage: string;
+    readonly findingsSummary: readonly string[];
+    readonly findings: readonly NormalizedPolicyPackFinding[];
+}
+interface FederationEvaluationExplanation {
+    readonly executionPermitted: boolean;
+    readonly executionSucceeded: boolean;
+    readonly overallResult: 'success' | 'partial-failure' | 'blocked' | 'invalid' | 'empty';
+    readonly summaryMessage: string;
+    readonly suggestedNextAction?: string;
+    readonly effectivePolicySource: 'cli' | 'file' | 'default';
+    readonly effectivePolicyProfile?: string;
+    readonly effectivePolicyProfileChain?: readonly string[];
+    readonly effectivePolicy: FederationEvaluationGatePolicy;
+    readonly totalExecutedCount: number;
+    readonly totalFailedCount: number;
+    readonly totalSkippedCount: number;
+    readonly totalBlockedCount: number;
+    readonly waivedFindingsCount: number;
+    readonly waivedPacks: readonly string[];
+    readonly waiverAudit?: FederationEvaluationWaiverAudit;
+    readonly waiverGovernanceRejected: boolean;
+    readonly waiverGovernanceTriggers: readonly string[];
+    readonly succeededPacks: readonly FederationEvaluationPackExplanation[];
+    readonly failedPacks: readonly FederationEvaluationPackExplanation[];
+    readonly skippedPacks: readonly FederationEvaluationPackExplanation[];
+    readonly blockedPacks: readonly FederationEvaluationPackExplanation[];
+    readonly degradedPacks: readonly FederationEvaluationPackExplanation[];
+    readonly severitySummary: FederationEvaluationSeveritySummary;
+    readonly policyDecision: FederationEvaluationPolicyDecision;
+}
+declare function explainFederationEvaluationResult(result: FederationEvaluationResult, policyThresholdInput?: FederationEvaluationSeverityThresholdInput, policySource?: 'cli' | 'file' | 'default', policyProfile?: string, policyProfileChain?: readonly string[]): FederationEvaluationExplanation;
+
+declare function resolveFindingSeverityThreshold(finding: {
+    code?: string;
+    category?: PolicyPackFindingCategory;
+}, policy: FederationEvaluationGatePolicy): FederationEvaluationSeverityThreshold;
+
+declare const RESERVED_CORE_CODE_PREFIX = "ARCH_";
+declare const UNKNOWN_CODE = "UNKNOWN";
+declare const MALFORMED_CODE = "MALFORMED";
+interface ValidatedFindingCodeResult {
+    readonly code: string;
+    readonly taxonomyRepaired: boolean;
+}
+declare function validateOrNormalizePolicyPackFindingCode(code: string | undefined, category: PolicyPackFindingCategory): ValidatedFindingCodeResult;
+
+interface FederationEvaluationPolicyFile {
+    readonly defaultProfile?: string;
+    readonly profiles: Readonly<Record<string, FederationEvaluationGatePolicy>>;
+}
+declare function validateEvaluationPolicyFile(data: unknown): FederationEvaluationPolicyFile;
+
+interface ResolvedPolicyProfile {
+    readonly effectivePolicy: FederationEvaluationGatePolicy;
+    readonly profileChain: readonly string[];
+}
+declare function resolveEvaluationPolicyProfile(file: FederationEvaluationPolicyFile, profileName: string): ResolvedPolicyProfile;
+
+declare function getMatchingWaiver(finding: NormalizedPolicyPackFinding, packId: string, waivers?: readonly FederationEvaluationWaiver[]): FederationEvaluationWaiver | null;
+
+interface FederationFindingCodeSummary {
+    readonly code: string;
+    readonly category: string;
+    readonly coreReserved: boolean;
+    readonly taxonomyRepairedObserved: boolean;
+    readonly countsBySeverity: {
+        readonly info: number;
+        readonly warning: number;
+        readonly error: number;
+    };
+    readonly observedPacks: readonly string[];
+}
+interface FederationFindingInspectionReport {
+    readonly reservedCoreCodePrefix: string;
+    readonly totalFindings: number;
+    readonly codesObserved: number;
+    readonly coreReservedCodesObserved: number;
+    readonly packLocalCodesObserved: number;
+    readonly taxonomyRepairedCount: number;
+    readonly taxonomyRepairedCodes: readonly string[];
+    readonly countsByCode: Readonly<Record<string, number>>;
+    readonly countsByCategory: Readonly<Record<string, number>>;
+    readonly countsBySeverity: {
+        readonly info: number;
+        readonly warning: number;
+        readonly error: number;
+    };
+    readonly codeSummaries: readonly FederationFindingCodeSummary[];
+}
+declare function inspectFederationEvaluationFindings(result: FederationEvaluationResult): FederationFindingInspectionReport;
+
+type FederationPolicySuggestionType = 'code_override' | 'category_override' | 'taxonomy_cleanup' | 'waiver_review';
+interface FederationPolicySuggestionEntry {
+    readonly suggestionType: FederationPolicySuggestionType;
+    readonly target: string;
+    readonly suggestedAction: string;
+    readonly rationale: string;
+    readonly isRisky: boolean;
+    readonly snippetType?: 'code_override' | 'category_override' | 'waiver';
+    readonly snippetJson?: any;
+    readonly snippetPathHint?: string;
+    readonly profileTarget?: string;
+    readonly profileTargetSource?: FederationPolicySuggestionProfileTargetSource;
+}
+type FederationPolicySuggestionProfileTargetSource = 'effective-policy' | 'policy-file-default' | 'cli-selected' | 'inferred-from-path-hint' | 'synthetic-fallback' | 'unknown';
+interface FederationPolicySuggestionContext {
+    readonly cliSelectedProfile?: string;
+    readonly policyFileDefaultProfile?: string;
+    readonly resolvedEffectiveProfile?: string;
+}
+interface FederationEvaluationPolicySuggestions {
+    readonly suggestions: readonly FederationPolicySuggestionEntry[];
+    readonly summaryMessage: string;
+}
+declare function suggestEvaluationPolicyAdjustments(report: FederationFindingInspectionReport, decision?: FederationEvaluationPolicyDecision, context?: FederationPolicySuggestionContext): FederationEvaluationPolicySuggestions;
+
+type FederationFindingRegistryLintIssueType = 'CORE_PREFIX_IMPERSONATION' | 'TAXONOMY_REPAIRED_FINDING' | 'RESERVED_CODE_CATEGORY_MISMATCH' | 'SUSPICIOUS_CORE_LIKE_CODE';
+interface FederationFindingRegistryLintIssue {
+    readonly issueType: FederationFindingRegistryLintIssueType;
+    readonly code: string;
+    readonly category: string;
+    readonly packName?: string;
+    readonly summaryMessage: string;
+    readonly severity: 'warning' | 'error';
+}
+interface FederationFindingRegistryLintReport {
+    readonly totalIssues: number;
+    readonly issuesBySeverity: {
+        readonly warning: number;
+        readonly error: number;
+    };
+    readonly issuesByType: Record<FederationFindingRegistryLintIssueType, number>;
+    readonly issues: readonly FederationFindingRegistryLintIssue[];
+    readonly summaryMessage: string;
+}
+declare function lintFederationFindingRegistry(result: FederationEvaluationResult): FederationFindingRegistryLintReport;
+
+interface FederationEvaluationPolicyPatchArtifact {
+    readonly targetProfile?: string;
+    readonly targetProfileSource: FederationPolicySuggestionProfileTargetSource;
+    readonly targetProfileAuthoritative: boolean;
+    readonly evaluationContextFingerprint?: string;
+    readonly proposedCodeOverrides: Record<string, string>;
+    readonly proposedCategoryOverrides: Record<string, string>;
+    readonly proposedWaivers: any[];
+    readonly includedSuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly excludedRiskySuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly excludedNonAuthoritativeSuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly summaryMessage: string;
+}
+declare function generateEvaluationPolicyPatchArtifact(suggestionsInput: FederationEvaluationPolicySuggestions, profileTarget: string | undefined, profileTargetSource: FederationPolicySuggestionProfileTargetSource, evaluationContextFingerprint?: string): FederationEvaluationPolicyPatchArtifact;
+
+interface FederationEvaluationPolicyAstMutationResult {
+    readonly mutationApplied: boolean;
+    readonly changedPaths: string[];
+    readonly updatedFileText: string;
+    readonly refusalReason?: string;
+    readonly summaryMessage: string;
+}
+declare function scanBalancedObjectBlock(text: string, startIndex: number): {
+    blockStart: number;
+    blockEnd: number;
+    success: boolean;
+};
+declare function mutateEvaluationPolicyFileAst(originalFileText: string, parsedPolicyObject: FederationEvaluationPolicyFile, patchArtifactSubset: FederationEvaluationPolicyPatchArtifact): FederationEvaluationPolicyAstMutationResult;
+
+interface FederationEvaluationPolicyPatchApplyResult {
+    readonly applicable: boolean;
+    readonly targetProfile?: string;
+    readonly targetProfileSource: string;
+    readonly targetProfileAuthoritative: boolean;
+    readonly evaluationContextFingerprint?: string;
+    readonly changesApplied: boolean;
+    readonly changedPaths: string[];
+    readonly updatedFileText?: string;
+    readonly refusalReason?: string;
+    readonly summaryMessage: string;
+}
+declare function applyEvaluationPolicyPatchArtifact(originalFileText: string, parsedPolicyObject: FederationEvaluationPolicyFile, patchArtifact: FederationEvaluationPolicyPatchArtifact): FederationEvaluationPolicyPatchApplyResult;
+
+interface FederationEvaluationPolicyPatchWriteResult {
+    readonly writeAttempted: boolean;
+    readonly writePerformed: boolean;
+    readonly dryRun: boolean;
+    readonly writtenPath?: string;
+    readonly tempPathUsed?: string;
+    readonly backupCreated: boolean;
+    readonly backupPath?: string;
+    readonly changedPaths: string[];
+    readonly originalPolicyFileFingerprint?: string | null;
+    readonly currentPolicyFileFingerprint?: string | null;
+    readonly fingerprintMatch?: boolean;
+    readonly staleWriteDetected?: boolean;
+    readonly evaluationContextFingerprintOriginal?: string;
+    readonly evaluationContextFingerprintCurrent?: string;
+    readonly contextFingerprintMatch?: boolean;
+    readonly contextMismatchDetected?: boolean;
+    readonly refusalReason?: string;
+    readonly summaryMessage: string;
+}
+declare function writeEvaluationPolicyPatch(targetPath: string, applyResult: FederationEvaluationPolicyPatchApplyResult, options: {
+    dryRun: boolean;
+    originalPolicyFileFingerprint?: string | null;
+    currentEvaluationContextFingerprint?: string;
+}): FederationEvaluationPolicyPatchWriteResult;
+
+declare function computeEvaluationContextFingerprint(dataset: ValidatedTopologyDataset, packs: readonly PolicyPackManifest[], inspection: FederationFindingInspectionReport): string;
+
+declare const POLICY_PATCH_EXPORT_SCHEMA_VERSION = "policy-patch-export.v1";
+interface FederationEvaluationPolicyPatchExport {
+    readonly targetProfile?: string;
+    readonly targetProfileSource: string;
+    readonly authoritative: boolean;
+    readonly changedPaths: readonly string[];
+    readonly includedSuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly excludedRiskySuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly excludedNonAuthoritativeSuggestions: readonly FederationPolicySuggestionEntry[];
+    readonly proposedCodeOverrides: Record<string, string>;
+    readonly proposedCategoryOverrides: Record<string, string>;
+    readonly proposedWaivers: readonly any[];
+    readonly updatedFileTextPreview?: string;
+    readonly markdownSummary: string;
+    readonly machineReadableSummary: string;
+    readonly evaluationContextFingerprint?: string;
+    readonly policyFileFingerprint?: string;
+    readonly exportArtifactProducerIdentity: string;
+    readonly exportArtifactSchemaVersion: string;
+    readonly exportArtifactRepositoryHint?: string;
+    readonly exportArtifactRepositoryHintSource?: string;
+    exportArtifactIntegrityHash?: string;
+}
+declare function exportEvaluationPolicyPatchArtifact(patchArtifact: FederationEvaluationPolicyPatchArtifact, applyResult: FederationEvaluationPolicyPatchApplyResult, options?: {
+    policyFileFingerprint?: string | null;
+}): FederationEvaluationPolicyPatchExport;
+
+declare function computeExportArtifactIntegrityHash(exportObject: Omit<FederationEvaluationPolicyPatchExport, 'exportArtifactIntegrityHash'>): string;
+
+interface RepositoryHintResolution {
+    hint?: string;
+    source: 'env' | 'package-json' | 'undefined';
+}
+declare function resolveRepositoryHint(): RepositoryHintResolution;
+
+declare function normalizeRepositoryHint(input: string): string;
+
+interface ResolveEvaluationPolicyTargetProfileContext {
+    cliSelectedProfile?: string;
+    policyFileDefaultProfile?: string;
+    resolvedEffectiveProfile?: string;
+}
+interface ResolvedEvaluationPolicyTargetProfile {
+    targetProfile: string;
+    targetProfileSource: FederationPolicySuggestionProfileTargetSource;
+}
+declare function resolveEvaluationPolicyTargetProfile(suggestionsObj: FederationEvaluationPolicySuggestions, context: ResolveEvaluationPolicyTargetProfileContext): ResolvedEvaluationPolicyTargetProfile;
+
+interface FederationEvaluationPolicyPullRequestPayload {
+    readonly pullRequestPayloadSchemaVersion: string;
+    readonly suggestedTitle: string;
+    readonly suggestedCommitMessage: string;
+    readonly suggestedBodyMarkdown: string;
+    readonly repositoryHint?: string;
+    readonly repositoryHintSource?: string;
+    readonly targetProfile?: string;
+    readonly targetProfileSource: string;
+    readonly authoritative: boolean;
+    readonly changedPaths: readonly string[];
+    readonly exportArtifactIntegrityHash?: string;
+    readonly exportArtifactProducerIdentity: string;
+    readonly exportArtifactSchemaVersion: string;
+    readonly evaluationContextFingerprint?: string;
+    readonly policyFileFingerprint?: string;
+    readonly disclaimerFlags: {
+        readonly repositoryHintDerivedFromPackageJson: boolean;
+        readonly nonAuthoritativePatch: boolean;
+    };
+}
+declare function buildPolicyPatchPullRequestPayload(exportArtifact: FederationEvaluationPolicyPatchExport): FederationEvaluationPolicyPullRequestPayload;
+
+/**
+ * Authoritative schema version constants for Arch-Engine policy and adapter payloads.
+ * This centralizes schema versioning to prevent drift across provider adapters.
+ */
+declare const POLICY_PR_PAYLOAD_SCHEMA_VERSION: "policy-pr-payload.v1";
+
+declare function normalizePolicyPackFinding(finding: PolicyPackFinding): NormalizedPolicyPackFinding;
 
 /**
  * ═══════════════════════════════════════════════════════════
@@ -939,6 +1891,54 @@ interface ProvenanceIndex {
     reconciliation_distribution: Record<ReconciliationStrategy, number>;
     /** Provenance records keyed by edge key */
     edges: Record<string, EdgeProvenanceRecord>;
+}
+
+interface ValidatorTopologyIdentitySurface {
+    readonly dataset_id: string;
+    readonly dataset_semver: string;
+    readonly dataset_producer_version: string;
+    readonly producer?: string;
+    readonly dataset?: string;
+}
+interface ValidatorTopologyCapabilitySurface {
+    readonly manifest: Readonly<TopologyCapabilityManifest>;
+    readonly policyPackCompatibility: Readonly<PolicyPackCompatibilitySurface>;
+    readonly supportedPolicyPacks: Readonly<Record<string, string>>;
+    readonly requiredCapabilities: ReadonlyArray<string>;
+}
+interface ValidatorTopologyView {
+    readonly projectionSurfaceVersion: '1.0.0';
+    readonly projectionSurfaceHash: string;
+    readonly identity: ValidatorTopologyIdentitySurface;
+    readonly schemaVersion: string;
+    readonly capabilities: ValidatorTopologyCapabilitySurface;
+    readonly datasetPath: string;
+    readonly datasetSemver: string;
+}
+
+type ValidatorSeverity = 'info' | 'warning' | 'error';
+interface ValidatorDiagnostic {
+    readonly code: string;
+    readonly message: string;
+    readonly severity: ValidatorSeverity;
+    readonly field?: string;
+}
+interface ValidatorResult {
+    readonly validatorId: string;
+    readonly success: boolean;
+    readonly diagnostics: readonly ValidatorDiagnostic[];
+}
+
+interface TopologyValidator {
+    readonly validatorId: string;
+    readonly displayName: string;
+    readonly requiredCapabilities?: readonly string[];
+    run(view: ValidatorTopologyView): ValidatorResult;
+}
+
+interface ValidatorRunnerResultEnvelope {
+    readonly executionSurfaceVersion: "1.0.0";
+    readonly results: readonly ValidatorResult[];
 }
 
 type EngineLogger = (message: string) => void;
@@ -1558,6 +2558,21 @@ declare class EngineRunner {
      */
     loadAdapterPack(pack: AdapterPack): Promise<void>;
     /**
+     * Load and validate an external federation-grade topology dataset.
+     *
+     * Phase 1 scope:
+     *   - file loading
+     *   - root identity validation
+     *   - dataset format routing
+     *   - schema compatibility checks
+     *   - capability / policy-pack compatibility checks
+     *
+     * This does NOT execute validators, diffing, or invariant enforcement.
+     */
+    loadExternalTopologyDataset(datasetPath: string): ValidatedTopologyDataset;
+    projectTopologyForValidation(datasetPath: string): ValidatorTopologyView;
+    runValidators(datasetPath: string, validators: readonly TopologyValidator[]): ValidatorRunnerResultEnvelope;
+    /**
      * Deterministically evaluate the full reasoning topology pipeline.
      *
      * Freezes the adapter registry, then executes reconciliation,
@@ -1568,6 +2583,475 @@ declare class EngineRunner {
     executePipeline(state: EngineExecutionState): Promise<EngineExecutionResult>;
 }
 
-export { type AdapterCapabilityDescriptor, type AdapterContext, type AdapterManifest, type AdapterPack, type AdapterTrustScore, type AdjacencyNode, type AllowMatch, type ArchitectureAdapter, type AuthorityCrossing, type BlastRadius, type CapabilityMap, type ClassificationStrategy, type CompatibilityResult, type ComposedPolicy, type ComposedRuleDef, type ComposedRules, type ConfidenceWeightedBlastRadius, type CoverageLevel, DIAMOND_TRAVERSAL_CONTRACT_VERSION, EdgeConfidenceLevel, type EdgeTypeTrustOverride, type EngineExecutionResult, type EngineExecutionState, type EngineManifest, EngineRunner, type EngineRunnerOptions, type EvaluatorEdge, GOVERNANCE_TELEMETRY_SCHEMA_VERSION, type GraphStabilityIndex, type MergeAuthority, type ParsedPolicy, type PolicyConfig, type PolicyDomainDef, type PolicyEvaluationResult, type PolicyMode, type PolicyRuleDef, type PolicyRules, type PolicySeverity, type PolicyStackEntry, type PolicyTier, type PolicyViolation, type RankedAuthorityCrossing, type ReconcilableEdge, type RouteServiceEntry, type RouteServiceMap, type TrustRankingConfig, type ViolationCategory, computeGraphStabilityIndex, computeWeightedBlastRadii, evaluatePolicy, loadEngineManifest, loadPolicyConfig, parseEngineManifest, rankAuthorityCrossings, resolveSeverity, validateAdapterCompatibility };
+declare function loadExternalTopologyDataset(datasetPath: string): ExternalTopologyDatasetLoaded;
+
+declare function routeDatasetFormat(input: ExternalTopologyDatasetLoaded): DatasetFormatValidated;
+
+declare function verifySchemaCompatibility(input: DatasetFormatValidated, supportedSchemaVersions?: string[]): SchemaCompatibilityVerified;
+
+declare function verifyCapabilityManifestCompatibility(input: SchemaCompatibilityVerified, requiredCapabilities?: string[], supportedPolicyPacks?: Record<string, string>): CapabilityManifestCompatibilityVerified;
+
+declare function runDatasetIngestionPipeline(datasetPath: string): DatasetIngestionPipelineReady;
+
+declare function projectValidatedDatasetToValidatorView(dataset: ValidatedTopologyDataset): ValidatorTopologyView;
+
+declare class ValidatorRunner {
+    private readonly validators;
+    constructor(validators: readonly TopologyValidator[]);
+    run(view: ValidatorTopologyView): ValidatorRunnerResultEnvelope;
+    private executeValidator;
+}
+
+declare function extractTopologyGraph(view: ValidatorTopologyView): TopologyGraph;
+
+declare function computeGraphSurfaceHash(nodes: readonly TopologyNode[], edges: readonly TopologyEdge[]): string;
+
+declare function getNodeById(graph: TopologyGraph, nodeId: string): TopologyNode | undefined;
+declare function getOutgoingEdges(graph: TopologyGraph, nodeId: string): readonly TopologyEdge[];
+declare function getIncomingEdges(graph: TopologyGraph, nodeId: string): readonly TopologyEdge[];
+
+interface TopologyGraphIndex {
+    readonly nodesById: ReadonlyMap<string, TopologyNode>;
+    readonly outgoingByNodeId: ReadonlyMap<string, readonly TopologyEdge[]>;
+    readonly incomingByNodeId: ReadonlyMap<string, readonly TopologyEdge[]>;
+}
+
+declare function buildTopologyGraphIndex(graph: TopologyGraph): TopologyGraphIndex;
+
+declare function getDirectNeighbors(index: TopologyGraphIndex, nodeId: string): readonly TopologyNode[];
+declare function getReachableNodeIds(index: TopologyGraphIndex, fromNodeId: string): readonly string[];
+declare function hasPath(index: TopologyGraphIndex, fromNodeId: string, toNodeId: string): boolean;
+
+interface GraphValidatorUtilityResult {
+    readonly success: boolean;
+    readonly code: string;
+    readonly message: string;
+}
+
+declare function validateNodeExists(graph: TopologyGraph, nodeId: string): GraphValidatorUtilityResult;
+declare function validateRequiredEdge(graph: TopologyGraph, from: string, to: string, type: string): GraphValidatorUtilityResult;
+declare function validateReachability(index: TopologyGraphIndex, from: string, to: string): GraphValidatorUtilityResult;
+declare function validateRequiredNeighbors(index: TopologyGraphIndex, nodeId: string, expectedNeighborIds: readonly string[]): GraphValidatorUtilityResult;
+
+interface NodeMetadataChange {
+    readonly nodeId: string;
+    readonly beforeMetadata?: Record<string, unknown>;
+    readonly afterMetadata?: Record<string, unknown>;
+}
+interface EdgeMetadataChange {
+    readonly from: string;
+    readonly to: string;
+    readonly type: string;
+    readonly beforeMetadata?: Record<string, unknown>;
+    readonly afterMetadata?: Record<string, unknown>;
+}
+interface TopologyMetadataDiff {
+    readonly nodeMetadataChanges: readonly NodeMetadataChange[];
+    readonly edgeMetadataChanges: readonly EdgeMetadataChange[];
+}
+
+interface TopologyDiffResult {
+    readonly diffSurfaceVersion: "1.0.0";
+    readonly metadataDiff?: TopologyMetadataDiff;
+    readonly addedNodes: readonly string[];
+    readonly removedNodes: readonly string[];
+    readonly addedEdges: readonly TopologyEdge[];
+    readonly removedEdges: readonly TopologyEdge[];
+}
+
+declare function diffTopologyGraphs(before: TopologyGraph, after: TopologyGraph): TopologyDiffResult;
+
+declare function diffTopologyMetadata(before: TopologyGraph, after: TopologyGraph): TopologyMetadataDiff;
+
+interface TopologyDiffClassification {
+    readonly classificationSurfaceVersion: "1.0.0";
+    readonly kind: TopologyChangeKind;
+    readonly hasStructuralChanges: boolean;
+    readonly hasMetadataChanges: boolean;
+}
+
+declare function classifyTopologyDiff(diff: TopologyDiffResult): TopologyDiffClassification;
+
+declare function classifyPolicyRelevantDiff(diff: TopologyDiffResult, classification: TopologyDiffClassification): PolicyRelevantDiff;
+
+interface TopologyDiffConsumer {
+    readonly consumerId: string;
+    readonly displayName: string;
+    consume(diff: PolicyRelevantDiff): PolicyRelevantDiff;
+}
+
+declare class DiffConsumerRunner {
+    private readonly consumers;
+    constructor(consumers: readonly TopologyDiffConsumer[]);
+    run(diff: PolicyRelevantDiff): readonly PolicyRelevantDiff[];
+}
+
+interface TopologyPolicyPack {
+    readonly policyPackId: string;
+    readonly displayName: string;
+    readonly metadata?: PolicyPackMetadata;
+    readonly evaluate?: PolicyPackEvaluator;
+}
+
+interface PolicyRegistryLockfileDiff {
+    readonly diffSurfaceVersion: "1.0.0";
+    readonly addedPacks: readonly string[];
+    readonly removedPacks: readonly string[];
+    readonly changedPacks: readonly string[];
+}
+
+declare function diffPolicyRegistryLockfile(currentEntries: readonly PolicyRegistryLockEntry[], lockedEntries: readonly PolicyRegistryLockEntry[]): PolicyRegistryLockfileDiff;
+
+interface LockfileSignerStore {
+    /**
+     * Resolves a private key by its declared ID.
+     * Return undefined if the key is unknown.
+     */
+    getPrivateKey(keyId: string): ResolvedSignerIdentity | undefined;
+}
+declare class StaticLockfileSignerStore implements LockfileSignerStore {
+    private readonly structuredSigners;
+    constructor(signerKeys?: Record<string, string>, structuredSigners?: Record<string, LockfileSignerConfig>);
+    getPrivateKey(keyId: string): ResolvedSignerIdentity | undefined;
+}
+
+interface LockfileRefreshDiagnostic {
+    readonly success: boolean;
+    readonly driftDetected: boolean;
+    readonly lockfileRewritten: boolean;
+    readonly signatureInvalidated: boolean;
+    readonly resignAttempted: boolean;
+    readonly resignSuccess?: boolean;
+    readonly signerKeyId?: string;
+    readonly error?: string;
+    readonly message: string;
+}
+
+declare function assessPolicyRegistryLockfileFreshness(liveRegistries: PolicyRegistryLockEntry[], persistedLockfile: PolicyRegistryLockfile | undefined, activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>): LockfileFreshnessDiagnostic;
+
+interface RefreshPolicyRegistryLockfileResult {
+    readonly success: boolean;
+    readonly lockfile: PolicyRegistryLockfile;
+    readonly diagnostic: LockfileRefreshDiagnostic;
+}
+declare function refreshPolicyRegistryLockfile(liveRegistries: PolicyRegistryLockEntry[], existingLockfile: PolicyRegistryLockfile | undefined, signOptions?: {
+    signatureKeyId: string;
+    signerStore: LockfileSignerStore;
+}, activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>): RefreshPolicyRegistryLockfileResult;
+
+declare function enforcePolicyRegistryLockfileInstall(trustConfig: TrustPolicyConfig, lockfilePath: string, lockfile: PolicyRegistryLockfile | undefined, liveRegistries: PolicyRegistryLockEntry[], trustStore?: LockfileTrustStore, activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>, activeDataset?: ExternalTopologyDataset): LockfileInstallEnforcementDiagnostic;
+
+interface PolicyRegistryLockfileSignatureVerificationResult {
+    readonly verified: boolean;
+    readonly expected?: string;
+    readonly actual?: string;
+    readonly error?: string;
+    readonly diagnostic: LockfileTrustDiagnostic;
+}
+declare function verifyPolicyRegistryLockfileSignature(lockfilePath: string, trustConfig: TrustPolicyConfig, trustStore: LockfileTrustStore): PolicyRegistryLockfileSignatureVerificationResult;
+
+interface SignPolicyRegistryLockfileResult {
+    readonly success: boolean;
+    readonly lockfile?: PolicyRegistryLockfile;
+    readonly error?: string;
+    readonly diagnostic: LockfileTrustDiagnostic;
+}
+declare function signPolicyRegistryLockfile(lockfile: PolicyRegistryLockfile, signatureKeyId: string, signerStore: LockfileSignerStore): SignPolicyRegistryLockfileResult;
+
+declare function auditTrustPolicyConfig(config: TrustPolicyConfig): TrustPolicyAuditDiagnostic;
+
+declare function assessLockfileRuntimeReadiness(trustConfig: TrustPolicyConfig, lockfilePath: string, lockfile: PolicyRegistryLockfile | undefined, liveRegistries: PolicyRegistryLockEntry[], activeDatasetIdentity?: PolicyRegistryLockfile['datasetIdentity'], activeCapabilityManifest?: Record<string, boolean>, activeMutationClassRegistry?: Record<string, unknown>, activeAuthorityScopeRegistry?: Record<string, unknown>, activeSurfaceConfidenceRegistry?: Record<string, unknown>, activeTrustBoundaryRules?: Record<string, unknown>, activeDataset?: ExternalTopologyDataset, installedPolicyPacks?: readonly PolicyPackMetadata[]): LockfileRuntimeReadinessDiagnostic;
+
+interface PolicyPackSignatureVerificationResult {
+    readonly verified: boolean;
+    readonly expectedSignature?: string;
+    readonly actualSignature?: string;
+}
+
+declare function verifyPolicyPackSignature(metadata: PolicyPackMetadata, packagePath: string): PolicyPackSignatureVerificationResult;
+
+declare function validateTrustPolicyConfig(obj: any): obj is TrustPolicyConfig;
+
+declare const ARCH_ENGINE_VERSION = "1.0.0";
+
+declare class PolicyPackRunner {
+    private readonly packs;
+    constructor(packs: readonly TopologyPolicyPack[]);
+    run(context: PolicyExecutionContext): readonly PolicyEvaluationResult[];
+}
+
+type PolicyEvaluationSummaryStatus = "pass" | "warning" | "fail";
+
+interface PolicyEvaluationSummary {
+    readonly evaluationSurfaceVersion: "1.0.0";
+    readonly status: PolicyEvaluationSummaryStatus;
+    readonly totalPacks: number;
+    readonly passedPacks: number;
+    readonly warningPacks: number;
+    readonly failedPacks: number;
+    readonly highestSeverity: PolicyEvaluationSeverity | null;
+    readonly results: readonly PolicyEvaluationResult[];
+}
+
+/**
+ * Deterministic, pure aggregation of policy evaluation results
+ * into a canonical summary envelope.
+ *
+ * This function is:
+ *   - pure (no side effects)
+ *   - deterministic (same input → same output)
+ *   - stable across execution order
+ *
+ * The input results array is passed through by reference — no
+ * cloning, no mutation, no reordering.
+ */
+declare function summarizePolicyEvaluations(results: readonly PolicyEvaluationResult[]): PolicyEvaluationSummary;
+
+/**
+ * Canonical governance report envelope.
+ *
+ * This is the terminal output contract for a policy evaluation run.
+ * It carries the aggregated summary fields and the original results
+ * array in insertion order. Downstream consumers (CLI formatters,
+ * JSON serializers, CI gates) read this contract — nothing else.
+ *
+ * Phase 6A — Governance Report Surface
+ */
+interface GovernanceReport {
+    readonly reportSurfaceVersion: "1.0.0";
+    readonly status: PolicyEvaluationSummaryStatus;
+    readonly totalPacks: number;
+    readonly passedPacks: number;
+    readonly warningPacks: number;
+    readonly failedPacks: number;
+    readonly highestSeverity: PolicyEvaluationSeverity | null;
+    readonly results: readonly PolicyEvaluationResult[];
+}
+
+/**
+ * Builds a GovernanceReport from a PolicyEvaluationSummary.
+ *
+ * Pure projection — no mutation, no side effects.
+ * The results array is passed through by reference.
+ *
+ * Phase 6A — Governance Report Surface
+ */
+declare function buildGovernanceReport(summary: PolicyEvaluationSummary): GovernanceReport;
+
+/**
+ * Formats a GovernanceReport as a human-readable CLI output string.
+ *
+ * This function is:
+ *   - pure (no console.log, no side effects)
+ *   - deterministic (same input → same output)
+ *   - terminal-safe (uses \\n, not platform-specific newlines)
+ *   - CI-safe (no color codes, no escape sequences)
+ *
+ * Pack results appear in insertion order — no sorting applied.
+ *
+ * Phase 6B — CLI Output Formatter Surface
+ */
+declare function formatGovernanceReportForCLI(report: GovernanceReport): string;
+
+/**
+ * Formats a GovernanceReport as a deterministic JSON string.
+ *
+ * This function is:
+ *   - pure (no console.log, no side effects)
+ *   - deterministic (same input → same output)
+ *   - stable across runtimes (2-space indent, trailing \\n)
+ *   - CI-safe (returns string only)
+ *
+ * Property order in the output matches the specified contract:
+ *   reportSurfaceVersion → status → highestSeverity →
+ *   totalPacks → passedPacks → warningPacks → failedPacks → results
+ *
+ * Phase 6C — JSON Output Mode Surface
+ */
+declare function formatGovernanceReportAsJSON(report: GovernanceReport): string;
+
+/**
+ * Classifies the topology comparison mode based on input types.
+ *
+ * Phase 8A — Snapshot Pair Comparison Surface
+ */
+type ExecutionInputMode = "dataset_vs_dataset" | "dataset_vs_snapshot" | "snapshot_vs_dataset" | "snapshot_vs_snapshot";
+
+/**
+ * A single per-pack explanation section.
+ *
+ * Carries the pack outcome, its highest diagnostic severity,
+ * and the original diagnostics array by reference.
+ *
+ * Phase 6D — Explain Mode Surface
+ */
+interface ExplainSection {
+    readonly policyPackId: string;
+    readonly success: boolean;
+    readonly highestSeverity: PolicyEvaluationSeverity | null;
+    readonly diagnostics: readonly PolicyEvaluationDiagnostic[];
+}
+
+/**
+ * Canonical explain-mode report envelope.
+ *
+ * Provides structured reasoning output describing which policy
+ * packs triggered, which diagnostics contributed, and how
+ * severity influenced the aggregate status.
+ *
+ * Phase 6D — Explain Mode Surface
+ */
+interface ExplainReport {
+    readonly explainSurfaceVersion: "1.0.0";
+    readonly status: PolicyEvaluationSummaryStatus;
+    readonly executionMode: ExecutionInputMode;
+    readonly highestSeverity: PolicyEvaluationSeverity | null;
+    readonly sections: readonly ExplainSection[];
+}
+
+/**
+ * Builds an ExplainReport from a GovernanceReport.
+ *
+ * Each result is projected into an ExplainSection with a
+ * per-pack highestSeverity computed from its diagnostics.
+ * The diagnostics array is passed through by reference.
+ *
+ * This function is:
+ *   - pure (no side effects)
+ *   - deterministic (same input → same output)
+ *   - stable across execution order
+ *
+ * Phase 6D — Explain Mode Surface
+ */
+declare function buildExplainReport(report: GovernanceReport, executionMode: ExecutionInputMode): ExplainReport;
+
+/**
+ * Formats an ExplainReport as a human-readable CLI output string.
+ *
+ * This function is:
+ *   - pure (no console.log, no side effects)
+ *   - deterministic (same input → same output)
+ *   - terminal-safe (uses \\n, not platform-specific newlines)
+ *   - CI-safe (no color codes, no escape sequences)
+ *
+ * Sections appear in insertion order — no sorting applied.
+ *
+ * Phase 6D — Explain Mode Surface
+ */
+declare function formatExplainReportForCLI(explain: ExplainReport): string;
+
+/**
+ * Formats an ExplainReport as a deterministically ordered JSON string.
+ *
+ * JSON explain output includes executionMode to expose
+ * topology comparison semantics for CI-safe machine-readable interpretation.
+ *
+ * This function is:
+ *   - pure (no side effects)
+ *   - deterministic (strict key ordering)
+ *
+ * Phase 8C — Execution-Mode-Aware JSON Explain Surface
+ */
+declare function formatExplainReportAsJSON(report: ExplainReport): string;
+
+type GovernanceExitCode = 0 | 1;
+
+/**
+ * Maps a GovernanceReport status to a process exit code.
+ *
+ *   "pass"    → 0
+ *   "warning" → 0
+ *   "fail"    → 1
+ *
+ * This function is pure, deterministic, and side-effect free.
+ *
+ * Phase 6E — Exit Code Mapping Surface
+ */
+declare function mapGovernanceReportToExitCode(report: GovernanceReport): GovernanceExitCode;
+
+/**
+ * Deterministic topology snapshot for baseline persistence.
+ *
+ * Used by the --write-baseline flag to produce reproducible
+ * topology captures suitable for future drift detection
+ * comparisons via --baseline.
+ *
+ * Phase 7B — Snapshot Persistence Surface
+ */
+interface TopologySnapshot {
+    readonly snapshotSurfaceVersion: "1.0.0";
+    readonly topologyGraph: TopologyGraph;
+    readonly lineageId?: string;
+}
+
+/**
+ * Builds a TopologySnapshot from a TopologyGraph.
+ *
+ * The graph is passed by reference — no cloning occurs.
+ * Returns a frozen, deterministic snapshot envelope.
+ *
+ * Phase 7B — Snapshot Persistence Surface
+ */
+declare function buildTopologySnapshot(graph: TopologyGraph, lineageId?: string): TopologySnapshot;
+
+/**
+ * Result of validating a baseline snapshot's surface version compatibility.
+ *
+ * Phase 7C — Snapshot Compatibility Validation Surface
+ */
+interface TopologySnapshotCompatibilityResult {
+    readonly compatible: boolean;
+    readonly expectedVersion: "1.0.0";
+    readonly actualVersion: string | undefined;
+}
+
+/**
+ * Validates that a baseline snapshot is version-compatible
+ * with the current snapshot surface contract.
+ *
+ * Returns a deterministic compatibility result.
+ * Never throws exceptions.
+ *
+ * Phase 7C — Snapshot Compatibility Validation Surface
+ */
+declare function validateTopologySnapshotCompatibility(snapshot: unknown): TopologySnapshotCompatibilityResult;
+
+/**
+ * Result of comparing two snapshot lineages.
+ *
+ * Phase 8D — Snapshot Identity & Lineage Surface
+ */
+interface TopologySnapshotLineageValidationResult {
+    readonly compatible: boolean;
+    readonly currentLineageId?: string;
+    readonly baselineLineageId?: string;
+}
+
+/**
+ * Validates lineage compatibility between two topology snapshots.
+ *
+ * Rules:
+ * - If either snapshot lacks a lineageId, they are compatible.
+ * - If both have a lineageId and they are equal, they are compatible.
+ * - If both have a lineageId and they differ, they are incompatible.
+ *
+ * Pure, deterministic function. Mismatches are advisory only and
+ * should not halt the pipeline.
+ *
+ * Phase 8D — Snapshot Identity & Lineage Surface
+ */
+declare function validateTopologySnapshotLineage(currentSnapshot: TopologySnapshot, baselineSnapshot: TopologySnapshot): TopologySnapshotLineageValidationResult;
+
+/**
+ * Extracts a TopologyGraph from a TopologySnapshot.
+ *
+ * Pure deterministic passthrough — no cloning, no mutation.
+ * The graph is returned by reference.
+ *
+ * Phase 7D — Snapshot Graph Extraction Surface
+ */
+declare function extractTopologyGraphFromSnapshot(snapshot: TopologySnapshot): TopologyGraph;
+
+export { ARCH_ENGINE_VERSION, type AdapterCapabilityDescriptor, type AdapterContext, type AdapterManifest, type AdapterPack, type AdapterTrustScore, type AdjacencyNode, type AllowMatch, type ArchitectureAdapter, type AuthorityCrossing, type BlastRadius, type CapabilityManifestCompatibilityVerified, type CapabilityMap, type ClassificationStrategy, type CompatibilityResult, type ComposedPolicy, type ComposedRuleDef, type ComposedRules, type ConfidenceWeightedBlastRadius, type CoverageLevel, DEFAULT_ENGINE_RUNTIME_METADATA, DIAMOND_TRAVERSAL_CONTRACT_VERSION, type DatasetCompatibilityFinding, type DatasetFormatValidated, type DatasetIngestionDiagnostic, type DatasetIngestionPipelineReady, type DatasetRuntimeCompatibilityDiagnostic, DiffConsumerRunner, EdgeConfidenceLevel, type EdgeTypeTrustOverride, type EngineExecutionResult, type EngineExecutionState, type EngineManifest, EngineRunner, type EngineRunnerOptions, type EngineRuntimeMetadata, type EvaluatorEdge, type ExecutionInputMode, type ExplainReport, type ExplainSection, type ExternalTopologyDataset, type ExternalTopologyDatasetLoaded, type FederationEvaluationExplanation, type FederationEvaluationGatePolicy, type FederationEvaluationPackExplanation, type FederationEvaluationPackResult, type FederationEvaluationPackSeveritySummary, type FederationEvaluationPolicyAstMutationResult, type FederationEvaluationPolicyDecision, type FederationEvaluationPolicyFile, type FederationEvaluationPolicyPatchApplyResult, type FederationEvaluationPolicyPatchArtifact, type FederationEvaluationPolicyPatchExport, type FederationEvaluationPolicyPatchWriteResult, type FederationEvaluationPolicyPullRequestPayload, type FederationEvaluationPolicySuggestions, type FederationEvaluationResult, type FederationEvaluationSeveritySummary, type FederationEvaluationSeverityThreshold, type FederationEvaluationSeverityThresholdInput, type FederationEvaluationWaiver, type FederationEvaluationWaiverAudit, type FederationEvaluationWaiverUsageEntry, type FederationExecutionPlanDiagnostic, type FederationExecutionPlanPackEntry, type FederationExecutionPreflightDiagnostic, type FederationFindingCodeSummary, type FederationFindingInspectionReport, type FederationFindingRegistryLintIssue, type FederationFindingRegistryLintIssueType, type FederationFindingRegistryLintReport, type FederationPolicySuggestionContext, type FederationPolicySuggestionEntry, type FederationPolicySuggestionProfileTargetSource, type FederationPolicySuggestionType, GOVERNANCE_TELEMETRY_SCHEMA_VERSION, type GovernanceExitCode, type GovernanceReport, type GovernanceSurfaceMissingFrom, type GraphStabilityIndex, type GraphValidatorUtilityResult, type LocalPolicyRule, type LockfileEnforcementMode, type LockfileFreshnessDiagnostic, type LockfileInstallEnforcementDiagnostic, type LockfileMigrationAdvisory, type LockfileRefreshDiagnostic, type LockfileRuntimeReadinessDiagnostic, type LockfileSignerConfig, type LockfileSignerStore, type LockfileTrustDiagnostic, type LockfileTrustFailureReason, type LockfileTrustStore, MALFORMED_CODE, type MergeAuthority, type NormalizedPolicyPackEvaluationResult, type NormalizedPolicyPackFinding, POLICY_PATCH_EXPORT_SCHEMA_VERSION, POLICY_PR_PAYLOAD_SCHEMA_VERSION, type ParsedPolicy, type PolicyConfig, type PolicyDomainDef, type PolicyEvaluationDiagnostic, type PolicyEvaluationResult, type PolicyEvaluationSeverity, type PolicyEvaluationSummary, type PolicyEvaluationSummaryStatus, type PolicyExecutionContext, type PolicyMode, type PolicyPackCompatibilityResult, type PolicyPackDatasetCapabilityDiagnostic, type PolicyPackDatasetCapabilityFinding, type PolicyPackEvaluationResult, type PolicyPackEvaluator, type PolicyPackExecutionCompatibilityDiagnostic, type PolicyPackExecutionCompatibilityStatus, type PolicyPackExecutionContext, type PolicyPackExecutionFinding, type PolicyPackExecutionResult, type PolicyPackFinding, type PolicyPackFindingCategory, type PolicyPackGovernanceCompatibilityDiagnostic, type PolicyPackGovernanceCompatibilityFinding, type PolicyPackGovernanceCompatibilityStatus, type PolicyPackManifest, type PolicyPackMetadata, PolicyPackRunner, type PolicyPackSignatureVerificationResult, type PolicyRegistryLockEntry, type PolicyRegistryLockfile, type PolicyRegistryLockfileDiff, type PolicyRegistryLockfileSignatureEntry, type PolicyRegistryLockfileSignatureVerificationResult, type PolicyRelevantDiff, type PolicyRelevantDiffKind, type PolicyRuleDef, type PolicyRules, type PolicySeverity, type PolicyStackEntry, type PolicyTier, type PolicyViolation, RESERVED_CORE_CODE_PREFIX, type RankedAuthorityCrossing, type ReconcilableEdge, type RefreshPolicyRegistryLockfileResult, type RepositoryHintResolution, type ResolveEvaluationPolicyTargetProfileContext, type ResolvedEvaluationPolicyTargetProfile, type ResolvedPolicyProfile, type ResolvedSignerIdentity, type RouteServiceEntry, type RouteServiceMap, type RuntimeReadinessStatus, type SchemaCompatibilityVerified, type SignPolicyRegistryLockfileResult, type SignerLifecycleStatus, StaticLockfileSignerStore, StaticLockfileTrustStore, type TopologyChangeKind, TopologyDatasetIngestionError, type TopologyDiffClassification, type TopologyDiffConsumer, type TopologyDiffResult, type TopologyEdge, type TopologyGraph, type TopologyGraphIndex, type TopologyMetadataDiff, type TopologyNode, type TopologyPolicyPack, type TopologySnapshot, type TopologySnapshotCompatibilityResult, type TopologySnapshotLineageValidationResult, type TopologyValidator, type TrustPolicyAuditDiagnostic, type TrustPolicyConfig, type TrustPolicyFinding, type TrustPolicyFindingSeverity, type TrustPolicyReadiness, type TrustRankingConfig, UNKNOWN_CODE, type ValidatedFindingCodeResult, type ValidatedTopologyDataset, type ValidatorDiagnostic, type ValidatorResult, ValidatorRunner, type ValidatorRunnerResultEnvelope, type ValidatorSeverity, type ValidatorTopologyCapabilitySurface, type ValidatorTopologyIdentitySurface, type ValidatorTopologyView, type ViolationCategory, adviseLockfileMigration, aggregateFederationEvaluationSeverity, applyEvaluationPolicyPatchArtifact, assessDatasetRuntimeCompatibility, assessFederationEvaluationPolicyGate, assessFederationExecutionPreflight, assessLockfileRuntimeReadiness, assessPolicyPackDatasetCapabilityCompatibility, assessPolicyPackExecutionCompatibility, assessPolicyPackGovernanceSurfaceCompatibility, assessPolicyRegistryLockfileFreshness, auditTrustPolicyConfig, buildExplainReport, buildGovernanceReport, buildPolicyPatchPullRequestPayload, buildTopologyGraphIndex, buildTopologySnapshot, classifyPolicyRelevantDiff, classifyTopologyDiff, computeEvaluationContextFingerprint, computeExportArtifactIntegrityHash, computeGraphStabilityIndex, computeGraphSurfaceHash, computeWeightedBlastRadii, deriveLockfileMigrationSuggestedAction, diffPolicyRegistryLockfile, diffTopologyGraphs, diffTopologyMetadata, enforcePolicyRegistryLockfileInstall, evaluatePolicy, executeLocalPolicyPack, explainFederationEvaluationResult, exportEvaluationPolicyPatchArtifact, extractLockfileDatasetIdentity, extractTopologyGraph, extractTopologyGraphFromSnapshot, formatExplainReportAsJSON, formatExplainReportForCLI, formatGovernanceReportAsJSON, formatGovernanceReportForCLI, generateEvaluationPolicyPatchArtifact, getDirectNeighbors, getIncomingEdges, getMatchingWaiver, getNodeById, getOutgoingEdges, getReachableNodeIds, hasPath, inspectFederationEvaluationFindings, lintFederationFindingRegistry, loadEngineManifest, loadExternalTopologyDataset, loadPolicyConfig, mapGovernanceReportToExitCode, materializeFederationExecutionPlan, mutateEvaluationPolicyFileAst, normalizePolicyPackFinding, normalizeRepositoryHint, parseEngineManifest, projectValidatedDatasetToValidatorView, rankAuthorityCrossings, refreshPolicyRegistryLockfile, resolveEvaluationPolicyProfile, resolveEvaluationPolicyTargetProfile, resolveFindingSeverityThreshold, resolveRepositoryHint, resolveSeverity, routeDatasetFormat, runDatasetIngestionPipeline, runFederationEvaluationPlan, scanBalancedObjectBlock, signPolicyRegistryLockfile, suggestEvaluationPolicyAdjustments, summarizePolicyEvaluations, validateAdapterCompatibility, validateEvaluationPolicyFile, validateNodeExists, validateOrNormalizePolicyPackFindingCode, validatePolicyPackCompatibility, validatePolicyPackManifest, validateReachability, validateRequiredEdge, validateRequiredNeighbors, validateTopologySnapshotCompatibility, validateTopologySnapshotLineage, validateTrustPolicyConfig, verifyCapabilityManifestCompatibility, verifyPolicyPackSignature, verifyPolicyRegistryLockfileSignature, verifySchemaCompatibility, writeEvaluationPolicyPatch };
 "
 `;

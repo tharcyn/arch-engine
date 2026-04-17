@@ -35,11 +35,13 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
+    "@arch-engine/adapter-github": "^1.0.0",
+    "@arch-engine/adapter-gitlab": "^1.0.0",
     "@arch-engine/core": "^1.0.0",
     "@arch-engine/schema": "^1.0.0",
     "cac": "^6.7.14",
-    "picocolors": "^1.0.0",
     "cli-table3": "^0.6.3",
+    "picocolors": "^1.0.0",
     "yaml": "^2.3.4"
   },
   "devDependencies": {

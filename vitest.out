@@ -1,0 +1,661 @@
+
+ RUN  v3.2.4 /Users/thaasyn/Documents/WebDev/arch-engine
+
+ ❯ packages/core/tests/policy/normalizePolicyPackFinding.test.ts (7 tests | 1 failed) 11ms
+   × Phase 16F normalizePolicyPackFinding > fills missing optional fields deterministically 10ms
+     → expected 'unknown' to be undefined
+   ✓ Phase 16F normalizePolicyPackFinding > preserves provided taxonomy fields 0ms
+   ✓ Phase 16F normalizePolicyPackFinding > normalizes custom finding codes to uppercase and alphanumeric 0ms
+   ✓ Phase 16F normalizePolicyPackFinding > handles empty custom finding code 0ms
+   ✓ Phase 16F normalizePolicyPackFinding > handles illegal reserved prefix by custom pack 0ms
+   ✓ Phase 16F normalizePolicyPackFinding > allows reserved prefix for core category 0ms
+   ✓ Phase 16F normalizePolicyPackFinding > supports legacy _taxonomyRepaired flag 0ms
+ ❯ packages/core/tests/freeze/policy_loader_pipeline_contract_snapshot.test.ts (1 test | 1 failed) 66ms
+   × policy loader pipeline contract snapshot > anchors full pipeline structural topology intelligently successfully ideally cleanly natively properly tracking identical gracefully 65ms
+     → expected 33 to be +0 // Object.is equality
+ ❯ packages/core/tests/freeze/distribution_declaration_surface.test.ts (3 tests | 1 failed) 21ms
+   × distribution declaration surface (.d.ts) freeze contract > 'root' declaration boundary integrity > matches approved signature structure precisely for root 19ms
+     → Snapshot `distribution declaration surface (.d.ts) freeze contract > 'root' declaration boundary integrity > matches approved signature structure precisely for root 1` mismatched
+   ✓ distribution declaration surface (.d.ts) freeze contract > 'analysis' declaration boundary integrity > matches approved signature structure precisely for analysis 1ms
+   ✓ distribution declaration surface (.d.ts) freeze contract > 'parsers' declaration boundary integrity > matches approved signature structure precisely for parsers 0ms
+ ❯ packages/core/tests/sdk/core_public_surface_snapshot.test.ts (1 test | 1 failed) 71ms
+   × Phase 10 Hard Invariant: SDK Public Surface Freeze Verification Layer 1 > enforces exact SDK export map preventing internal module leakage natively 70ms
+     → Snapshot `Phase 10 Hard Invariant: SDK Public Surface Freeze Verification Layer 1 > enforces exact SDK export map preventing internal module leakage natively 1` mismatched
+ ❯ packages/core/tests/publicSurface.snapshot.test.ts (3 tests | 2 failed) 140ms
+   × public surface snapshot — root barrel boundary > exports only approved symbols 6ms
+     → expected [ 'ARCH_ENGINE_VERSION', …(106) ] to deeply equal [ …(12) ]
+   ✓ public surface snapshot — root barrel boundary > does not leak identity helpers through root barrel 1ms
+   × public surface snapshot — root barrel boundary > snapshot matches approved export surface 133ms
+     → Snapshot `public surface snapshot — root barrel boundary > snapshot matches approved export surface 1` mismatched
+ ❯ packages/core/tests/topology/topology-diff.test.ts (69 tests | 2 failed) 48ms
+   ✓ Phase 4A Topology Structural Diff > diff_detects_added_nodes 3ms
+   ✓ Phase 4A Topology Structural Diff > diff_detects_removed_nodes 0ms
+   ✓ Phase 4A Topology Structural Diff > diff_detects_added_edges 0ms
+   ✓ Phase 4A Topology Structural Diff > diff_detects_removed_edges 0ms
+   ✓ Phase 4A Topology Structural Diff > diff_output_is_deterministic 14ms
+   ✓ Phase 4A Topology Structural Diff > diff_does_not_mutate_inputs 0ms
+   ✓ Phase 4A Topology Structural Diff > diff_returns_empty_when_graphs_identical 0ms
+   ✓ Phase 4A Topology Structural Diff > metadata_diff_detects_node_metadata_change 0ms
+   ✓ Phase 4A Topology Structural Diff > metadata_diff_detects_edge_metadata_change 1ms
+   ✓ Phase 4A Topology Structural Diff > metadata_diff_empty_when_metadata_equal 0ms
+   ✓ Phase 4A Topology Structural Diff > metadata_diff_does_not_affect_structural_diff 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_no_change_for_empty_diff 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_metadata_only 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_structural_addition 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_structural_removal 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_structural_mixed 0ms
+   ✓ Phase 4A Topology Structural Diff > classification_returns_metadata_and_structural 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_no_change 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_metadata_only 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_structural_addition 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_structural_removal 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_structural_mixed 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_relevant_diff_maps_metadata_and_structural 0ms
+   ✓ Phase 4A Topology Structural Diff > consumer_runner_preserves_insertion_order 1ms
+   ✓ Phase 4A Topology Structural Diff > consumer_runner_rejects_duplicate_consumer_ids 1ms
+   ✓ Phase 4A Topology Structural Diff > policy_pack_runner_executes_in_insertion_order 2ms
+   ✓ Phase 4A Topology Structural Diff > policy_pack_runner_rejects_duplicate_policy_pack_ids 0ms
+   ✓ Phase 4A Topology Structural Diff > policy_pack_evaluation_returns_structured_results 0ms
+   × Phase 4A Topology Structural Diff > policy_pack_evaluation_preserves_diagnostics 6ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ Phase 4A Topology Structural Diff > policy_pack_evaluation_handles_success_case 0ms
+   × Phase 4A Topology Structural Diff > policy_pack_evaluation_handles_failure_case 1ms
+     → expected true to be false // Object.is equality
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_returns_pass 0ms
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_returns_warning 0ms
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_returns_fail 2ms
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_counts_pack_outcomes_correctly 0ms
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_computes_highest_severity_correctly 0ms
+   ✓ Phase 5C Policy Evaluation Aggregation Surface > policy_evaluation_summary_preserves_results_without_mutation 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_outputs_status_line 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_outputs_pack_counts 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_outputs_highest_severity 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_outputs_pack_results 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_outputs_diagnostics_when_present 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_skips_empty_diagnostics 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_preserves_pack_order 0ms
+   ✓ Phase 6B CLI Output Formatter Surface > cli_formatter_returns_single_string_output 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_returns_valid_json_string 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_preserves_report_structure 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_preserves_property_order 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_does_not_mutate_input 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_uses_two_space_indentation 0ms
+   ✓ Phase 6C JSON Output Mode Surface > json_formatter_appends_trailing_newline 0ms
+   ✓ Phase 6D Explain Mode Surface > explain_report_maps_status_correctly 1ms
+   ✓ Phase 6D Explain Mode Surface > explain_report_maps_highest_severity_correctly 0ms
+   ✓ Phase 6D Explain Mode Surface > explain_report_preserves_pack_order 0ms
+   ✓ Phase 6D Explain Mode Surface > explain_report_computes_section_highest_severity 1ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_outputs_status 6ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_outputs_sections 0ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_outputs_diagnostics 0ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_skips_empty_diagnostics 0ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_returns_single_string 0ms
+   ✓ Phase 6D Explain Mode Surface > buildExplainReport_includes_execution_mode 0ms
+   ✓ Phase 6D Explain Mode Surface > cli_explain_formatter_outputs_execution_mode 0ms
+   ✓ Phase 6D Explain Mode Surface > json_explain_output_contains_execution_mode_dataset_vs_dataset 0ms
+   ✓ Phase 6D Explain Mode Surface > json_explain_output_contains_execution_mode_dataset_vs_snapshot 0ms
+   ✓ Phase 6D Explain Mode Surface > json_explain_output_contains_execution_mode_snapshot_vs_dataset 0ms
+   ✓ Phase 6D Explain Mode Surface > json_explain_output_contains_execution_mode_snapshot_vs_snapshot 0ms
+   ✓ Phase 6E Exit Code Mapping Surface > exit_code_returns_zero_for_pass 0ms
+   ✓ Phase 6E Exit Code Mapping Surface > exit_code_returns_zero_for_warning 0ms
+   ✓ Phase 6E Exit Code Mapping Surface > exit_code_returns_one_for_fail 0ms
+ ❯ packages/core/tests/topology/validator-topology-projection.test.ts (11 tests | 10 failed) 22ms
+   × Phase 2A Validator Topology Projection > projection_surface_version_is_present 13ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_surface_contains_no_gate_artifacts 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_output_is_runtime_immutable 0ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_is_idempotent 0ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projects structurally correct object 0ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_surface_hash_is_deterministic 0ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_surface_hash_changes_when_identity_changes 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_surface_hash_independent_from_dataset_path 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   × Phase 2A Validator Topology Projection > projection_surface_hash_independent_from_diagnostics 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   ✓ Phase 2A Validator Topology Projection > projection_surface_hash_changes_when_projection_version_changes 1ms
+   × Phase 2A Validator Topology Projection > EngineRunner integration 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+ ❯ packages/core/tests/public-types-surface.test.ts (6 tests | 1 failed) 163ms
+   × public types surface — declaration file freeze contract > index.d.ts exists and snapshot is stable 160ms
+     → Snapshot `public types surface — declaration file freeze contract > index.d.ts exists and snapshot is stable 1` mismatched
+   ✓ public types surface — declaration file freeze contract > analysis.d.ts exists and snapshot is stable 0ms
+   ✓ public types surface — declaration file freeze contract > parsers.d.ts exists and snapshot is stable 0ms
+   ✓ public types surface — declaration file freeze contract > identity.d.ts must not exist (identity surface sealed) 0ms
+   ✓ public types surface — declaration file freeze contract > identity.d.cts must not exist (identity surface sealed) 0ms
+   ✓ public types surface — declaration file freeze contract > declaration files do not export identity symbols 1ms
+ ❯ packages/core/tests/topology/dataset-ingestion-phase-1.test.ts (12 tests | 2 failed) 19ms
+   ✓ Phase 1 Dataset Ingestion > loader success 1ms
+   ✓ Phase 1 Dataset Ingestion > loader missing required root field 1ms
+   ✓ Phase 1 Dataset Ingestion > deep identity field present but empty string 0ms
+   ✓ Phase 1 Dataset Ingestion > invalid dataset_semver format 3ms
+   ✓ Phase 1 Dataset Ingestion > unsupported format 1ms
+   ✓ Phase 1 Dataset Ingestion > unsupported schema version 1ms
+   × Phase 1 Dataset Ingestion > schema version success using object form 5ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+   ✓ Phase 1 Dataset Ingestion > schema version object missing version fails 1ms
+   ✓ Phase 1 Dataset Ingestion > missing capability manifest 1ms
+   ✓ Phase 1 Dataset Ingestion > missing required capability 0ms
+   ✓ Phase 1 Dataset Ingestion > incompatible policy pack range 1ms
+   × Phase 1 Dataset Ingestion > full pipeline success 1ms
+     → Missing policy pack compatibility declaration: rest_contract_pack
+ ❯ packages/core/tests/localPolicyExecution.test.ts (4 tests | 4 failed) 6ms
+   × Phase 9E Executable Local Policy-Pack Surface > rule_matching_works 3ms
+     → Cannot read properties of undefined (reading 'edges')
+   × Phase 9E Executable Local Policy-Pack Surface > edge_detection_correct 0ms
+     → Cannot read properties of undefined (reading 'edges')
+   × Phase 9E Executable Local Policy-Pack Surface > multiple_violations_supported 0ms
+     → Cannot read properties of undefined (reading 'edges')
+   × Phase 9E Executable Local Policy-Pack Surface > deterministic_output_ordering_preserved 0ms
+     → Cannot read properties of undefined (reading 'edges')
+ ❯ packages/core/tests/freeze/distribution_exports_surface.test.ts (3 tests | 1 failed) 10ms
+   × distribution exports surface freeze contract > 'root' export boundary mapping > matches approved export boundary precisely for root 3ms
+     → [FREEZE_EXPORT_SURFACE_MUTATION] Export surface mutation detected.
+Missing: 
+Unexpected: ARCH_ENGINE_VERSION, DEFAULT_ENGINE_RUNTIME_METADATA, DiffConsumerRunner, MALFORMED_CODE, POLICY_PATCH_EXPORT_SCHEMA_VERSION, POLICY_PR_PAYLOAD_SCHEMA_VERSION, PolicyPackRunner, RESERVED_CORE_CODE_PREFIX, StaticLockfileSignerStore, StaticLockfileTrustStore, TopologyDatasetIngestionError, UNKNOWN_CODE, ValidatorRunner, adviseLockfileMigration, aggregateFederationEvaluationSeverity, applyEvaluationPolicyPatchArtifact, assessDatasetRuntimeCompatibility, assessFederationEvaluationPolicyGate, assessFederationExecutionPreflight, assessLockfileRuntimeReadiness, assessPolicyPackDatasetCapabilityCompatibility, assessPolicyPackExecutionCompatibility, assessPolicyPackGovernanceSurfaceCompatibility, assessPolicyRegistryLockfileFreshness, auditTrustPolicyConfig, buildExplainReport, buildGovernanceReport, buildPolicyPatchPullRequestPayload, buildTopologyGraphIndex, buildTopologySnapshot, classifyPolicyRelevantDiff, classifyTopologyDiff, computeEvaluationContextFingerprint, computeExportArtifactIntegrityHash, computeGraphSurfaceHash, deriveLockfileMigrationSuggestedAction, diffPolicyRegistryLockfile, diffTopologyGraphs, diffTopologyMetadata, enforcePolicyRegistryLockfileInstall, executeLocalPolicyPack, explainFederationEvaluationResult, exportEvaluationPolicyPatchArtifact, extractLockfileDatasetIdentity, extractTopologyGraph, extractTopologyGraphFromSnapshot, formatExplainReportAsJSON, formatExplainReportForCLI, formatGovernanceReportAsJSON, formatGovernanceReportForCLI, generateEvaluationPolicyPatchArtifact, getDirectNeighbors, getIncomingEdges, getMatchingWaiver, getNodeById, getOutgoingEdges, getReachableNodeIds, hasPath, inspectFederationEvaluationFindings, lintFederationFindingRegistry, loadExternalTopologyDataset, mapGovernanceReportToExitCode, materializeFederationExecutionPlan, mutateEvaluationPolicyFileAst, normalizePolicyPackFinding, normalizeRepositoryHint, projectValidatedDatasetToValidatorView, refreshPolicyRegistryLockfile, resolveEvaluationPolicyProfile, resolveEvaluationPolicyTargetProfile, resolveFindingSeverityThreshold, resolveRepositoryHint, routeDatasetFormat, runDatasetIngestionPipeline, runFederationEvaluationPlan, scanBalancedObjectBlock, signPolicyRegistryLockfile, suggestEvaluationPolicyAdjustments, summarizePolicyEvaluations, validateEvaluationPolicyFile, validateNodeExists, validateOrNormalizePolicyPackFindingCode, validatePolicyPackCompatibility, validatePolicyPackManifest, validateReachability, validateRequiredEdge, validateRequiredNeighbors, validateTopologySnapshotCompatibility, validateTopologySnapshotLineage, validateTrustPolicyConfig, verifyCapabilityManifestCompatibility, verifyPolicyPackSignature, verifyPolicyRegistryLockfileSignature, verifySchemaCompatibility, writeEvaluationPolicyPatch
+   ✓ distribution exports surface freeze contract > 'analysis' export boundary mapping > matches approved export boundary precisely for analysis 5ms
+   ✓ distribution exports surface freeze contract > 'parsers' export boundary mapping > matches approved export boundary precisely for parsers 0ms
+ ❯ packages/core/tests/validators/validator-runner.test.ts (7 tests | 2 failed) 18ms
+   ✓ Phase 2B Validator Runner Execution Substrate > validator executes successfully and preserves ordering 2ms
+   ✓ Phase 2B Validator Runner Execution Substrate > capability-gated validator is skipped when capabilities missing 1ms
+   ✓ Phase 2B Validator Runner Execution Substrate > validators receive ValidatorTopologyView only without gate leakage 0ms
+   × Phase 2B Validator Runner Execution Substrate > EngineRunner runValidators executes synchronously and completely 6ms
+     → Required capability not declared as supported: supports_directionality
+   × Phase 2B Validator Runner Execution Substrate > runner does not mutate input view 4ms
+     → expected false to be true // Object.is equality
+   ✓ Phase 2B Validator Runner Execution Substrate > duplicate validatorId throws deterministic error 1ms
+   ✓ Phase 2B Validator Runner Execution Substrate > validator_execution_order_is_stable 1ms
+ ✓ packages/core/tests/execution/EvaluationShortCircuitResolver.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_legacy_signature_rejection.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/transport/core_runtime_has_no_testing_imports.test.ts (1 test) 61ms
+ ✓ packages/core/tests/freeze/freeze_mirror_signature_gate_enforcement.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/cli-json-contract.test.ts (7 tests) 211ms
+ ✓ packages/core/tests/policy/policyRegistryLockfileSignature.test.ts (14 tests) 67ms
+ ✓ packages/core/tests/sdk/core_no_internal_imports.test.ts (1 test) 70ms
+ ✓ packages/core/tests/transport/dependencyGraphShapeHash.test.ts (4 tests) 27ms
+ ✓ packages/core/tests/transport/loaderMetadataImmutabilityCertification.test.ts (5 tests) 7ms
+ ✓ packages/core/tests/transport/extendedPolicyStackFingerprint.test.ts (5 tests) 19ms
+ ✓ packages/core/tests/transport/snapshotEnvelope.test.ts (4 tests) 34ms
+ ✓ packages/core/tests/determinism/chainOrdering.test.ts (8 tests) 6ms
+ ✓ packages/core/tests/freeze/freeze_f12_identity_hash_isolation.test.ts (4 tests) 45ms
+ ✓ packages/core/tests/transport/loaderPipelineIntegration.test.ts (2 tests) 6ms
+ ✓ packages/core/tests/policy/lintFederationFindingRegistry.test.ts (5 tests) 132ms
+ ✓ packages/core/tests/determinism/hashParity.test.ts (8 tests) 154ms
+ ✓ packages/core/tests/deterministic-build-replay.test.ts (6 tests) 131ms
+stdout | packages/core/tests/freeze/freeze_handler_identity_binding.test.ts > Freeze Evidence: Handler Identity Binding (F-1) > closure hash unchanged by handler identity binding
+[
+  {
+    "telemetrySchemaVersion": 1,
+    "seamId": "overlay::manifest::mergeBoundary",
+    "overlaySourceId": "source-a",
+    "overlayVersion": "1.0.0",
+    "mergeMode": "merge-by-key",
+    "authorityTier": 2,
+    "activationDecision": "EXECUTED",
+    "conflictDetected": false,
+    "resolutionOutcome": "Merge mode merge-by-key handler[0] successfully applied",
+    "hashParticipationEnabled": true,
+    "stackPosition": 0,
+    "stackSize": 1,
+    "handlerOverlaySourceId": "source-a",
+    "handlerOverlayVersion": "1.0.0",
+    "handlerOverlaySignaturePresent": true,
+    "signaturePresent": true,
+    "signatureValid": true,
+    "signatureVerificationMode": "verified",
+    "signatureKeyId": "legacy",
+    "signatureAlgorithm": "legacy",
+    "signatureEnvelopeValid": false,
+    "signedPayloadDigest": "__legacy__"
+  }
+]
+
+ ✓ packages/core/tests/freeze/freeze_handler_identity_binding.test.ts (6 tests) 8ms
+ ✓ packages/core/tests/transport/executionMetadataFreeze.test.ts (3 tests) 8ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_diagnostics_time_independence.test.ts (1 test) 15ms
+ ✓ packages/core/tests/transport/snapshotTransportCompatibility.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/freeze/federation_taxonomy_map_snapshot.test.ts (1 test) 73ms
+ ✓ packages/core/tests/policy/suggestEvaluationPolicyAdjustments.test.ts (6 tests) 37ms
+ ✓ packages/core/tests/freeze/freeze_overlay_authority_resolution.test.ts (2 tests) 6ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_authority_first.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/transport/dependencyAdjacencySurface.test.ts (3 tests) 11ms
+ ✓ packages/core/tests/expandLocalStack.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/transport/lockfileOverridePrecedence.test.ts (1 test) 8ms
+ ✓ packages/core/tests/transport/snapshotClosureGraphHash.test.ts (3 tests) 9ms
+ ✓ packages/core/tests/freeze/freeze_f12_negotiation_determinism.test.ts (7 tests) 13ms
+ ✓ packages/core/tests/policy/refreshPolicyRegistryLockfile.test.ts (7 tests) 81ms
+ ✓ packages/core/tests/policy/assessPolicyPackExecutionCompatibility.test.ts (6 tests) 4ms
+ ✓ packages/core/tests/sdk/interface_usage_regression.test.ts (1 test) 138ms
+ ✓ packages/core/tests/freeze/freeze_signature_digest_identity_binding.test.ts (1 test) 73ms
+ ✓ packages/core/tests/topology/topology-graph.test.ts (23 tests) 186ms
+ ✓ packages/core/tests/manifestSchemaValidatorParity.test.ts (1 test) 7ms
+ ✓ packages/core/tests/freeze/freeze_per_seam_authority_grants.test.ts (4 tests) 7ms
+ ✓ packages/core/tests/freeze/freeze_seam_grant_tier_cap.test.ts (4 tests) 163ms
+ ✓ packages/core/tests/freeze/freeze_seam_grant_backward_compatibility.test.ts (5 tests) 11ms
+ ✓ packages/core/tests/freeze/freeze_compatibility_diagnostics_no_numeric_trust_leakage.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_provenance_explain_pipeline_consistency.test.ts (1 test) 6ms
+ ✓ packages/core/tests/transport/descriptorVersionFloatRejected.test.ts (1 test) 5ms
+ ✓ packages/core/tests/freeze/freeze_check_class_registry_integrity.test.ts (2 tests) 24ms
+ ✓ packages/core/tests/freeze/freeze_cross_registry_identity_divergence.test.ts (1 test) 57ms
+ ✓ packages/core/tests/freeze/freeze_f12_seam_trust_ceiling.test.ts (4 tests) 5ms
+ ✓ packages/core/tests/deletedTombstone.test.ts (1 test) 6ms
+ ✓ packages/core/tests/policy/inspectFederationEvaluationFindings.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_signed_tier_requires_signature.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_priority_override.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/adapters/journeyRegressionAdapter.test.ts (8 tests) 5ms
+ ✓ packages/core/tests/policy/assessFederationEvaluationPolicyGate.test.ts (8 tests) 10ms
+ ✓ packages/core/tests/policy/adviseLockfileMigration.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_manifest_hash_identity_binding.test.ts (2 tests) 8ms
+ ✓ packages/core/tests/policy/signPolicyRegistryLockfile.test.ts (10 tests) 180ms
+ ✓ packages/core/tests/policy/assessPolicyRegistryLockfileFreshness.test.ts (35 tests) 17ms
+ ✓ packages/core/tests/freeze/freeze_signature_backward_compatibility.test.ts (4 tests) 9ms
+ ✓ packages/core/tests/freeze/freeze_mirror_boundary_activation.test.ts (5 tests) 3ms
+ ✓ packages/core/tests/policy/LockfileSignerLifecycle.test.ts (5 tests) 97ms
+ ✓ packages/core/tests/freeze/freeze_trust_root_identity_binding.test.ts (1 test) 11ms
+ ✓ packages/core/tests/freeze/freeze_seam_hash_toggle.test.ts (2 tests) 7ms
+ ✓ packages/core/tests/policy/exportEvaluationPolicyPatchArtifact.test.ts (4 tests) 6ms
+ ✓ packages/core/tests/policy/assessFederationExecutionPreflight.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_registry_authority_ladder_never_elevates.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/policy/generateEvaluationPolicyPatchArtifact.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/transport/deepFreezeDeterministic.test.ts (10 tests) 6ms
+ ✓ packages/core/tests/freeze/dependency_closure_contract_snapshot.test.ts (1 test) 49ms
+ ✓ packages/core/tests/freeze/freeze_seam_grant_merge_mode_restriction.test.ts (4 tests) 12ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_inputs_are_canonicalized.test.ts (1 test) 14ms
+ ✓ packages/core/tests/freeze/freeze_seam_grant_absence_rejection.test.ts (3 tests) 7ms
+ ✓ packages/core/tests/transport/snapshotEnvelopeVersionInvariant.test.ts (4 tests) 19ms
+ ✓ packages/core/tests/transport/stableCanonicalStringifyDeterminism.test.ts (6 tests) 7ms
+ ✓ packages/core/tests/freeze/freeze_seam_conflict.test.ts (1 test) 10ms
+ ✓ packages/core/tests/freeze/freeze_mirror_equivalence_identity_stability.test.ts (1 test) 12ms
+ ✓ packages/core/tests/composition/tierResolver.test.ts (1 test) 14ms
+ ✓ packages/core/tests/sdk/core_public_dts_signature_snapshot.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_unsigned_overlay_identity_sentinel.test.ts (1 test) 6ms
+ ✓ packages/core/tests/transport/registrySourceHash.test.ts (3 tests) 37ms
+ ✓ packages/core/tests/transport/authoritativeTopologySurface.test.ts (5 tests) 8ms
+ ✓ packages/core/tests/transport/descriptorMatrixPayloadMutationBlocked.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/freeze/adapter_exit_reason_contract.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/diamondTraversalContract.test.ts (5 tests) 6ms
+ ✓ packages/core/tests/transport/capabilityDescriptorMatrixHashCanonicalizationParity.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/transport/namespaceSetHash.test.ts (3 tests) 7ms
+ ✓ packages/core/tests/transport/explainabilityGraphHash.test.ts (3 tests) 7ms
+ ✓ packages/core/tests/adapters/authorityBoundaryAdapter.test.ts (6 tests) 6ms
+ ✓ packages/core/tests/transport/metadataGraphShapeInvariant.test.ts (5 tests) 11ms
+ ✓ packages/core/tests/transport/registryProvenanceSurface.test.ts (4 tests) 29ms
+ ✓ packages/core/tests/policy/mutateEvaluationPolicyFileAst.test.ts (6 tests) 6ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_missing_metadata_fallback.test.ts (6 tests) 30ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_declared_order.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/transport/plannerBoundaryEnforcement.test.ts (4 tests) 11ms
+ ✓ packages/core/tests/freeze/freeze_invalid_signature_no_provenance_binding.test.ts (1 test) 9ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_debug_trace_non_hashing.test.ts (5 tests) 38ms
+ ✓ packages/core/tests/transport/extractCompositionHints.test.ts (7 tests) 6ms
+ ✓ packages/core/tests/policy/assessDatasetRuntimeCompatibility.test.ts (14 tests) 8ms
+ ✓ packages/core/tests/policyPackManifestValidation.test.ts (6 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_revocation_precedes_trust_root_rotation_resolution.test.ts (1 test) 8ms
+ ✓ packages/core/tests/freeze/freeze_signature_verification_rejection.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/freeze/topology_depth_guard_contract.test.ts (3 tests) 8ms
+ ✓ packages/core/tests/transport/dependencyDepthSurface.test.ts (3 tests) 79ms
+ ✓ packages/core/tests/freeze/freeze_mirror_equivalence_rejection.test.ts (5 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_replay_explain_mode_accuracy.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_seam_parity.test.ts (1 test) 21ms
+ ✓ packages/core/tests/policy/explainFederationEvaluationResult.test.ts (4 tests) 20ms
+ ✓ packages/core/tests/freeze/freeze_overlay_missing_metadata_downgrade.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/transport/capabilityDescriptorMatrixHash.test.ts (3 tests) 6ms
+ ✓ packages/core/tests/composition/compositionRuntimeEntry.test.ts (3 tests) 7ms
+ ✓ packages/core/tests/execution/context/ExecutionContextSerializer.test.ts (1 test) 5ms
+ ✓ packages/core/tests/policy/validateEvaluationPolicyFile.test.ts (13 tests) 9ms
+ ✓ packages/core/tests/execution/context/assertContextFederationCompatibility.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_f12_capability_manifest_contract.test.ts (7 tests) 4ms
+ ✓ packages/core/tests/example-pack-conformance.test.ts (6 tests) 22ms
+ ✓ packages/core/tests/freeze/freeze_authority_tier_signature_escalation_prevention.test.ts (1 test) 15ms
+stdout | packages/core/tests/freeze/freeze_mirror_signature_trust_enforcement.test.ts > Freeze Evidence: Mirror Signature Trust Enforcement (F-5 / F-6) > mirror fallback handler signature verification succeeds
+{
+  telemetrySchemaVersion: 1,
+  seamId: 'overlay::transport::mirrorBoundary',
+  overlaySourceId: 'mirror-handler',
+  overlayVersion: '1.0.0',
+  mergeMode: 'replace-if-authorized',
+  authorityTier: 3,
+  activationDecision: 'EXECUTED',
+  conflictDetected: false,
+  resolutionOutcome: 'Merge mode replace-if-authorized handler[0] successfully applied',
+  hashParticipationEnabled: false,
+  stackPosition: 0,
+  stackSize: 1,
+  handlerOverlaySourceId: 'mirror-handler',
+  handlerOverlayVersion: '1.0.0',
+  handlerOverlaySignaturePresent: true,
+  seamGrantPresent: undefined,
+  seamGrantMaxTier: undefined,
+  seamGrantAllowsMergeMode: undefined,
+  signaturePresent: true,
+  signatureValid: true,
+  signatureVerificationMode: 'verified',
+  signatureKeyId: 'official-ed25519-pubkey-001',
+  signatureAlgorithm: 'ed25519',
+  signatureTrustRoot: 'official',
+  signatureEnvelopeValid: true,
+  signedPayloadDigest: 'b1506ca9e19800426e521794f0f35be6b1dbf6303c7c7fbeec9655c8fefd8f49',
+  stackSortKey: undefined,
+  mirrorSourceId: undefined,
+  mirrorFallbackUsed: undefined,
+  mirrorEquivalenceVerified: undefined
+}
+
+ ✓ packages/core/tests/freeze/freeze_mirror_signature_trust_enforcement.test.ts (1 test) 11ms
+ ✓ packages/core/tests/week6_2_contractFreeze.test.ts (6 tests) 36ms
+ ✓ packages/core/tests/freeze/freeze_registry_authority_ladder_ceiling.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/freeze_seam_telemetry_integrity.test.ts (2 tests) 7ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_mirror_equivalence.test.ts (2 tests) 29ms
+ ✓ packages/core/tests/semverSelectionContract.test.ts (4 tests) 45ms
+stdout | packages/core/tests/freeze/freeze_capability_negotiation_determinism.test.ts > Freeze Evidence: Capability Negotiation Determinism > negotiation naturally binds providers exclusively by static priority sorting overriding iteration order
+TRACE: [
+  "[Step 1] Canonicalized 3 providers",
+  "[Step 2] 3 survived signature gate",
+  "[Step 3] 3 survived registry provenance gate",
+  "[Step 4] 3 survived lifecycle gate",
+  "[Step 5] 3 survived compatibility gate",
+  "[Step 6] 3 survived authority ladder",
+  "[Step 9] 3 trust envelopes constructed",
+  "[Step 10] Dependency closure: 3 entries",
+  "[Step 11] Final ordering: [p-c, p-a, p-b]"
+]
+REJECTED: []
+
+ ✓ packages/core/tests/freeze/freeze_capability_negotiation_determinism.test.ts (1 test) 12ms
+ ✓ packages/core/tests/freeze/canonical_hash_contract_snapshot.test.ts (3 tests) 9ms
+ ✓ packages/core/tests/execution/context/EvaluationContextModel.test.ts (3 tests) 83ms
+ ✓ packages/core/tests/severityLock.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/transport/protocolVersionUnification.test.ts (4 tests) 7ms
+ ✓ packages/core/tests/freeze/freeze_zero_overlay_v3_parity.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/freeze_revoked_overlay_excluded_from_provenance_identity.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_ladder_respect.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/manifest_hydration_contract_snapshot.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/policy_identity_hash_contract_snapshot.test.ts (1 test) 7ms
+ ✓ packages/core/tests/freeze/freeze_trust_root_rotation_backward_compatibility.test.ts (1 test) 7ms
+ ✓ packages/core/tests/policy/resolveEvaluationPolicyProfile.test.ts (4 tests) 7ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_capability_graph_isolation.test.ts (1 test) 3ms
+ ✓ packages/core/tests/transport/capabilityClosureCache.test.ts (3 tests) 11ms
+ ✓ packages/core/tests/transport/resolvePolicyDependencies.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_registry_admission_policy_enforcement.test.ts (1 test) 8ms
+ ✓ packages/core/tests/freeze/freeze_signature_envelope_parsing.test.ts (10 tests) 5ms
+ ✓ packages/core/tests/execution/context/ContextCompatibilityVerifier.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/freeze/policy_loader_pipeline_contract_usage.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_admission_rejection_on_namespace_violation.test.ts (1 test) 2ms
+ ✓ packages/core/tests/composition/MirrorSubstitutionResolver.test.ts (2 tests) 19ms
+ ✓ packages/core/tests/transport/mirrorNamespaceEquivalence.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/freeze/resolver_trace_contract_snapshot.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/transport/trustScopeExplainabilityGraph.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/transport/structureHashCapabilityMatrixSensitivity.test.ts (1 test) 7ms
+ ✓ packages/core/tests/transport/snapshotEnvelopeStructureHash.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/transport/assertCapabilityDescriptorMatrixParity.test.ts (4 tests) 135ms
+ ✓ packages/core/tests/execution/context/executionRuntimeContextIntegration.test.ts (2 tests) 7ms
+ ✓ packages/core/tests/transport/capabilityExplainabilityGraph.simulate.test.ts (1 test) 2ms
+ ✓ packages/core/tests/composition/FallbackResolver.test.ts (2 tests) 10ms
+ ✓ packages/core/tests/composition/NamespacePriorityResolver.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/policy/diffPolicyRegistryLockfile.test.ts (5 tests) 5ms
+ ✓ packages/core/tests/policy/writeEvaluationPolicyPatch.test.ts (8 tests) 39ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_no_identity_hash_mutation.test.ts (1 test) 5ms
+ ✓ packages/core/tests/policy/materializeFederationExecutionPlan.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/determinism/serializationCanonical.test.ts (11 tests) 49ms
+ ✓ packages/core/tests/freeze/freeze_f12_signature_enforcement_gate.test.ts (7 tests) 4ms
+ ✓ packages/core/tests/transport/namespaceTrustPolicy.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/execution/PolicyExecutionRuntime.test.ts (2 tests) 7ms
+ ✓ packages/core/tests/transport/assertCanonicalHashIgnoresEngineVersion.test.ts (1 test) 1ms
+ ✓ packages/core/tests/transport/protocolCapabilityDescriptor.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/externalPolicyExecutionSurface.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/execution/context/ContextExplainabilitySurface.test.ts (1 test) 2ms
+ ✓ packages/core/tests/execution/AnnotationMergeResolver.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_stack_merge_precedence.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/transport/envelopeIdentitySurfaceInvariant.test.ts (4 tests) 6ms
+ ✓ packages/core/tests/crossContractVersionAlignment.test.ts (2 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_namespace_stability.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/week7_compositionResolver.test.ts (5 tests) 8ms
+ ✓ packages/core/tests/freeze/freeze_revocation_propagation_identity_isolation.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_revoked_overlay_rejected_via_mirror_path.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_provenance_rejected_overlay_exclusion.test.ts (1 test) 32ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_cross_registry_stability.test.ts (3 tests) 6ms
+ ✓ packages/core/tests/freeze/snapshot_sequence_monotonicity_contract.test.ts (4 tests) 5ms
+ ✓ packages/core/tests/freeze/policy_uri_resolution_contract_snapshot.test.ts (2 tests) 7ms
+ ✓ packages/core/tests/composition/mergePlanner.test.ts (1 test) 5ms
+ ✓ packages/core/tests/freeze/freeze_signature_telemetry_capture.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_f12_lifecycle_eligibility_gate.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/manifestSchemaEnvelopeIntegrity.test.ts (1 test) 6ms
+ ✓ packages/core/tests/transport/pipelineStageContract.test.ts (4 tests) 5ms
+ ✓ packages/core/tests/transport/namespaceTrustPolicySnapshotBinding.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/week6.test.ts (6 tests) 6ms
+ ✓ packages/core/tests/adapters/restContractEnforcementAdapter.test.ts (6 tests) 9ms
+ ✓ packages/core/tests/freeze/freeze_overlay_stack_authority_filter.test.ts (2 tests) 9ms
+ ✓ packages/core/tests/transport/capabilityNegotiationMode.simulate.test.ts (1 test) 8ms
+ ✓ packages/core/tests/freeze/freeze_zero_overlay_lifecycle_parity.test.ts (1 test) 35ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_registry_local_first.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/package_exports_snapshot.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_f12_handler_identity_binding.test.ts (4 tests) 13ms
+ ✓ packages/core/tests/crossVersionReplaySafety.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/validateManifestCapabilities.test.ts (3 tests) 8ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_compatibility_score_stability.test.ts (2 tests) 1ms
+stdout | packages/core/tests/freeze/freeze_overlay_stack_deterministic_sorting.test.ts > Freeze Evidence: Overlay Stack Deterministic Sorting > fingerprint ordering deterministic across replay
+[
+  {
+    "telemetrySchemaVersion": 1,
+    "seamId": "overlay::manifest::mergeBoundary",
+    "overlaySourceId": "test-source",
+    "overlayVersion": "1.0.0",
+    "mergeMode": "merge-by-key",
+    "authorityTier": 2,
+    "activationDecision": "EXECUTED",
+    "conflictDetected": false,
+    "resolutionOutcome": "Merge mode merge-by-key handler[0] successfully applied",
+    "hashParticipationEnabled": true,
+    "stackPosition": 0,
+    "stackSize": 2,
+    "handlerOverlaySourceId": "test-source",
+    "handlerOverlayVersion": "1.0.0",
+    "handlerOverlaySignaturePresent": true,
+    "signaturePresent": true,
+    "signatureValid": true,
+    "signatureVerificationMode": "verified",
+    "signatureKeyId": "core-ed25519-pubkey-001",
+    "signatureAlgorithm": "ed25519",
+    "signatureTrustRoot": "core",
+    "signatureEnvelopeValid": true,
+    "signedPayloadDigest": "38cd1de83e9c043168e00e290f767c0279a4abb3aa411b7bf0167ed511a3d501"
+  },
+  {
+    "telemetrySchemaVersion": 1,
+    "seamId": "overlay::manifest::mergeBoundary",
+    "overlaySourceId": "test-source",
+    "overlayVersion": "1.0.0",
+    "mergeMode": "merge-by-key",
+    "authorityTier": 2,
+    "activationDecision": "EXECUTED",
+    "conflictDetected": false,
+    "resolutionOutcome": "Merge mode merge-by-key handler[1] successfully applied",
+    "hashParticipationEnabled": true,
+    "stackPosition": 1,
+    "stackSize": 2,
+    "handlerOverlaySourceId": "test-source",
+    "handlerOverlayVersion": "1.0.0",
+    "handlerOverlaySignaturePresent": true,
+    "signaturePresent": true,
+    "signatureValid": true,
+    "signatureVerificationMode": "verified",
+    "signatureKeyId": "core-ed25519-pubkey-001",
+    "signatureAlgorithm": "ed25519",
+    "signatureTrustRoot": "core",
+    "signatureEnvelopeValid": true,
+    "signedPayloadDigest": "38cd1de83e9c043168e00e290f767c0279a4abb3aa411b7bf0167ed511a3d501"
+  }
+]
+
+ ✓ packages/core/tests/freeze/freeze_overlay_stack_deterministic_sorting.test.ts (2 tests) 5ms
+ ✓ packages/core/tests/freeze/utils/createDeterministicFederationContext.test.ts (1 test) 8ms
+ ✓ packages/core/tests/freeze/freeze_capability_diagnostics_no_score_leakage.test.ts (2 tests) 10ms
+ ✓ packages/core/tests/policy/aggregateFederationEvaluationSeverity.test.ts (3 tests) 8ms
+ ✓ packages/core/tests/freeze/freeze_overlay_illegal_lifecycle_transition_rejection.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_diagnostics_no_score_leakage.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_mirror_equivalence_acceptance.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/resolutionGraph.test.ts (6 tests) 2ms
+ ✓ packages/core/tests/composition/arbitrationResolutionHash.test.ts (1 test) 5ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_diagnostics_determinism.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_supersession_cycle_detection.test.ts (1 test) 5ms
+ ✓ packages/core/tests/freeze/freeze_diagnostics_array_order_determinism.test.ts (1 test) 4ms
+ ✓ packages/core/tests/transport/trustScopePrecedence.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/trustPolicyConfig.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/policy/enforcePolicyRegistryLockfileInstall.test.ts (7 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_capability_mirror_equivalence.test.ts (1 test) 7ms
+ ✓ packages/core/tests/transport/policyStackFingerprint.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/transport/capabilityNegotiationMode.warn.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_registry_trust_root_resolution.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_authority_ordering.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/transport/resolvePolicyURI.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_fingerprint_isolation.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_registry_namespace_impersonation_block.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/transport/selectPolicyVersion.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/policy/assessPolicyPackGovernanceSurfaceCompatibility.test.ts (8 tests) 3ms
+ ✓ packages/core/tests/policy/resolveFindingSeverityThreshold.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_cross_registry_namespace_collision_rejection.test.ts (1 test) 3ms
+ ✓ packages/core/tests/composition/arbitrationExplainabilitySurface.test.ts (1 test) 7ms
+ ✓ packages/core/tests/policyRuntimeErrorContract.test.ts (1 test) 4ms
+ ✓ packages/core/tests/registryContractVersionPresence.test.ts (3 tests) 7ms
+ ✓ packages/core/tests/transport/assertPlainObjectGraph.test.ts (7 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_receives_only_admitted_candidates.test.ts (1 test) 3ms
+ ✓ packages/core/tests/transport/capabilityExplainabilityGraph.test.ts (1 test) 2ms
+ ✓ packages/core/tests/resolverTopologyCoupling.test.ts (1 test) 2ms
+ ✓ packages/core/tests/adapters/federationOverlayAdapter.test.ts (8 tests) 4ms
+ ✓ packages/core/tests/policy/auditTrustPolicyConfig.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/transport/impactSimulationRequest_no_test_fields.test.ts (1 test) 9ms
+ ✓ packages/core/tests/freeze/semver_selection_contract_snapshot.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_f12_mirror_privilege_escalation.test.ts (3 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_overlay_admission_rejection_on_signature_absence.test.ts (1 test) 2ms
+ ✓ packages/core/tests/diamondRemoteCompatibility.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_tiebreak_determinism.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/snapshot_protocol_rejection.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/adapters/blastRadiusAdapter.test.ts (7 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_overlay_revocation_propagation_across_mirrors.test.ts (1 test) 2ms
+ ✓ packages/core/tests/registryResolutionContract.test.ts (3 tests) 1ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_supersession_respect.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_overlay_revocation_enforcement.test.ts (1 test) 5ms
+ ✓ packages/core/tests/policy/resolveEvaluationWaivers.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_multi_overlay_stack_order.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_version_first.test.ts (1 test) 1ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_revocation_respect.test.ts (1 test) 7ms
+ ✓ packages/core/tests/freeze/freeze_unsigned_untrusted_external_allowed.test.ts (4 tests) 4ms
+ ✓ packages/core/tests/transport/manifestDigestSetHash.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/registryIdentityEnvelope.test.ts (1 test) 4ms
+ ✓ packages/core/tests/transport/capabilityNegotiationMode.strict.test.ts (1 test) 2ms
+ ✓ packages/core/tests/uriResolutionContract.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_overlay_compatibility_matrix_enforcement.test.ts (2 tests) 1ms
+ ✓ packages/core/tests/freeze/utils/withFreezeTelemetry.test.ts (1 test) 6ms
+ ✓ packages/core/tests/week6_3_semanticLock.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/policy/computeExportArtifactIntegrityHash.test.ts (16 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_invalid_signature_rejection.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/transport/stackTopologicalOrderSurface.test.ts (5 tests) 3ms
+ ✓ packages/core/tests/freeze/trust_boundary_contract_snapshot.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_signature_verification_gate.test.ts (5 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_seam_registry_immutability.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/policy/assessLockfileRuntimeReadiness.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/week6_1.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_namespace_normalization_impersonation_rejection.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_overlay_supersession_exclusion_from_active_execution.test.ts (1 test) 1ms
+ ✓ packages/core/tests/transport/trustScopeSnapshotBinding.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/policy/resolveEvaluationPolicyTargetProfile.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/transportExpansionBoundary.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_f12_registry_provenance_validation.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/transport/capabilityMatrixCanonicalizationVersionSalt.test.ts (3 tests) 6ms
+ ✓ packages/core/tests/sdk/core_export_map_integrity.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/freeze_trust_root_epoch_non_identity_binding.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/registryAdapter_no_mockStore_dependency.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_capability_dependency_closure_integrity.test.ts (2 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_namespace_vs_overlayid_tiebreak_order.test.ts (1 test) 1ms
+ ✓ packages/core/tests/freeze/freeze_mirror_authority_grant_enforcement.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/policy/applyEvaluationPolicyPatchArtifact.test.ts (4 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_mirror_namespace_impersonation_block.test.ts (1 test) 3ms
+ ✓ packages/core/tests/composition/executionOrderingResolver.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/snapshotEnvelopeCompleteness.test.ts (11 tests) 5ms
+ ✓ packages/core/tests/composition/ArbitrationDecisionGraph.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/detectDependencyCycle.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/composition/TrustOverrideResolver.test.ts (1 test) 7ms
+ ✓ packages/core/tests/freeze/freeze_registry_authority_ceiling_enforcement.test.ts (1 test) 7ms
+ ✓ packages/core/tests/transport/protocolVersion_single_source_of_truth.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/snapshot_envelope_compatibility_snapshot.test.ts (1 test) 5ms
+ ✓ packages/core/tests/transport/canonicalizationVersionMismatchRejected.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_signature_verification_success.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/policyExecutionContext.test.ts (4 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_stack_append_integrity.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/freeze/freeze_registry_admission_never_elevates_authority.test.ts (1 test) 8ms
+ ✓ packages/core/tests/transport/hydratePolicyManifest.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/transport/capabilityNegotiationMode.fallback.test.ts (2 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_capability_incompatibility_enforcement.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/execution/ResultAggregationResolver.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/composition/compositionGraphConstructor.test.ts (1 test) 3ms
+ ✓ packages/core/tests/transport/propagateRequiredCapabilities.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_stack_replace_priority.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/snapshotEnvelopeFieldWhitelist.test.ts (5 tests) 3ms
+ ✓ packages/core/tests/composition/ConflictResolver.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_cross_registry_signature_replay_rejection.test.ts (3 tests) 6ms
+ ✓ packages/core/tests/policy/runFederationEvaluationPlan.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/transport/plannerBoundaryContract.test.ts (10 tests) 2ms
+ ✓ packages/core/tests/transport/capabilityCompatibilityMatrix.test.ts (2 tests) 6ms
+ ✓ packages/core/tests/execution/context/contextResolutionHash.test.ts (1 test) 3ms
+ ✓ packages/core/tests/manifestSchemaVersionPresence.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_pinned_only.test.ts (2 tests) 6ms
+ ✓ packages/core/tests/freeze/freeze_seam_namespace_validation.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/prototype_descriptor_integrity_snapshot.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/freeze/determinism_replay_stress_certification.test.ts (1 test) 5ms
+ ✓ packages/core/tests/freeze/freeze_f12_trust_envelope_ceiling.test.ts (5 tests) 5ms
+ ✓ packages/core/tests/execution/ExecutionExplainabilityEmitter.test.ts (1 test) 2ms
+ ✓ packages/core/tests/transport/stableCanonicalStringify.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/execution/context/ContextNormalizationPipeline.test.ts (1 test) 3ms
+ ✓ packages/core/tests/freeze/freeze_overlay_lifecycle_state_transitions.test.ts (3 tests) 3ms
+ ✓ packages/core/tests/freeze/canonicalization_domain_constraints.test.ts (1 test) 4ms
+ ✓ packages/core/tests/composition/compositionRuntimeCompatibility.test.ts (4 tests) 2ms
+ ✓ packages/core/tests/dependencyHydrationDeterminism.test.ts (1 test) 3ms
+ ✓ packages/core/tests/policy/assessPolicyPackDatasetCapabilityCompatibility.test.ts (7 tests) 2ms
+ ✓ packages/core/tests/severityPolicy.test.ts (3 tests) 4ms
+ ✓ packages/core/tests/freeze/mirror_substitution_determinism_snapshot.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_namespace_enforcement_respect.test.ts (1 test) 4ms
+ ✓ packages/core/tests/policyPackSignatureVerification.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/freeze/freeze_drift_taxonomy_snapshot.test.ts (2 tests) 4ms
+ ✓ packages/core/tests/transport/registryAdapterLookup.test.ts (2 tests) 5ms
+ ✓ packages/core/tests/transport/descriptorVersionStringRejected.test.ts (1 test) 2ms
+ ✓ packages/core/tests/policy/buildPolicyPatchPullRequestPayload.test.ts (5 tests) 4ms
+ ✓ packages/core/tests/no-dist-identity-artifacts.test.ts (6 tests) 2ms
+ ✓ packages/core/tests/freeze/federation_taxonomy_usage.test.ts (12 tests) 2ms
+ ✓ packages/core/tests/transport/namespaceTrustScopePolicy.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_failure_trace_order_stability.test.ts (1 test) 2ms
+ ✓ packages/core/tests/manifestHydrationContract.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/resolution_environment_contract.test.ts (1 test) 4ms
+ ✓ packages/core/tests/topology/topology-snapshot-lineage.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_explicit_order_priority.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_registry_priority.test.ts (4 tests) 3ms
+ ✓ packages/core/tests/execution/executionResolutionHash.test.ts (1 test) 3ms
+ ✓ packages/core/tests/composition/conflictSurfaceDetector.test.ts (2 tests) 2ms
+ ✓ packages/core/tests/transport/canonicalizationVersionMissingRejected.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_registry_sync_lifecycle_guard.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_stack_sort_semver_tiebreaker.test.ts (3 tests) 2ms
+ ✓ packages/core/tests/policy/normalizeRepositoryHint.test.ts (6 tests) 3ms
+ ✓ packages/core/tests/policyPackCompatibility.test.ts (5 tests) 3ms
+ ✓ packages/core/tests/lockfileResolutionContract.test.ts (5 tests) 5ms
+ ✓ packages/core/tests/freeze/freeze_overlay_eligibility_filtering_pre_loader_pipeline.test.ts (1 test) 2ms
+ ✓ packages/core/tests/composition/PrecedenceResolver.test.ts (2 tests) 1ms
+ ✓ packages/core/tests/freeze/freeze_capability_identity_hash_isolation.test.ts (1 test) 3ms
+ ✓ packages/core/tests/transport/capabilityExplainabilityGraph.fallback.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_explicit_order_only.test.ts (1 test) 1ms
+ ✓ packages/core/tests/execution/PolicyTypeResolver.test.ts (1 test) 2ms
+ ✓ packages/core/tests/execution/executionRuntimeCompatibility.test.ts (1 test) 4ms
+ ✓ packages/core/tests/freeze/freeze_overlay_resolution_strategy_compatibility_maximal.test.ts (1 test) 6ms
+ ✓ packages/core/tests/freeze/freeze_diagnostics_surface_non_authoritative.test.ts (1 test) 2ms
+ ✓ packages/core/tests/freeze/freeze_diagnostics_do_not_mutate_execution_identity.test.ts (1 test) 1ms
+ ✓ packages/core/tests/manifestSchemaReplayCompatibility.test.ts (1 test) 1ms
+
+
+  Snapshots  4 failed
+ Test Files  12 failed | 351 passed (363)
+      Tests  28 failed | 1218 passed (1246)
+   Start at  04:12:10
+   Duration  34.54s (transform 8.44s, setup 14.46s, collect 38.26s, tests 4.93s, environment 76ms, prepare 58.08s)
+

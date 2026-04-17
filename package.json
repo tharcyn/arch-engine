@@ -31,7 +31,11 @@
     "packages/governance-pack-rest-contract",
     "packages/governance-pack-authority",
     "packages/governance-pack-journey",
-    "packages/adapter-monorepo"
+    "packages/adapter-monorepo",
+    "packages/adapters/shared",
+    "packages/adapters/conformance",
+    "packages/adapters/github",
+    "packages/adapters/gitlab"
   ],
   "scripts": {
     "build": "npm run build --workspaces && cd action && npm run build",
