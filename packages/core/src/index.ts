@@ -40,6 +40,8 @@ export type {
 export * from './traversal/graph-stability-index';
 
 export * from './policy/index';
+export { verifyCapabilityRegistryIntegrity } from './capabilities/CapabilityRegistry';
+export type { CapabilityRegistryIntegrityResult } from './capabilities/CapabilityRegistry';
 
 // ─── 3. Reasoning Protocol & JSON Outlines ───────────────
 
@@ -351,7 +353,10 @@ export type { FederationEvaluationSeverityThreshold, FederationEvaluationGatePol
 export { resolveFindingSeverityThreshold } from './policy/resolveFindingSeverityThreshold';
 export { validateEvaluationPolicyFile } from './policy/validateEvaluationPolicyFile';
 export { validateOrNormalizePolicyPackFindingCode, RESERVED_CORE_CODE_PREFIX, UNKNOWN_CODE, MALFORMED_CODE } from './policy/validateOrNormalizePolicyPackFindingCode';
-export { normalizePolicyPackFinding } from './policy/normalizePolicyPackFinding';
+export { normalizePolicyPackFinding, computeFindingStructuralHash } from './policy/normalizePolicyPackFinding';
+export type { NormalizedFindingStructuralHash } from './policy/normalizePolicyPackFinding';
+export { verifyEvaluationCompatibilityMatrix } from './policy/verifyEvaluationCompatibilityMatrix';
+export type { EvaluationCompatibilityMatrixResult } from './policy/verifyEvaluationCompatibilityMatrix';
 export type { PolicyPackExecutionContext } from './policy/PolicyPackExecutionContext';
 export type { PolicyPackFinding, NormalizedPolicyPackFinding, PolicyPackFindingCategory } from './policy/PolicyPackFinding';
 export type { PolicyPackEvaluationResult } from './policy/PolicyPackEvaluationResult';
@@ -359,7 +364,9 @@ export type { PolicyPackEvaluator } from './policy/PolicyPackEvaluator';
 
 export type {
   PolicyExecutionContext,
+  ExecutionContextStructuralHash
 } from './policy/PolicyExecutionContext';
+export { computeExecutionContextHash } from './policy/PolicyExecutionContext';
 
 export type {
   PolicyPackManifest,

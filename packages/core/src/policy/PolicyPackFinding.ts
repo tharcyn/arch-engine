@@ -8,6 +8,16 @@ export interface PolicyPackFinding {
     readonly affectedEntity?: string;
     readonly category?: PolicyPackFindingCategory;
     readonly classification?: string;
+    
+    // Phase 10 Invariants
+    readonly confidence?: string;
+    readonly scope?: string;
+    readonly authorityBoundaryCrossing?: string;
+    readonly mutationClass?: string;
+    readonly policyPackId?: string;
+    readonly policyRuleId?: string;
+    readonly evaluationMode?: string;
+
     /** @deprecated Use taxonomyRepaired instead */
     readonly _taxonomyRepaired?: boolean;
     readonly taxonomyRepaired?: boolean;

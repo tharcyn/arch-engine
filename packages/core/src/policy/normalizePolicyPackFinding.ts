@@ -12,7 +12,14 @@ export function normalizePolicyPackFinding(finding: PolicyPackFinding): Normaliz
         category,
         surface: finding.surface,
         affectedEntity: finding.affectedEntity,
-        classification: finding.classification
+        classification: finding.classification,
+        confidence: finding.confidence,
+        scope: finding.scope,
+        authorityBoundaryCrossing: finding.authorityBoundaryCrossing,
+        mutationClass: finding.mutationClass,
+        policyPackId: finding.policyPackId,
+        policyRuleId: finding.policyRuleId,
+        evaluationMode: finding.evaluationMode
     };
 
     const isRepaired = codeResult.taxonomyRepaired || finding._taxonomyRepaired === true;
@@ -25,4 +32,19 @@ export function normalizePolicyPackFinding(finding: PolicyPackFinding): Normaliz
     delete (normalized as any)._taxonomyRepaired;
 
     return normalized;
+}
+
+export type NormalizedFindingStructuralHash = string;
+
+import { createHash } from 'crypto';
+
+export function computeFindingStructuralHash(finding: NormalizedPolicyPackFinding): NormalizedFindingStructuralHash {
+    const payload = [
+        finding.policyRuleId || finding.code || '',
+        finding.classification || finding.category || '',
+        finding.scope || finding.surface || '',
+        finding.authorityBoundaryCrossing || '',
+        finding.mutationClass || ''
+    ].join('|');
+    return createHash('sha256').update(payload).digest('hex');
 }

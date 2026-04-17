@@ -3,6 +3,7 @@ import type { PolicyEvaluationResult } from './PolicyEvaluationResult';
 import type { PolicyExecutionContext } from '../policy/PolicyExecutionContext';
 import { executeLocalPolicyPack } from '../policy/executeLocalPolicyPack';
 import { normalizePolicyPackFinding } from '../policy/normalizePolicyPackFinding';
+import { verifyEvaluationCompatibilityMatrix } from '../policy/verifyEvaluationCompatibilityMatrix';
 
 export class PolicyPackRunner {
   private readonly packs: readonly TopologyPolicyPack[];
@@ -22,25 +23,15 @@ export class PolicyPackRunner {
     const results: PolicyEvaluationResult[] = [];
     for (const pack of this.packs) {
       if (pack.evaluate) {
-        // Capability Guard: explicitly check if pack requires capabilities and registry is absent or lacking
-        if (pack.metadata?.requiredDatasetCapabilities && pack.metadata.requiredDatasetCapabilities.length > 0) {
-            if (!context.capabilityManifest) {
-                results.push({
-                    policyPackId: pack.policyPackId,
-                    success: false,
-                    diagnostics: [{ severity: 'error', message: 'Execution context lacks capability registry to satisfy pack requirements.', code: 'MISSING_CAPABILITY_REGISTRATION' }]
-                });
-                continue;
-            }
-            const missing = pack.metadata.requiredDatasetCapabilities.filter(c => !context.capabilityManifest![c]);
-            if (missing.length > 0) {
-                results.push({
-                    policyPackId: pack.policyPackId,
-                    success: false,
-                    diagnostics: [{ severity: 'error', message: `Pack requires unsupported capabilities: ${missing.join(', ')}`, code: 'UNSUPPORTED_CAPABILITY' }]
-                });
-                continue;
-            }
+        // Capability Guard using Compatibility Matrix
+        const compatibility = verifyEvaluationCompatibilityMatrix(pack, context);
+        if (!compatibility.isCompatible) {
+            results.push({
+                policyPackId: pack.policyPackId,
+                success: false,
+                diagnostics: compatibility.violations.map(v => ({ severity: 'error', message: v, code: 'UNSUPPORTED_CAPABILITY' }))
+            });
+            continue;
         }
 
         const rawResult = pack.evaluate(context as any);
@@ -58,7 +49,7 @@ export class PolicyPackRunner {
           
           // Normalize diagnostics / findings
           if (Array.isArray((rawResult as any).findings)) {
-            diagnostics = (rawResult as any).findings.map(f => {
+            diagnostics = (rawResult as any).findings.map((f: any) => {
               const nf = normalizePolicyPackFinding(f || {});
               return { severity: nf.severity, message: nf.message, code: nf.code || 'UNKNOWN' };
             });
