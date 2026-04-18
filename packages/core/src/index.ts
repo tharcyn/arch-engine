@@ -532,3 +532,11 @@ export * from './policy-registry/resolveRegistrySources.js';
 export * from './policy-registry/verifyRegistryCatalogSignature.js';
 export * from './policy-registry/resolveRegistryMirrorFallback.js';
 export * from './policy-registry/loadOfflineRegistrySnapshot.js';
+
+// --- Policy Bundles ---
+export * from './policy-bundles/ArchPolicyPackBundleFormat.js';
+export * from './policy-bundles/PolicyPackBundleManifest.js';
+export * from './policy-bundles/buildPolicyPackBundle.js';
+export * from './policy-bundles/loadPolicyPackBundle.js';
+export * from './policy-bundles/verifyPolicyPackBundleSignature.js';
+export * from './policy-bundles/verifyBundleLockfileCompatibility.js';

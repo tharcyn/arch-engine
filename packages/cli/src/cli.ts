@@ -212,6 +212,43 @@ export async function run() {
       process.exit(exitCode);
     });
 
+  // 12. Policy Bundle Commands
+  cli
+    .command('bundle build <pack-id>', 'Build a portable policy pack bundle (.archpack)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packId, options) => {
+      const { bundleBuildCommand } = await import('./commands/bundle/build.js');
+      const exitCode = await bundleBuildCommand(packId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle inspect <bundle-path>', 'Inspect a portable policy pack bundle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundleInspectCommand } = await import('./commands/bundle/inspect.js');
+      const exitCode = await bundleInspectCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle verify <bundle-path>', 'Verify bundle signature and integrity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundleVerifyCommand } = await import('./commands/bundle/verify.js');
+      const exitCode = await bundleVerifyCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle load <bundle-path>', 'Load and validate a bundle for execution')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundleLoadCommand } = await import('./commands/bundle/load.js');
+      const exitCode = await bundleLoadCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {

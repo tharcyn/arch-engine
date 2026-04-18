@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackBundleBuildResult",
+  "type": "object",
+  "properties": {
+    "bundleId": { "type": "string" },
+    "bundleHash": { "type": "string" },
+    "includedPolicyPacks": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "dependencyClosure": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "snapshotHashes": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "buildDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "bundleArtifact": {
+      "type": ["object", "null"]
+    }
+  },
+  "required": [
+    "bundleId",
+    "bundleHash",
+    "includedPolicyPacks",
+    "dependencyClosure",
+    "snapshotHashes",
+    "buildDiagnostics",
+    "bundleArtifact"
+  ],
+  "additionalProperties": false
+}

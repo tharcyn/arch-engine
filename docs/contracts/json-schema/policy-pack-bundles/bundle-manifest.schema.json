@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackBundleManifest",
+  "type": "object",
+  "properties": {
+    "bundleId": { "type": "string" },
+    "bundleVersion": { "type": "string" },
+    "includedPolicyPacks": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "dependencyClosure": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "capabilityCompatibilitySnapshot": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "datasetCompatibilitySnapshot": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "executionModeCompatibilitySnapshot": { "type": "string" },
+    "federationCompatibilitySnapshot": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lockfileReferenceHash": { "type": ["string", "null"] },
+    "bundleIntegrityHash": { "type": "string" }
+  },
+  "required": [
+    "bundleId",
+    "bundleVersion",
+    "includedPolicyPacks",
+    "dependencyClosure",
+    "capabilityCompatibilitySnapshot",
+    "datasetCompatibilitySnapshot",
+    "executionModeCompatibilitySnapshot",
+    "federationCompatibilitySnapshot",
+    "lockfileReferenceHash",
+    "bundleIntegrityHash"
+  ],
+  "additionalProperties": false
+}

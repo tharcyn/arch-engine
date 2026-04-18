@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ArchPolicyPackBundleFormat",
+  "type": "object",
+  "properties": {
+    "bundleFormatVersion": { "type": "string", "enum": ["1"] },
+    "bundleId": { "type": "string" },
+    "bundleCreatedAtExcludedFromHash": { "type": "string", "format": "date-time" },
+    "bundleManifestHash": { "type": "string" },
+    "bundleDependencyGraphHash": { "type": "string" },
+    "bundleCapabilitySnapshotHash": { "type": "string" },
+    "bundleDatasetCompatibilitySnapshotHash": { "type": "string" },
+    "bundleExecutionModeSnapshotHash": { "type": "string" },
+    "bundleSignature": { "type": ["string", "null"] },
+    "bundlePayload": { "type": "string" }
+  },
+  "required": [
+    "bundleFormatVersion",
+    "bundleId",
+    "bundleCreatedAtExcludedFromHash",
+    "bundleManifestHash",
+    "bundleDependencyGraphHash",
+    "bundleCapabilitySnapshotHash",
+    "bundleDatasetCompatibilitySnapshotHash",
+    "bundleExecutionModeSnapshotHash",
+    "bundleSignature",
+    "bundlePayload"
+  ],
+  "additionalProperties": false
+}
