@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LockfileReplayDiff",
+  "type": "object",
+  "properties": {
+    "dependencyClosureDrift": { "type": "string" },
+    "capabilityMatrixDrift": { "type": "string" },
+    "datasetCompatibilityDrift": { "type": "string" },
+    "registryResolutionDrift": { "type": "string" }
+  },
+  "required": [
+    "dependencyClosureDrift",
+    "capabilityMatrixDrift",
+    "datasetCompatibilityDrift",
+    "registryResolutionDrift"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IdentityDrift",
+  "type": "object",
+  "properties": {
+    "classification": { "type": "string" },
+    "nodeId": { "type": "string" },
+    "driftDescription": { "type": "string" }
+  },
+  "required": ["classification", "nodeId", "driftDescription"]
+}

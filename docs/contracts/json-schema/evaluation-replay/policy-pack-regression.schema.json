@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackRegression",
+  "type": "object",
+  "properties": {
+    "ruleActivationDrift": { "type": "string" },
+    "findingSurfaceDrift": { "type": "string" },
+    "capabilityEligibilityDrift": { "type": "string" },
+    "datasetCompatibilityDrift": { "type": "string" },
+    "executionModeEligibilityDrift": { "type": "string" },
+    "dependencyClosureDrift": { "type": "string" }
+  },
+  "required": [
+    "ruleActivationDrift",
+    "findingSurfaceDrift",
+    "capabilityEligibilityDrift",
+    "datasetCompatibilityDrift",
+    "executionModeEligibilityDrift",
+    "dependencyClosureDrift"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvaluationReplayEnvelope",
+  "type": "object",
+  "properties": {
+    "baselineExecutionHash": { "type": "string" },
+    "candidateExecutionHash": { "type": "string" },
+    "baselineCapabilityIntersectionHash": { "type": "string" },
+    "candidateCapabilityIntersectionHash": { "type": "string" },
+    "baselineDatasetCompatibilityHash": { "type": "string" },
+    "candidateDatasetCompatibilityHash": { "type": "string" },
+    "baselineFederationExecutionHash": { "type": "string" },
+    "candidateFederationExecutionHash": { "type": "string" }
+  },
+  "required": [
+    "baselineExecutionHash",
+    "candidateExecutionHash",
+    "baselineCapabilityIntersectionHash",
+    "candidateCapabilityIntersectionHash",
+    "baselineDatasetCompatibilityHash",
+    "candidateDatasetCompatibilityHash",
+    "baselineFederationExecutionHash",
+    "candidateFederationExecutionHash"
+  ]
+}

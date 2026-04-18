@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityDrift",
+  "type": "object",
+  "properties": {
+    "classification": { "type": "string" },
+    "capabilityId": { "type": "string" },
+    "driftDescription": { "type": "string" }
+  },
+  "required": ["classification", "capabilityId", "driftDescription"]
+}

@@ -420,6 +420,46 @@ export async function run() {
     });
 
   cli
+    .command('pack regression-test <pack-id>', 'Run policy-pack regression test against a baseline')
+    .option('--baseline <path>', 'Baseline snapshot path')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packId, options) => {
+      const { packRegressionTestCommand } = await import('./commands/pack/regression.js');
+      const exitCode = await packRegressionTestCommand(packId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('replay diff', 'Compare baseline vs candidate evaluation')
+    .option('--capabilities', 'Detect capability drift')
+    .option('--datasets', 'Detect dataset compatibility drift')
+    .option('--identity', 'Detect identity resolution drift')
+    .option('--merge', 'Detect federation merge drift')
+    .option('--findings', 'Detect finding drift')
+    .option('--execution-modes', 'Detect execution mode drift')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { replayDiffCommand } = await import('./commands/replay/diff.js');
+      await replayDiffCommand(options);
+    });
+
+  cli
+    .command('replay lockfile', 'Generate lockfile replay diff')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { replayLockfileCommand } = await import('./commands/replay/diff.js');
+      await replayLockfileCommand(options);
+    });
+
+  cli
+    .command('replay bundle <bundleA> <bundleB>', 'Generate bundle replay diff')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundleA, bundleB, options) => {
+      const { replayBundleCommand } = await import('./commands/replay/diff.js');
+      await replayBundleCommand(bundleA, bundleB, options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
