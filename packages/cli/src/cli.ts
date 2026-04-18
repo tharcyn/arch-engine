@@ -1783,6 +1783,70 @@ export async function run() {
     });
 
   cli
+    .command('semantic list', 'List semantic equivalences')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { semanticListCommand } = await import('./commands/semantic/index.js');
+      await semanticListCommand(options);
+    });
+
+  cli
+    .command('semantic inspect', 'Inspect semantic equivalence')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { semanticInspectCommand } = await import('./commands/semantic/index.js');
+      await semanticInspectCommand(options);
+    });
+
+  cli
+    .command('semantic translate-policy', 'Translate policy intent')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { semanticTranslatePolicyCommand } = await import('./commands/semantic/index.js');
+      await semanticTranslatePolicyCommand(options);
+    });
+
+  cli
+    .command('semantic translate-dataset', 'Translate dataset meaning')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { semanticTranslateDatasetCommand } = await import('./commands/semantic/index.js');
+      await semanticTranslateDatasetCommand(options);
+    });
+
+  cli
+    .command('semantic translate-capability', 'Translate capability ontology')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { semanticTranslateCapabilityCommand } = await import('./commands/semantic/index.js');
+      await semanticTranslateCapabilityCommand(options);
+    });
+
+  cli
+    .command('agl parse', 'Parse AGL document')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { aglParseCommand } = await import('./commands/agl/index.js');
+      await aglParseCommand(options);
+    });
+
+  cli
+    .command('agl validate', 'Validate AGL document')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { aglValidateCommand } = await import('./commands/agl/index.js');
+      await aglValidateCommand(options);
+    });
+
+  cli
+    .command('agl translate', 'Translate AGL compatibility')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { aglTranslateCommand } = await import('./commands/agl/index.js');
+      await aglTranslateCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
