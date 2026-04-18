@@ -2465,6 +2465,78 @@ export async function run() {
     });
 
   cli
+    .command('spec build-portal', 'Build specification portal')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { specBuildPortalCommand } = await import('./commands/spec/index.js');
+      await specBuildPortalCommand(options);
+    });
+
+  cli
+    .command('spec export-html', 'Export specification HTML')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { specExportHtmlCommand } = await import('./commands/spec/index.js');
+      await specExportHtmlCommand(options);
+    });
+
+  cli
+    .command('spec navigation-map', 'Generate navigation map')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { specNavigationMapCommand } = await import('./commands/spec/index.js');
+      await specNavigationMapCommand(options);
+    });
+
+  cli
+    .command('spec export-whitepaper', 'Export whitepaper bundle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { specExportWhitepaperCommand } = await import('./commands/spec/index.js');
+      await specExportWhitepaperCommand(options);
+    });
+
+  cli
+    .command('protocol badges', 'List protocol compatibility badges')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolBadgesCommand } = await import('./commands/ecosystem/index.js');
+      await protocolBadgesCommand(options);
+    });
+
+  cli
+    .command('protocol verify-compliance', 'Verify badge compliance')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolVerifyComplianceCommand } = await import('./commands/ecosystem/index.js');
+      await protocolVerifyComplianceCommand(options);
+    });
+
+  cli
+    .command('ecosystem init-reference', 'Initialize reference deployment')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ecosystemInitReferenceCommand } = await import('./commands/ecosystem/index.js');
+      await ecosystemInitReferenceCommand(options);
+    });
+
+  cli
+    .command('ecosystem init-adapter-lab', 'Initialize adapter lab deployment')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ecosystemInitAdapterLabCommand } = await import('./commands/ecosystem/index.js');
+      await ecosystemInitAdapterLabCommand(options);
+    });
+
+  cli
+    .command('ecosystem generate-example-adapter', 'Generate example adapter bundle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ecosystemGenerateExampleAdapterCommand } = await import('./commands/ecosystem/index.js');
+      await ecosystemGenerateExampleAdapterCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
