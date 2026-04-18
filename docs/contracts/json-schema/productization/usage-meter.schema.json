@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UsageMeter",
+  "type": "object",
+  "properties": {
+    "meterId": { "type": "string" }
+  },
+  "required": ["meterId"]
+}

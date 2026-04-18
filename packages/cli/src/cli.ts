@@ -2199,6 +2199,94 @@ export async function run() {
     });
 
   cli
+    .command('product tiers', 'Inspect product tiers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { productTiersCommand } = await import('./commands/productization/index.js');
+      await productTiersCommand(options);
+    });
+
+  cli
+    .command('product inspect', 'Inspect product packaging')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { productInspectCommand } = await import('./commands/productization/index.js');
+      await productInspectCommand(options);
+    });
+
+  cli
+    .command('license inspect', 'Inspect license')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { licenseInspectCommand } = await import('./commands/productization/index.js');
+      await licenseInspectCommand(options);
+    });
+
+  cli
+    .command('entitlement verify', 'Verify entitlement')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { entitlementVerifyCommand } = await import('./commands/productization/index.js');
+      await entitlementVerifyCommand(options);
+    });
+
+  cli
+    .command('product compare-tiers', 'Compare product tiers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { productCompareTiersCommand } = await import('./commands/productization/index.js');
+      await productCompareTiersCommand(options);
+    });
+
+  cli
+    .command('usage inspect', 'Inspect usage metering')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { usageInspectCommand } = await import('./commands/productization/index.js');
+      await usageInspectCommand(options);
+    });
+
+  cli
+    .command('usage summary', 'Summarize usage')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { usageSummaryCommand } = await import('./commands/productization/index.js');
+      await usageSummaryCommand(options);
+    });
+
+  cli
+    .command('quota inspect', 'Inspect quotas')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { quotaInspectCommand } = await import('./commands/productization/index.js');
+      await quotaInspectCommand(options);
+    });
+
+  cli
+    .command('quota validate', 'Validate quotas')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { quotaValidateCommand } = await import('./commands/productization/index.js');
+      await quotaValidateCommand(options);
+    });
+
+  cli
+    .command('feature access', 'Check feature access')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { featureAccessCommand } = await import('./commands/productization/index.js');
+      await featureAccessCommand(options);
+    });
+
+  cli
+    .command('product deployment-modes', 'List deployment modes')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { productDeploymentModesCommand } = await import('./commands/productization/index.js');
+      await productDeploymentModesCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
