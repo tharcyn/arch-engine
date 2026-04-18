@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutionModeDiagnostic",
+  "type": "object",
+  "properties": {
+    "message": { "type": "string" },
+    "modeMismatch": { "type": "string" },
+    "suggestedResolutionHint": { "type": "string" }
+  },
+  "required": ["message", "modeMismatch", "suggestedResolutionHint"]
+}

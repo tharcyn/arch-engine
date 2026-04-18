@@ -499,6 +499,42 @@ export async function run() {
     });
 
   cli
+    .command('diagnostics workspace', 'Output LSP-compatible diagnostics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { diagnosticsWorkspaceCommand } = await import('./commands/diagnostics/index.js');
+      await diagnosticsWorkspaceCommand(options);
+    });
+
+  cli
+    .command('diagnostics report', 'Generate workspace diagnostics report')
+    .option('--format <format>', 'Report format (markdown, html)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { diagnosticsReportCommand } = await import('./commands/diagnostics/index.js');
+      await diagnosticsReportCommand(options);
+    });
+
+  cli
+    .command('hooks install', 'Install pre-commit governance hook')
+    .option('--fail-on <expression>', 'Severity threshold expression (e.g. severity>=high)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { hooksInstallCommand } = await import('./commands/hooks/install.js');
+      await hooksInstallCommand(options);
+    });
+
+  cli
+    .command('gate local', 'Local governance gate mode for evaluation')
+    .option('--fail-on <expression>', 'Severity threshold expression (e.g. severity>=high)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { gateLocalCommand } = await import('./commands/gate/local.js');
+      const exitCode = await gateLocalCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

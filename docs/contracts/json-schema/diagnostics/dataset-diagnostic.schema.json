@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DatasetDiagnostic",
+  "type": "object",
+  "properties": {
+    "message": { "type": "string" },
+    "schemaMismatch": { "type": "string" },
+    "suggestedResolutionHint": { "type": "string" }
+  },
+  "required": ["message", "schemaMismatch", "suggestedResolutionHint"]
+}

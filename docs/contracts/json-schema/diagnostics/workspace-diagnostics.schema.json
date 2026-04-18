@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WorkspaceDiagnostics",
+  "type": "object",
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "finding-diagnostic.schema.json" }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "$ref": "capability-diagnostic.schema.json" }
+    },
+    "datasets": {
+      "type": "array",
+      "items": { "$ref": "dataset-diagnostic.schema.json" }
+    },
+    "executionModes": {
+      "type": "array",
+      "items": { "$ref": "execution-mode-diagnostic.schema.json" }
+    },
+    "regressions": {
+      "type": "array",
+      "items": { "$ref": "regression-diagnostic.schema.json" }
+    }
+  },
+  "required": ["findings", "capabilities", "datasets", "executionModes", "regressions"]
+}
