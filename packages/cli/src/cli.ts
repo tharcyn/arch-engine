@@ -98,6 +98,33 @@ export async function run() {
       process.exit(exitCode);
     });
 
+  // 9. Federation Inspection Surface
+  cli
+    .command('federation doctor', 'Diagnose multi-provider federation readiness')
+    .action(async (options) => {
+      const { federationDoctorCommand } = await import('./commands/federationDoctor.js');
+      const exitCode = await federationDoctorCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('federation inspect', 'Inspect merged federated topology and capability matrices without running evaluations')
+    .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .action(async (options) => {
+      const { federationInspectCommand } = await import('./commands/federationInspect.js');
+      const exitCode = await federationInspectCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('federation explain', 'Explain provider contribution, capability intersection, and finding provenance')
+    .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .action(async (options) => {
+      const { federationExplainCommand } = await import('./commands/federationExplain.js');
+      const exitCode = await federationExplainCommand(options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {
