@@ -88,6 +88,18 @@ export function buildPolicyPackBundle(
         executionModeCompatibilitySnapshot: executionMode,
         federationCompatibilitySnapshot: [...providerIds].sort(),
         lockfileReferenceHash,
+        
+        // Lineage
+        builderIdentity: 'arch-engine-core',
+        builderVersion: '1.0.0', // Standardized for execution parity
+        capabilityIntersectionHash: hashJSON([...federatedCapabilitiesIntersection].sort()),
+        datasetCompatibilityHash: hashJSON([...datasetSchemas].sort()),
+        dependencyClosureHash: hashJSON(graphResult.dependencyClosure),
+        executionModeCompatibilityHash: hashJSON(executionMode),
+        federationExecutionHash: hashJSON([...providerIds].sort()),
+        sourceCatalogSetHash: '', // Set by registry environment during build
+        sourceRegistrySetHash: '', // Set by registry environment during build
+
         bundleIntegrityHash: '' // computed next
     };
 
@@ -99,7 +111,16 @@ export function buildPolicyPackBundle(
         capabilityCompatibilitySnapshot: manifest.capabilityCompatibilitySnapshot,
         datasetCompatibilitySnapshot: manifest.datasetCompatibilitySnapshot,
         executionModeCompatibilitySnapshot: manifest.executionModeCompatibilitySnapshot,
-        federationCompatibilitySnapshot: manifest.federationCompatibilitySnapshot
+        federationCompatibilitySnapshot: manifest.federationCompatibilitySnapshot,
+        builderIdentity: manifest.builderIdentity,
+        builderVersion: manifest.builderVersion,
+        capabilityIntersectionHash: manifest.capabilityIntersectionHash,
+        datasetCompatibilityHash: manifest.datasetCompatibilityHash,
+        dependencyClosureHash: manifest.dependencyClosureHash,
+        executionModeCompatibilityHash: manifest.executionModeCompatibilityHash,
+        federationExecutionHash: manifest.federationExecutionHash,
+        sourceCatalogSetHash: manifest.sourceCatalogSetHash,
+        sourceRegistrySetHash: manifest.sourceRegistrySetHash
     });
 
     const finalManifest = { ...manifest, bundleIntegrityHash: integrityHash };

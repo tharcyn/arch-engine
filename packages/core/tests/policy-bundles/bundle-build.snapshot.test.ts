@@ -37,7 +37,7 @@ describe('Bundle Build Engine Contract', () => {
                 "bundleExecutionModeSnapshotHash": "fcdb63df2e46951d9c540263a645e8f3b314cde9cdfaa3ba89118c544ceaebdb",
                 "bundleFormatVersion": "1",
                 "bundleId": "test-bundle",
-                "bundleManifestHash": "fea8179616e849b570d3447f3fefc9d781738f7bb4a8898711f50bb7e7a99e9e",
+                "bundleManifestHash": "2227b0a0e839108097d84a9e4824d84b8d8014ae7c026ca6e08a4081991e0cf5",
                 "bundleSignature": null,
               }
             `);

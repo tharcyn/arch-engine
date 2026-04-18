@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OfflineSnapshotExportResult",
+  "type": "object",
+  "properties": {
+    "exportSuccessful": { "type": "boolean" },
+    "offlineSnapshot": { "type": ["object", "null"] },
+    "snapshotPayloadString": { "type": ["string", "null"] },
+    "exportDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "exportSuccessful",
+    "offlineSnapshot",
+    "snapshotPayloadString",
+    "exportDiagnostics"
+  ],
+  "additionalProperties": false
+}

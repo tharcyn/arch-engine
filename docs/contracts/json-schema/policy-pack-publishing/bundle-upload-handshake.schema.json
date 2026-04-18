@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BundleUploadHandshakeResult",
+  "type": "object",
+  "properties": {
+    "uploadPermitted": { "type": "boolean" },
+    "catalogCompatible": { "type": "boolean" },
+    "signatureSatisfied": { "type": "boolean" },
+    "mutationAllowed": { "type": "boolean" },
+    "handshakeDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "uploadPermitted",
+    "catalogCompatible",
+    "signatureSatisfied",
+    "mutationAllowed",
+    "handshakeDiagnostics"
+  ],
+  "additionalProperties": false
+}

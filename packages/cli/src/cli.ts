@@ -249,6 +249,44 @@ export async function run() {
       process.exit(exitCode);
     });
 
+  cli
+    .command('bundle publish <bundle-path>', 'Publish a bundle to a registry catalog')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundlePublishCommand } = await import('./commands/bundle/publish.js');
+      const exitCode = await bundlePublishCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle promote <bundle-path>', 'Promote a bundle through lifecycle stages')
+    .option('--stage <stage>', 'Target promotion stage (e.g. verified)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundlePromoteCommand } = await import('./commands/bundle/promote.js');
+      const exitCode = await bundlePromoteCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle propagate <bundle-path>', 'Propagate a bundle across registry mirrors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (bundlePath, options) => {
+      const { bundlePropagateCommand } = await import('./commands/bundle/propagate.js');
+      const exitCode = await bundlePropagateCommand(bundlePath, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('bundle export-snapshot', 'Export an offline registry snapshot')
+    .option('--output <path>', 'Path to save snapshot payload')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { bundleExportSnapshotCommand } = await import('./commands/bundle/exportSnapshot.js');
+      const exitCode = await bundleExportSnapshotCommand(options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {
