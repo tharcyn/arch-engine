@@ -1191,6 +1191,78 @@ export async function run() {
     });
 
   cli
+    .command('copilot explain topology', 'Explain topology')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { copilotExplainTopologyCommand } = await import('./commands/copilot/index.js');
+      await copilotExplainTopologyCommand(options);
+    });
+
+  cli
+    .command('copilot explain policy', 'Explain policy')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { copilotExplainPolicyCommand } = await import('./commands/copilot/index.js');
+      await copilotExplainPolicyCommand(options);
+    });
+
+  cli
+    .command('copilot explain drift', 'Explain drift')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { copilotExplainDriftCommand } = await import('./commands/copilot/index.js');
+      await copilotExplainDriftCommand(options);
+    });
+
+  cli
+    .command('copilot reason topology', 'Reason topology')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { copilotReasonTopologyCommand } = await import('./commands/copilot/index.js');
+      await copilotReasonTopologyCommand(options);
+    });
+
+  cli
+    .command('copilot optimize policy', 'Optimize policy')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { copilotOptimizePolicyCommand } = await import('./commands/copilot/index.js');
+      await copilotOptimizePolicyCommand(options);
+    });
+
+  cli
+    .command('migration plan', 'Plan migration')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { migrationPlanCommand } = await import('./commands/migration/index.js');
+      await migrationPlanCommand(options);
+    });
+
+  cli
+    .command('migration campaign start', 'Start migration campaign')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { migrationCampaignStartCommand } = await import('./commands/migration/index.js');
+      await migrationCampaignStartCommand(options);
+    });
+
+  cli
+    .command('migration campaign inspect', 'Inspect migration campaign')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { migrationCampaignInspectCommand } = await import('./commands/migration/index.js');
+      await migrationCampaignInspectCommand(options);
+    });
+
+  cli
+    .command('simulate migration campaign', 'Simulate migration campaign')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateMigrationCampaignCommand } = await import('./commands/migration/index.js');
+      await simulateMigrationCampaignCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
