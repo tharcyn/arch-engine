@@ -2127,6 +2127,78 @@ export async function run() {
     });
 
   cli
+    .command('kernel inspect', 'Inspect execution kernel')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { kernelInspectCommand } = await import('./commands/kernel/index.js');
+      await kernelInspectCommand(options);
+    });
+
+  cli
+    .command('kernel compatibility', 'Resolve kernel compatibility')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { kernelCompatibilityCommand } = await import('./commands/kernel/index.js');
+      await kernelCompatibilityCommand(options);
+    });
+
+  cli
+    .command('kernel freeze-surface', 'Freeze execution surface')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { kernelFreezeSurfaceCommand } = await import('./commands/kernel/index.js');
+      await kernelFreezeSurfaceCommand(options);
+    });
+
+  cli
+    .command('capsule export', 'Export governance state capsule')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleExportCommand } = await import('./commands/capsule/index.js');
+      await capsuleExportCommand(options);
+    });
+
+  cli
+    .command('capsule inspect', 'Inspect governance state capsule')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleInspectCommand } = await import('./commands/capsule/index.js');
+      await capsuleInspectCommand(options);
+    });
+
+  cli
+    .command('capsule verify', 'Verify governance state capsule')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleVerifyCommand } = await import('./commands/capsule/index.js');
+      await capsuleVerifyCommand(options);
+    });
+
+  cli
+    .command('capsule replay', 'Replay governance state capsule')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleReplayCommand } = await import('./commands/capsule/index.js');
+      await capsuleReplayCommand(options);
+    });
+
+  cli
+    .command('capsule sign', 'Sign capsule')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleSignCommand } = await import('./commands/capsule/index.js');
+      await capsuleSignCommand(options);
+    });
+
+  cli
+    .command('capsule verify-signature', 'Verify capsule signature')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capsuleVerifySignatureCommand } = await import('./commands/capsule/index.js');
+      await capsuleVerifySignatureCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
