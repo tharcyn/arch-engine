@@ -460,6 +460,45 @@ export async function run() {
     });
 
   cli
+    .command('annotate github', 'Generate GitHub PR annotations')
+    .option('--providers <providers...>', 'List of providers')
+    .option('--packs <packs...>', 'List of policy packs')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { annotateGithubCommand } = await import('./commands/annotate/index.js');
+      await annotateGithubCommand(options);
+    });
+
+  cli
+    .command('annotate gitlab', 'Generate GitLab MR annotations')
+    .option('--providers <providers...>', 'List of providers')
+    .option('--packs <packs...>', 'List of policy packs')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { annotateGitlabCommand } = await import('./commands/annotate/index.js');
+      await annotateGitlabCommand(options);
+    });
+
+  cli
+    .command('report evaluate', 'Generate governance evaluation report')
+    .option('--providers <providers...>', 'List of providers')
+    .option('--packs <packs...>', 'List of policy packs')
+    .option('--format <format>', 'Report format (markdown, html)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { reportEvaluateCommand } = await import('./commands/report/index.js');
+      await reportEvaluateCommand(options);
+    });
+
+  cli
+    .command('report export', 'Export CI attachment surfaces')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { reportExportCommand } = await import('./commands/report/index.js');
+      await reportExportCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

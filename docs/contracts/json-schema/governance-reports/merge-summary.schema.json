@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MergeSummary",
+  "type": "object",
+  "properties": {
+    "merges": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["merges"]
+}

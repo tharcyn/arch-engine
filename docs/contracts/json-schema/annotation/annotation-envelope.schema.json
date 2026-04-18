@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnnotationEnvelope",
+  "type": "object",
+  "properties": {
+    "executionHash": { "type": "string" },
+    "federationExecutionHash": { "type": "string" },
+    "capabilityIntersectionHash": { "type": "string" },
+    "datasetCompatibilityHash": { "type": "string" },
+    "lockfileCompatibilityStatus": { "type": "string" },
+    "bundleCompatibilityStatus": { "type": "string" }
+  },
+  "required": [
+    "executionHash",
+    "federationExecutionHash",
+    "capabilityIntersectionHash",
+    "datasetCompatibilityHash",
+    "lockfileCompatibilityStatus",
+    "bundleCompatibilityStatus"
+  ]
+}

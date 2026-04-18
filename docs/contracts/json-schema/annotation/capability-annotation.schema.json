@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityAnnotation",
+  "type": "object",
+  "properties": {
+    "missingCapability": { "type": "string" },
+    "blockingProvider": { "type": "string" },
+    "blockingDatasetSchema": { "type": "string" },
+    "blockingExecutionMode": { "type": "string" }
+  },
+  "required": [
+    "missingCapability",
+    "blockingProvider",
+    "blockingDatasetSchema",
+    "blockingExecutionMode"
+  ]
+}
