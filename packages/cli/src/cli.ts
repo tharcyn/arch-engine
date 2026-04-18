@@ -895,6 +895,102 @@ export async function run() {
     });
 
   cli
+    .command('plugin register', 'Register an enforcement plugin')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { pluginRegisterCommand } = await import('./commands/plugin/index.js');
+      await pluginRegisterCommand(options);
+    });
+
+  cli
+    .command('plugin list', 'List registered plugins')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { pluginListCommand } = await import('./commands/plugin/index.js');
+      await pluginListCommand(options);
+    });
+
+  cli
+    .command('plugin inspect', 'Inspect a registered plugin')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { pluginInspectCommand } = await import('./commands/plugin/index.js');
+      await pluginInspectCommand(options);
+    });
+
+  cli
+    .command('enforce deploy', 'Evaluate before deploy')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceDeployCommand } = await import('./commands/enforce/index.js');
+      await enforceDeployCommand(options);
+    });
+
+  cli
+    .command('enforce merge', 'Evaluate before merge')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceMergeCommand } = await import('./commands/enforce/index.js');
+      await enforceMergeCommand(options);
+    });
+
+  cli
+    .command('enforce schema', 'Evaluate before schema change')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceSchemaCommand } = await import('./commands/enforce/index.js');
+      await enforceSchemaCommand(options);
+    });
+
+  cli
+    .command('enforce kubernetes', 'Evaluate via Kubernetes Admission Controller')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceKubernetesCommand } = await import('./commands/enforce/index.js');
+      await enforceKubernetesCommand(options);
+    });
+
+  cli
+    .command('enforce ci', 'Evaluate via CI Pipeline Gate')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceCiCommand } = await import('./commands/enforce/index.js');
+      await enforceCiCommand(options);
+    });
+
+  cli
+    .command('enforce git', 'Evaluate via Git Provider Hooks')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceGitCommand } = await import('./commands/enforce/index.js');
+      await enforceGitCommand(options);
+    });
+
+  cli
+    .command('enforce cloud', 'Evaluate via Cloud Deployment Gate')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { enforceCloudCommand } = await import('./commands/enforce/index.js');
+      await enforceCloudCommand(options);
+    });
+
+  cli
+    .command('controller start', 'Start governance controller runtime')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { controllerStartCommand } = await import('./commands/controller/index.js');
+      await controllerStartCommand(options);
+    });
+
+  cli
+    .command('controller status', 'Get status of governance controller runtime')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { controllerStatusCommand } = await import('./commands/controller/index.js');
+      await controllerStatusCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
