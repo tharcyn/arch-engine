@@ -1847,6 +1847,62 @@ export async function run() {
     });
 
   cli
+    .command('ontology list', 'List ontology descriptors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ontologyListCommand } = await import('./commands/ontology/index.js');
+      await ontologyListCommand(options);
+    });
+
+  cli
+    .command('ontology inspect', 'Inspect ontology descriptor')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ontologyInspectCommand } = await import('./commands/ontology/index.js');
+      await ontologyInspectCommand(options);
+    });
+
+  cli
+    .command('prove intent', 'Prove architecture intent')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { proveIntentCommand } = await import('./commands/prove/index.js');
+      await proveIntentCommand(options);
+    });
+
+  cli
+    .command('prove policy', 'Prove policy satisfiability')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { provePolicyCommand } = await import('./commands/prove/index.js');
+      await provePolicyCommand(options);
+    });
+
+  cli
+    .command('prove dataset', 'Prove dataset compatibility')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { proveDatasetCommand } = await import('./commands/prove/index.js');
+      await proveDatasetCommand(options);
+    });
+
+  cli
+    .command('prove migration', 'Prove migration safety')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { proveMigrationCommand } = await import('./commands/prove/index.js');
+      await proveMigrationCommand(options);
+    });
+
+  cli
+    .command('prove authority', 'Prove authority boundary')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { proveAuthorityCommand } = await import('./commands/prove/index.js');
+      await proveAuthorityCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
