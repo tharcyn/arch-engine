@@ -1463,6 +1463,62 @@ export async function run() {
     });
 
   cli
+    .command('observe topology', 'Observe topology signals')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { observeTopologyCommand } = await import('./commands/observe/index.js');
+      await observeTopologyCommand(options);
+    });
+
+  cli
+    .command('observe datasets', 'Observe dataset signals')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { observeDatasetsCommand } = await import('./commands/observe/index.js');
+      await observeDatasetsCommand(options);
+    });
+
+  cli
+    .command('observe capabilities', 'Observe capability signals')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { observeCapabilitiesCommand } = await import('./commands/observe/index.js');
+      await observeCapabilitiesCommand(options);
+    });
+
+  cli
+    .command('observe drift-risk', 'Observe drift risk')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { observeDriftRiskCommand } = await import('./commands/observe/index.js');
+      await observeDriftRiskCommand(options);
+    });
+
+  cli
+    .command('observe ecosystem-risk', 'Observe ecosystem risk')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { observeEcosystemRiskCommand } = await import('./commands/observe/index.js');
+      await observeEcosystemRiskCommand(options);
+    });
+
+  cli
+    .command('forecast topology-stability', 'Forecast topology stability')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { forecastTopologyStabilityCommand } = await import('./commands/forecast/index.js');
+      await forecastTopologyStabilityCommand(options);
+    });
+
+  cli
+    .command('forecast capability-regression', 'Forecast capability regression')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { forecastCapabilityRegressionCommand } = await import('./commands/forecast/index.js');
+      await forecastCapabilityRegressionCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

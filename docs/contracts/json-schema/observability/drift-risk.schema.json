@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DriftRisk",
+  "type": "object",
+  "properties": {
+    "riskId": { "type": "string" }
+  },
+  "required": ["riskId"]
+}
