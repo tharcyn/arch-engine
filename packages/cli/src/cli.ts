@@ -1559,6 +1559,62 @@ export async function run() {
     });
 
   cli
+    .command('standards list', 'List governance standards')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsListCommand } = await import('./commands/standards/index.js');
+      await standardsListCommand(options);
+    });
+
+  cli
+    .command('standards inspect', 'Inspect governance standard')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsInspectCommand } = await import('./commands/standards/index.js');
+      await standardsInspectCommand(options);
+    });
+
+  cli
+    .command('standards capabilities', 'List capabilities')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsCapabilitiesCommand } = await import('./commands/standards/index.js');
+      await standardsCapabilitiesCommand(options);
+    });
+
+  cli
+    .command('standards datasets', 'List datasets')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsDatasetsCommand } = await import('./commands/standards/index.js');
+      await standardsDatasetsCommand(options);
+    });
+
+  cli
+    .command('standards migration-tiers', 'List migration tiers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsMigrationTiersCommand } = await import('./commands/standards/index.js');
+      await standardsMigrationTiersCommand(options);
+    });
+
+  cli
+    .command('standards compliance-profiles', 'List compliance profiles')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsComplianceProfilesCommand } = await import('./commands/standards/index.js');
+      await standardsComplianceProfilesCommand(options);
+    });
+
+  cli
+    .command('standards maturity-tiers', 'List maturity tiers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { standardsMaturityTiersCommand } = await import('./commands/standards/index.js');
+      await standardsMaturityTiersCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
