@@ -2287,6 +2287,70 @@ export async function run() {
     });
 
   cli
+    .command('platform inspect', 'Inspect platform interface')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { platformInspectCommand } = await import('./commands/platform/index.js');
+      await platformInspectCommand(options);
+    });
+
+  cli
+    .command('platform connectors', 'List platform connectors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { platformConnectorsCommand } = await import('./commands/platform/index.js');
+      await platformConnectorsCommand(options);
+    });
+
+  cli
+    .command('platform validate-connectors', 'Validate connectors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { platformValidateConnectorsCommand } = await import('./commands/platform/index.js');
+      await platformValidateConnectorsCommand(options);
+    });
+
+  cli
+    .command('platform topology-plan', 'Plan deployment topology')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { platformTopologyPlanCommand } = await import('./commands/platform/index.js');
+      await platformTopologyPlanCommand(options);
+    });
+
+  cli
+    .command('platform footprint', 'Estimate deployment footprint')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { platformFootprintCommand } = await import('./commands/platform/index.js');
+      await platformFootprintCommand(options);
+    });
+
+  cli
+    .command('blueprint list', 'List deployment blueprints')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { blueprintListCommand } = await import('./commands/blueprint/index.js');
+      await blueprintListCommand(options);
+    });
+
+  cli
+    .command('blueprint inspect', 'Inspect blueprint')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { blueprintInspectCommand } = await import('./commands/blueprint/index.js');
+      await blueprintInspectCommand(options);
+    });
+
+  cli
+    .command('blueprint validate', 'Validate blueprint')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { blueprintValidateCommand } = await import('./commands/blueprint/index.js');
+      await blueprintValidateCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
