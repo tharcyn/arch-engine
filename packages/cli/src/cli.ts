@@ -1519,6 +1519,46 @@ export async function run() {
     });
 
   cli
+    .command('scorecard generate', 'Generate governance scorecard')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { scorecardGenerateCommand } = await import('./commands/scorecard/index.js');
+      await scorecardGenerateCommand(options);
+    });
+
+  cli
+    .command('scorecard roi', 'Measure policy ROI')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { scorecardRoiCommand } = await import('./commands/scorecard/index.js');
+      await scorecardRoiCommand(options);
+    });
+
+  cli
+    .command('scorecard capability-impact', 'Measure capability impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { scorecardCapabilityImpactCommand } = await import('./commands/scorecard/index.js');
+      await scorecardCapabilityImpactCommand(options);
+    });
+
+  cli
+    .command('benchmark maturity', 'Benchmark maturity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { benchmarkMaturityCommand } = await import('./commands/benchmark/index.js');
+      await benchmarkMaturityCommand(options);
+    });
+
+  cli
+    .command('benchmark percentile', 'Benchmark percentile')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { benchmarkPercentileCommand } = await import('./commands/benchmark/index.js');
+      await benchmarkPercentileCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
