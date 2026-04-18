@@ -1959,6 +1959,46 @@ export async function run() {
     });
 
   cli
+    .command('assurance monitor', 'Monitor continuous assurance')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceMonitorCommand } = await import('./commands/assurance/index.js');
+      await assuranceMonitorCommand(options);
+    });
+
+  cli
+    .command('assurance freshness', 'Check evidence freshness')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceFreshnessCommand } = await import('./commands/assurance/index.js');
+      await assuranceFreshnessCommand(options);
+    });
+
+  cli
+    .command('assurance drift', 'Detect submission drift')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceDriftCommand } = await import('./commands/assurance/index.js');
+      await assuranceDriftCommand(options);
+    });
+
+  cli
+    .command('assurance replay', 'Replay temporal evidence')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceReplayCommand } = await import('./commands/assurance/index.js');
+      await assuranceReplayCommand(options);
+    });
+
+  cli
+    .command('assurance reconstruct', 'Reconstruct decision context')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceReconstructCommand } = await import('./commands/assurance/index.js');
+      await assuranceReconstructCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
