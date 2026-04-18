@@ -2407,6 +2407,64 @@ export async function run() {
     });
 
   cli
+    .command('reference-node inspect', 'Inspect reference node')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeInspectCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeInspectCommand(options);
+    });
+
+  cli
+    .command('reference-node capabilities', 'Inspect reference node capabilities')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeCapabilitiesCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeCapabilitiesCommand(options);
+    });
+
+  cli
+    .command('reference-node export-manifest', 'Export reference node manifest')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeExportManifestCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeExportManifestCommand(options);
+    });
+
+  cli
+    .command('reference-node observer-mode', 'Initialize observer node')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeObserverModeCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeObserverModeCommand(options);
+    });
+
+  cli
+    .command('reference-node certify-adapter', 'Certify adapter via node')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeCertifyAdapterCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeCertifyAdapterCommand(options);
+    });
+
+  cli
+    .command('reference-node bootstrap-federation', 'Bootstrap federation via node')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { referenceNodeBootstrapFederationCommand } = await import('./commands/reference-node/index.js');
+      await referenceNodeBootstrapFederationCommand(options);
+    });
+
+  cli
+    .command('protocol publish-spec', 'Publish AGP specification bundle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { PublicSpecificationPublisherRuntime } = await import('../../agp-spec/src/publication/index.js');
+      const result = { status: PublicSpecificationPublisherRuntime.publishSpec() };
+      if (options.json) console.log(JSON.stringify(result, null, 2));
+      else console.log(JSON.stringify(result, null, 2));
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
