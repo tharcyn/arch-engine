@@ -535,6 +535,62 @@ export async function run() {
     });
 
   cli
+    .command('simulate topology-change', 'Predict impact of topology mutations')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateTopologyChangeCommand } = await import('./commands/simulate/index.js');
+      await simulateTopologyChangeCommand(options);
+    });
+
+  cli
+    .command('simulate capability', 'Predict capability rollout impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateCapabilityCommand } = await import('./commands/simulate/index.js');
+      await simulateCapabilityCommand(options);
+    });
+
+  cli
+    .command('simulate dataset', 'Predict dataset schema evolution impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateDatasetCommand } = await import('./commands/simulate/index.js');
+      await simulateDatasetCommand(options);
+    });
+
+  cli
+    .command('simulate pack', 'Predict policy-pack rollout impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulatePackCommand } = await import('./commands/simulate/index.js');
+      await simulatePackCommand(options);
+    });
+
+  cli
+    .command('simulate bundle', 'Predict bundle promotion impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateBundleCommand } = await import('./commands/simulate/index.js');
+      await simulateBundleCommand(options);
+    });
+
+  cli
+    .command('simulate federation', 'Predict federation merge behavior impact')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateFederationCommand } = await import('./commands/simulate/index.js');
+      await simulateFederationCommand(options);
+    });
+
+  cli
+    .command('simulate identity', 'Predict identity resolution forecast outcome')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateIdentityCommand } = await import('./commands/simulate/index.js');
+      await simulateIdentityCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

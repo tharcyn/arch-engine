@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackRolloutPrediction",
+  "type": "object",
+  "properties": {
+    "findingSurfaceChanges": { "type": "array", "items": { "type": "string" } },
+    "capabilityIntersectionChanges": { "type": "array", "items": { "type": "string" } },
+    "dependencyClosureChanges": { "type": "array", "items": { "type": "string" } },
+    "executionModeEligibilityChanges": { "type": "array", "items": { "type": "string" } },
+    "bundleCompatibilityShifts": { "type": "array", "items": { "type": "string" } },
+    "promotionLadderEligibilityChanges": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": [
+    "findingSurfaceChanges",
+    "capabilityIntersectionChanges",
+    "dependencyClosureChanges",
+    "executionModeEligibilityChanges",
+    "bundleCompatibilityShifts",
+    "promotionLadderEligibilityChanges"
+  ]
+}

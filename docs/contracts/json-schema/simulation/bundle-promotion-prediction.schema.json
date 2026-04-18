@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BundlePromotionPrediction",
+  "type": "object",
+  "properties": {
+    "promotionEligibilityDrift": { "type": "string" },
+    "registryCompatibilityDrift": { "type": "string" },
+    "dependencyClosureDrift": { "type": "string" },
+    "capabilitySnapshotDrift": { "type": "string" },
+    "datasetSnapshotDrift": { "type": "string" }
+  },
+  "required": [
+    "promotionEligibilityDrift",
+    "registryCompatibilityDrift",
+    "dependencyClosureDrift",
+    "capabilitySnapshotDrift",
+    "datasetSnapshotDrift"
+  ]
+}

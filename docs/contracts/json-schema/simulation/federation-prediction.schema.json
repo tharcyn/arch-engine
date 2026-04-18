@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FederationPrediction",
+  "type": "object",
+  "properties": {
+    "providerParticipationDrift": { "type": "string" },
+    "datasetParticipationDrift": { "type": "string" },
+    "identityCollisionBehaviorDrift": { "type": "string" },
+    "provenanceUnionBehaviorDrift": { "type": "string" },
+    "deduplicationBehaviorDrift": { "type": "string" }
+  },
+  "required": [
+    "providerParticipationDrift",
+    "datasetParticipationDrift",
+    "identityCollisionBehaviorDrift",
+    "provenanceUnionBehaviorDrift",
+    "deduplicationBehaviorDrift"
+  ]
+}

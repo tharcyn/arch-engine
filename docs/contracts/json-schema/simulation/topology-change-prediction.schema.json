@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TopologyChangePrediction",
+  "type": "object",
+  "properties": {
+    "ruleActivationDrift": { "type": "string" },
+    "findingDrift": { "type": "string" },
+    "capabilityEligibilityDrift": { "type": "string" },
+    "datasetCompatibilityDrift": { "type": "string" },
+    "identityResolutionDrift": { "type": "string" }
+  },
+  "required": [
+    "ruleActivationDrift",
+    "findingDrift",
+    "capabilityEligibilityDrift",
+    "datasetCompatibilityDrift",
+    "identityResolutionDrift"
+  ]
+}

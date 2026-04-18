@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityRolloutPrediction",
+  "type": "object",
+  "properties": {
+    "newRulesActivated": { "type": "array", "items": { "type": "string" } },
+    "rulesSuppressed": { "type": "array", "items": { "type": "string" } },
+    "datasetRequirementsIntroduced": { "type": "array", "items": { "type": "string" } },
+    "executionModeEligibilityChanges": { "type": "array", "items": { "type": "string" } },
+    "bundleCompatibilityShifts": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": [
+    "newRulesActivated",
+    "rulesSuppressed",
+    "datasetRequirementsIntroduced",
+    "executionModeEligibilityChanges",
+    "bundleCompatibilityShifts"
+  ]
+}
