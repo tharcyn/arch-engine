@@ -1615,6 +1615,70 @@ export async function run() {
     });
 
   cli
+    .command('certify list', 'List certifications')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyListCommand } = await import('./commands/certify/index.js');
+      await certifyListCommand(options);
+    });
+
+  cli
+    .command('certify inspect', 'Inspect certification')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyInspectCommand } = await import('./commands/certify/index.js');
+      await certifyInspectCommand(options);
+    });
+
+  cli
+    .command('certify conformance', 'Test conformance')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyConformanceCommand } = await import('./commands/certify/index.js');
+      await certifyConformanceCommand(options);
+    });
+
+  cli
+    .command('certify dataset', 'Certify dataset')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyDatasetCommand } = await import('./commands/certify/index.js');
+      await certifyDatasetCommand(options);
+    });
+
+  cli
+    .command('certify policy-pack', 'Certify policy pack')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyPolicyPackCommand } = await import('./commands/certify/index.js');
+      await certifyPolicyPackCommand(options);
+    });
+
+  cli
+    .command('certify migration', 'Certify migration')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyMigrationCommand } = await import('./commands/certify/index.js');
+      await certifyMigrationCommand(options);
+    });
+
+  cli
+    .command('certify maturity', 'Certify maturity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyMaturityCommand } = await import('./commands/certify/index.js');
+      await certifyMaturityCommand(options);
+    });
+
+  cli
+    .command('certify badges', 'Generate badges')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { certifyBadgesCommand } = await import('./commands/certify/index.js');
+      await certifyBadgesCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

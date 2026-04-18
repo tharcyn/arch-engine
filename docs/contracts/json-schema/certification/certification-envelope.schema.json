@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CertificationEnvelope",
+  "type": "object",
+  "properties": {
+    "envelopeId": { "type": "string" }
+  },
+  "required": ["envelopeId"]
+}
