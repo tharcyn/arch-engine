@@ -591,6 +591,86 @@ export async function run() {
     });
 
   cli
+    .command('history graph', 'Export architecture knowledge graph')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { historyGraphCommand } = await import('./commands/history/index.js');
+      await historyGraphCommand(options);
+    });
+
+  cli
+    .command('history timeline', 'Export topology evolution timeline')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { historyTimelineCommand } = await import('./commands/history/index.js');
+      await historyTimelineCommand(options);
+    });
+
+  cli
+    .command('history bundle-lineage', 'Export bundle promotion lineage graph')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { historyBundleLineageCommand } = await import('./commands/history/index.js');
+      await historyBundleLineageCommand(options);
+    });
+
+  cli
+    .command('history registry-trust', 'Export registry trust evolution timeline')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { historyRegistryTrustCommand } = await import('./commands/history/index.js');
+      await historyRegistryTrustCommand(options);
+    });
+
+  cli
+    .command('metrics capability-adoption', 'Compute capability adoption metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsCapabilityAdoptionCommand } = await import('./commands/metrics/index.js');
+      await metricsCapabilityAdoptionCommand(options);
+    });
+
+  cli
+    .command('metrics dataset-evolution', 'Compute dataset evolution metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsDatasetEvolutionCommand } = await import('./commands/metrics/index.js');
+      await metricsDatasetEvolutionCommand(options);
+    });
+
+  cli
+    .command('metrics identity-lifecycle', 'Compute identity lifecycle metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsIdentityLifecycleCommand } = await import('./commands/metrics/index.js');
+      await metricsIdentityLifecycleCommand(options);
+    });
+
+  cli
+    .command('metrics stability', 'Compute architecture stability metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsStabilityCommand } = await import('./commands/metrics/index.js');
+      await metricsStabilityCommand(options);
+    });
+
+  cli
+    .command('metrics drift', 'Compute architecture drift velocity metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsDriftCommand } = await import('./commands/metrics/index.js');
+      await metricsDriftCommand(options);
+    });
+
+  cli
+    .command('metrics policy-effectiveness', 'Compute policy effectiveness metrics')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { metricsPolicyEffectivenessCommand } = await import('./commands/metrics/index.js');
+      await metricsPolicyEffectivenessCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

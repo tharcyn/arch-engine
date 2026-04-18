@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IdentityVolatility",
+  "type": "object",
+  "properties": {
+    "collisionIntroduction": { "type": "array", "items": { "type": "string" } },
+    "collisionResolution": { "type": "array", "items": { "type": "string" } },
+    "aliasAdoption": { "type": "array", "items": { "type": "string" } },
+    "providerPrecedenceShifts": { "type": "array", "items": { "type": "string" } },
+    "volatilityScore": { "type": "number" }
+  },
+  "required": [
+    "collisionIntroduction",
+    "collisionResolution",
+    "aliasAdoption",
+    "providerPrecedenceShifts",
+    "volatilityScore"
+  ]
+}
