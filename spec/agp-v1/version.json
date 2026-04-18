@@ -1,0 +1,8 @@
+{
+  "protocol": "AGP",
+  "version": "1.0.0",
+  "compatibility": "execution-kernel-stable",
+  "capsule_portability": "guaranteed",
+  "federation_trust_model": "ratified",
+  "extension_lifecycle": "governed"
+}
