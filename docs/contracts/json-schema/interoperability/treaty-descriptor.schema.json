@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TreatyDescriptor",
+  "type": "object",
+  "properties": {
+    "treatyId": { "type": "string" }
+  },
+  "required": ["treatyId"]
+}

@@ -1735,6 +1735,54 @@ export async function run() {
     });
 
   cli
+    .command('treaty list', 'List treaties')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { treatyListCommand } = await import('./commands/treaty/index.js');
+      await treatyListCommand(options);
+    });
+
+  cli
+    .command('treaty inspect', 'Inspect treaty')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { treatyInspectCommand } = await import('./commands/treaty/index.js');
+      await treatyInspectCommand(options);
+    });
+
+  cli
+    .command('treaty negotiate', 'Negotiate treaty')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { treatyNegotiateCommand } = await import('./commands/treaty/index.js');
+      await treatyNegotiateCommand(options);
+    });
+
+  cli
+    .command('verify portable', 'Portable verification')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { verifyPortableCommand } = await import('./commands/verify/index.js');
+      await verifyPortableCommand(options);
+    });
+
+  cli
+    .command('verify offline', 'Offline verification')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { verifyOfflineCommand } = await import('./commands/verify/index.js');
+      await verifyOfflineCommand(options);
+    });
+
+  cli
+    .command('verify external', 'External verification')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { verifyExternalCommand } = await import('./commands/verify/index.js');
+      await verifyExternalCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
