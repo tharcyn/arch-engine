@@ -1903,6 +1903,62 @@ export async function run() {
     });
 
   cli
+    .command('assurance create', 'Create assurance case')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceCreateCommand } = await import('./commands/assurance/index.js');
+      await assuranceCreateCommand(options);
+    });
+
+  cli
+    .command('assurance inspect', 'Inspect assurance case')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceInspectCommand } = await import('./commands/assurance/index.js');
+      await assuranceInspectCommand(options);
+    });
+
+  cli
+    .command('assurance graph', 'Graph claim evidence and proof')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceGraphCommand } = await import('./commands/assurance/index.js');
+      await assuranceGraphCommand(options);
+    });
+
+  cli
+    .command('assurance export-submission', 'Export regulatory submission bundle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceExportSubmissionCommand } = await import('./commands/assurance/index.js');
+      await assuranceExportSubmissionCommand(options);
+    });
+
+  cli
+    .command('assurance export-review-pack', 'Export review board evidence pack')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceExportReviewPackCommand } = await import('./commands/assurance/index.js');
+      await assuranceExportReviewPackCommand(options);
+    });
+
+  cli
+    .command('assurance counterexample', 'Generate counterexample')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceCounterexampleCommand } = await import('./commands/assurance/index.js');
+      await assuranceCounterexampleCommand(options);
+    });
+
+  cli
+    .command('assurance residual-risk', 'Analyze residual risk')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceResidualRiskCommand } = await import('./commands/assurance/index.js');
+      await assuranceResidualRiskCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

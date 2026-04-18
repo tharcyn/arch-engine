@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AssuranceCase",
+  "type": "object",
+  "properties": {
+    "caseId": { "type": "string" }
+  },
+  "required": ["caseId"]
+}
