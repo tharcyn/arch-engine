@@ -1391,6 +1391,78 @@ export async function run() {
     });
 
   cli
+    .command('registry-network list', 'List registry network')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryNetworkListCommand } = await import('./commands/registry-network/index.js');
+      await registryNetworkListCommand(options);
+    });
+
+  cli
+    .command('registry-network mirrors', 'List registry mirrors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryNetworkMirrorsCommand } = await import('./commands/registry-network/index.js');
+      await registryNetworkMirrorsCommand(options);
+    });
+
+  cli
+    .command('discover packs', 'Discover policy packs')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { discoverPacksCommand } = await import('./commands/discover/index.js');
+      await discoverPacksCommand(options);
+    });
+
+  cli
+    .command('discover datasets', 'Discover datasets')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { discoverDatasetsCommand } = await import('./commands/discover/index.js');
+      await discoverDatasetsCommand(options);
+    });
+
+  cli
+    .command('discover bundles', 'Discover bundles')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { discoverBundlesCommand } = await import('./commands/discover/index.js');
+      await discoverBundlesCommand(options);
+    });
+
+  cli
+    .command('recommend baseline', 'Recommend policy baseline')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { recommendBaselineCommand } = await import('./commands/recommend/index.js');
+      await recommendBaselineCommand(options);
+    });
+
+  cli
+    .command('recommend datasets', 'Recommend datasets')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { recommendDatasetsCommand } = await import('./commands/recommend/index.js');
+      await recommendDatasetsCommand(options);
+    });
+
+  cli
+    .command('recommend migration', 'Recommend migration strategy')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { recommendMigrationCommand } = await import('./commands/recommend/index.js');
+      await recommendMigrationCommand(options);
+    });
+
+  cli
+    .command('search governance', 'Search governance registry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { searchGovernanceCommand } = await import('./commands/search/index.js');
+      await searchGovernanceCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
