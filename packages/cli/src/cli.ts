@@ -2031,6 +2031,102 @@ export async function run() {
     });
 
   cli
+    .command('approval create', 'Create approval')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalCreateCommand } = await import('./commands/approval/index.js');
+      await approvalCreateCommand(options);
+    });
+
+  cli
+    .command('approval inspect', 'Inspect approval')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalInspectCommand } = await import('./commands/approval/index.js');
+      await approvalInspectCommand(options);
+    });
+
+  cli
+    .command('approval workflow start', 'Start approval workflow')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalWorkflowStartCommand } = await import('./commands/approval/index.js');
+      await approvalWorkflowStartCommand(options);
+    });
+
+  cli
+    .command('approval workflow inspect', 'Inspect approval workflow')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalWorkflowInspectCommand } = await import('./commands/approval/index.js');
+      await approvalWorkflowInspectCommand(options);
+    });
+
+  cli
+    .command('approval quorum evaluate', 'Evaluate approval quorum')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalQuorumEvaluateCommand } = await import('./commands/approval/index.js');
+      await approvalQuorumEvaluateCommand(options);
+    });
+
+  cli
+    .command('approval validate-separation', 'Validate separation of duties')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalValidateSeparationCommand } = await import('./commands/approval/index.js');
+      await approvalValidateSeparationCommand(options);
+    });
+
+  cli
+    .command('approval waive', 'Issue approval waiver')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalWaiveCommand } = await import('./commands/approval/index.js');
+      await approvalWaiveCommand(options);
+    });
+
+  cli
+    .command('approval list-waivers', 'List approval waivers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalListWaiversCommand } = await import('./commands/approval/index.js');
+      await approvalListWaiversCommand(options);
+    });
+
+  cli
+    .command('approval expiry', 'Check approval expiry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalExpiryCommand } = await import('./commands/approval/index.js');
+      await approvalExpiryCommand(options);
+    });
+
+  cli
+    .command('approval revalidate', 'Revalidate approval')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalRevalidateCommand } = await import('./commands/approval/index.js');
+      await approvalRevalidateCommand(options);
+    });
+
+  cli
+    .command('approval sign', 'Sign decision packet')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalSignCommand } = await import('./commands/approval/index.js');
+      await approvalSignCommand(options);
+    });
+
+  cli
+    .command('approval verify-signature', 'Verify decision signature')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { approvalVerifySignatureCommand } = await import('./commands/approval/index.js');
+      await approvalVerifySignatureCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

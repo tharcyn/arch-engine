@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ApprovalWorkflow",
+  "type": "object",
+  "properties": {
+    "workflowId": { "type": "string" }
+  },
+  "required": ["workflowId"]
+}
