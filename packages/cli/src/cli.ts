@@ -2351,6 +2351,62 @@ export async function run() {
     });
 
   cli
+    .command('protocol inspect', 'Inspect protocol surface')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolInspectCommand } = await import('./commands/protocol/index.js');
+      await protocolInspectCommand(options);
+    });
+
+  cli
+    .command('protocol compatibility', 'Check protocol compatibility')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolCompatibilityCommand } = await import('./commands/protocol/index.js');
+      await protocolCompatibilityCommand(options);
+    });
+
+  cli
+    .command('protocol extensions', 'List protocol extensions')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolExtensionsCommand } = await import('./commands/protocol/index.js');
+      await protocolExtensionsCommand(options);
+    });
+
+  cli
+    .command('adapter init', 'Initialize adapter')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { adapterInitCommand } = await import('./commands/adapter/index.js');
+      await adapterInitCommand(options);
+    });
+
+  cli
+    .command('adapter validate', 'Validate adapter')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { adapterValidateCommand } = await import('./commands/adapter/index.js');
+      await adapterValidateCommand(options);
+    });
+
+  cli
+    .command('adapter certify', 'Certify adapter')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { adapterCertifyCommand } = await import('./commands/adapter/index.js');
+      await adapterCertifyCommand(options);
+    });
+
+  cli
+    .command('adapter templates', 'List adapter templates')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { adapterTemplatesCommand } = await import('./commands/adapter/index.js');
+      await adapterTemplatesCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
