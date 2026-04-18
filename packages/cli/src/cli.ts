@@ -991,6 +991,110 @@ export async function run() {
     });
 
   cli
+    .command('exchange peer add', 'Add exchange peer')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangePeerAddCommand } = await import('./commands/exchange/index.js');
+      await exchangePeerAddCommand(options);
+    });
+
+  cli
+    .command('exchange peer list', 'List exchange peers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangePeerListCommand } = await import('./commands/exchange/index.js');
+      await exchangePeerListCommand(options);
+    });
+
+  cli
+    .command('exchange subscribe', 'Subscribe to exchange')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeSubscribeCommand } = await import('./commands/exchange/index.js');
+      await exchangeSubscribeCommand(options);
+    });
+
+  cli
+    .command('exchange subscribe publisher', 'Subscribe to publisher')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeSubscribePublisherCommand } = await import('./commands/exchange/index.js');
+      await exchangeSubscribePublisherCommand(options);
+    });
+
+  cli
+    .command('exchange subscribe registry', 'Subscribe to registry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeSubscribeRegistryCommand } = await import('./commands/exchange/index.js');
+      await exchangeSubscribeRegistryCommand(options);
+    });
+
+  cli
+    .command('exchange subscribe bundle-channel', 'Subscribe to bundle channel')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeSubscribeBundleChannelCommand } = await import('./commands/exchange/index.js');
+      await exchangeSubscribeBundleChannelCommand(options);
+    });
+
+  cli
+    .command('exchange sync', 'Sync exchange session')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeSyncCommand } = await import('./commands/exchange/index.js');
+      await exchangeSyncCommand(options);
+    });
+
+  cli
+    .command('exchange propagate bundles', 'Propagate bundles')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangePropagateBundlesCommand } = await import('./commands/exchange/index.js');
+      await exchangePropagateBundlesCommand(options);
+    });
+
+  cli
+    .command('exchange telemetry sync', 'Sync exchange telemetry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { exchangeTelemetrySyncCommand } = await import('./commands/exchange/index.js');
+      await exchangeTelemetrySyncCommand(options);
+    });
+
+  cli
+    .command('agent start', 'Start remediation agent')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { agentStartCommand } = await import('./commands/agent/index.js');
+      await agentStartCommand(options);
+    });
+
+  cli
+    .command('agent plan', 'Plan remediation')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { agentPlanCommand } = await import('./commands/agent/index.js');
+      await agentPlanCommand(options);
+    });
+
+  cli
+    .command('agent apply', 'Apply remediation')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { agentApplyCommand } = await import('./commands/agent/index.js');
+      await agentApplyCommand(options);
+    });
+
+  cli
+    .command('agent preview', 'Preview remediation')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { agentPreviewCommand } = await import('./commands/agent/index.js');
+      await agentPreviewCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
