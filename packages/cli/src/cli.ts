@@ -2593,6 +2593,62 @@ export async function run() {
     });
 
   cli
+    .command('protocol export-agp-repo', 'Export AGP repo surface')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolExportAgpRepoCommand } = await import('./commands/protocol/export.js');
+      await protocolExportAgpRepoCommand(options);
+    });
+
+  cli
+    .command('protocol bootstrap-agp-repo', 'Bootstrap standalone AGP repo')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolBootstrapAgpRepoCommand } = await import('./commands/protocol/export.js');
+      await protocolBootstrapAgpRepoCommand(options);
+    });
+
+  cli
+    .command('protocol authority-descriptor', 'Inspect AGP authority descriptor')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolAuthorityDescriptorCommand } = await import('./commands/protocol/export.js');
+      await protocolAuthorityDescriptorCommand(options);
+    });
+
+  cli
+    .command('protocol trust-root', 'Inspect AGP trust root declaration')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolTrustRootCommand } = await import('./commands/protocol/export.js');
+      await protocolTrustRootCommand(options);
+    });
+
+  cli
+    .command('registry bootstrap-agp', 'Bootstrap AGP canonical registry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryBootstrapAgpCommand } = await import('./commands/registry/bootstrap.js');
+      await registryBootstrapAgpCommand(options);
+    });
+
+  cli
+    .command('protocol compatibility-tiers', 'List AGP compatibility tiers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolCompatibilityTiersCommand } = await import('./commands/protocol/compatibility-tiers.js');
+      await protocolCompatibilityTiersCommand(options);
+    });
+
+  cli
+    .command('protocol export-agp-site', 'Export agp.dev bootstrap content')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { protocolExportAgpSiteCommand } = await import('./commands/protocol/export-site.js');
+      await protocolExportAgpSiteCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

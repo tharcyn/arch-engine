@@ -1,0 +1,10 @@
+{
+  "protocol": "AGP",
+  "version": "1.0.0",
+  "reference_implementation": "arch-engine",
+  "spec_namespace": "agp-protocol/agp",
+  "registry_namespace": "registry.agp.dev",
+  "portal_namespace": "agp.dev",
+  "governance_model": "working-group-stewarded",
+  "extension_lifecycle": "ratified"
+}

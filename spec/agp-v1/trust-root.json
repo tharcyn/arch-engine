@@ -1,0 +1,9 @@
+{
+  "protocol": "AGP",
+  "trust_root": "registry.agp.dev",
+  "certification_authority": "AGP Foundation Runtime",
+  "reference_node": "arch-engine",
+  "capsule_integrity_model": "deterministic",
+  "federation_mode": "zero-trust",
+  "revocation_model": "propagated"
+}
