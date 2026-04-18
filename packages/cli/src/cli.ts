@@ -1679,6 +1679,62 @@ export async function run() {
     });
 
   cli
+    .command('trust-federation list', 'List trust federation')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustFederationListCommand } = await import('./commands/trust-federation/index.js');
+      await trustFederationListCommand(options);
+    });
+
+  cli
+    .command('trust-federation inspect', 'Inspect trust federation')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustFederationInspectCommand } = await import('./commands/trust-federation/index.js');
+      await trustFederationInspectCommand(options);
+    });
+
+  cli
+    .command('trust resolve-chain', 'Resolve certification chain')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustResolveChainCommand } = await import('./commands/trust/index.js');
+      await trustResolveChainCommand(options);
+    });
+
+  cli
+    .command('trust revoke', 'Revoke trust')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustRevokeCommand } = await import('./commands/trust/index.js');
+      await trustRevokeCommand(options);
+    });
+
+  cli
+    .command('trust delegate', 'Delegate trust')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustDelegateCommand } = await import('./commands/trust/index.js');
+      await trustDelegateCommand(options);
+    });
+
+  cli
+    .command('verify certification', 'Verify certification')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { verifyCertificationCommand } = await import('./commands/verify/index.js');
+      await verifyCertificationCommand(options);
+    });
+
+  cli
+    .command('transparency certification-log', 'Certification transparency log')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { transparencyCertificationLogCommand } = await import('./commands/transparency/index.js');
+      await transparencyCertificationLogCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
