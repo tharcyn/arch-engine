@@ -1,5 +1,5 @@
 import { computeFindingStructuralHash } from '../policy/normalizePolicyPackFinding.js';
-import type { NormalizedPolicyPackFinding } from '../policy/normalizePolicyPackFinding.js';
+import type { NormalizedPolicyPackFinding } from '../policy/PolicyPackFinding.js';
 
 export interface MergedFederatedFindings {
     readonly findings: readonly NormalizedPolicyPackFinding[];
@@ -27,10 +27,10 @@ export function mergeFederatedFindings(
                 const existing = uniqueFindings.get(hash)!;
                 // Merge provenance arrays
                 const mergedProviders = new Set(existing.providerProvenance);
-                if (finding.providerProvenance) finding.providerProvenance.forEach(p => mergedProviders.add(p));
+                if (finding.providerProvenance) finding.providerProvenance.forEach((p: string) => mergedProviders.add(p));
                 
                 const mergedDatasets = new Set(existing.datasetProvenance);
-                if (finding.datasetProvenance) finding.datasetProvenance.forEach(d => mergedDatasets.add(d));
+                if (finding.datasetProvenance) finding.datasetProvenance.forEach((d: string) => mergedDatasets.add(d));
 
                 (existing as any).providerProvenance = Array.from(mergedProviders).sort();
                 (existing as any).datasetProvenance = Array.from(mergedDatasets).sort();

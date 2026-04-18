@@ -250,6 +250,24 @@ export async function run() {
     });
 
   cli
+    .command('pack init <pack-id>', 'Scaffold a new policy pack directory')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packId, options) => {
+      const { packInitCommand } = await import('./commands/pack/init.js');
+      const exitCode = await packInitCommand(packId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('pack validate <pack-path>', 'Validate a policy pack against registry schemas')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packPath, options) => {
+      const { packValidateCommand } = await import('./commands/pack/validate.js');
+      const exitCode = await packValidateCommand(packPath, options);
+      process.exit(exitCode);
+    });
+
+  cli
     .command('bundle publish <bundle-path>', 'Publish a bundle to a registry catalog')
     .option('--json', 'Output report as strict JSON')
     .action(async (bundlePath, options) => {

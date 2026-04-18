@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackManifestTemplate",
+  "type": "object",
+  "properties": {
+    "policyPackId": { "type": "string" },
+    "policyPackVersion": { "type": "string" },
+    "supportedCapabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supportedDatasetSchemas": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supportedExecutionModes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "policyPackId",
+    "policyPackVersion",
+    "supportedCapabilities",
+    "supportedDatasetSchemas",
+    "supportedExecutionModes"
+  ],
+  "additionalProperties": false
+}

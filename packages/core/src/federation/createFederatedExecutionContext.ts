@@ -71,14 +71,14 @@ export function createFederatedExecutionContext(
     }
     const uniqueEdges = Array.from(edgeMap.values());
     
+    const federationExecutionHash = computeFederationExecutionHash(datasetIdentities, Object.keys(datasetCapabilityIntersection));
+    
     const mergedGraph: TopologyGraph = {
         nodes: uniqueNodes,
         edges: uniqueEdges,
-        graphSurfaceHash: ''
-    };
-    
-    const federationExecutionHash = computeFederationExecutionHash(datasetIdentities, Object.keys(datasetCapabilityIntersection));
-    mergedGraph.graphSurfaceHash = federationExecutionHash; 
+        graphSurfaceVersion: '1.0.0',
+        graphSurfaceHash: federationExecutionHash
+    }; 
 
     // We assume self-diff for the unified topology evaluation surface
     const diff = diffTopologyGraphs(mergedGraph, mergedGraph); 

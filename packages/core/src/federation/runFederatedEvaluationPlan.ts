@@ -6,7 +6,7 @@ import { mergeFederatedFindings } from './mergeFederatedFindings.js';
 import { PolicyPackRunner } from '../topology/PolicyPackRunner.js';
 import type { TopologyPolicyPack } from '../topology/TopologyPolicyPack.js';
 import type { FederatedTopologyExecutionContext } from './FederatedTopologyExecutionContext.js';
-import type { NormalizedPolicyPackFinding } from '../policy/normalizePolicyPackFinding.js';
+import type { NormalizedPolicyPackFinding } from '../policy/PolicyPackFinding.js';
 
 export interface FederatedEvaluationResult {
     readonly providers: readonly string[];
@@ -34,7 +34,7 @@ export function runFederatedEvaluationPlan(
         authorityScopeRegistry,
         surfaceConfidenceRegistry,
         trustBoundaryRules,
-        policyPacks
+        policyPacks as any[]
     );
     
     if (!matrix.federationCompatible) {

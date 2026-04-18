@@ -36,6 +36,6 @@ export function computeFederatedCapabilityMatrix(
         unionCapabilities,
         incompatibleCapabilities: [], // Extracted from diagnostics if needed, but not strictly exposed by assessPolicyPackExecutionCompatibility directly in a specific array
         federationCompatible: compat.overallStatus === 'compatible',
-        diagnostics: compat.violations || []
+        diagnostics: compat.findings.map((f: any) => `${f.code}: ${f.packId}`) || []
     };
 }
