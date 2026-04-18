@@ -8,6 +8,9 @@ import { ContinuousAssuranceRuntime, EvidenceFreshnessRuntime } from '../../../.
 import { SubmissionDriftDetector } from '../../../../continuous-assurance/src/drift/index.js';
 import { TemporalEvidenceReplayRuntime } from '../../../../continuous-assurance/src/replay/index.js';
 import { DecisionContextReconstructionRuntime } from '../../../../continuous-assurance/src/reconstruction/index.js';
+import { GovernanceAssuranceOrchestratorRuntime } from '../../../../assurance-orchestrator/src/index.js';
+import { EvidenceRegenerationRuntime } from '../../../../assurance-orchestrator/src/regeneration/index.js';
+import { CertificationRenewalRuntime } from '../../../../assurance-orchestrator/src/renewal/index.js';
 
 export async function assuranceCreateCommand(options: any) {
     const result = { status: AssuranceCaseRuntime.createAssurance() };
@@ -77,6 +80,24 @@ export async function assuranceReplayCommand(options: any) {
 
 export async function assuranceReconstructCommand(options: any) {
     const result = { status: DecisionContextReconstructionRuntime.reconstructDecision() };
+    if (options.json) console.log(JSON.stringify(result, null, 2));
+    else console.log(JSON.stringify(result, null, 2));
+}
+
+export async function assuranceOrchestrateCommand(options: any) {
+    const result = { status: GovernanceAssuranceOrchestratorRuntime.orchestrateAssurance() };
+    if (options.json) console.log(JSON.stringify(result, null, 2));
+    else console.log(JSON.stringify(result, null, 2));
+}
+
+export async function assuranceRegenerateCommand(options: any) {
+    const result = { status: EvidenceRegenerationRuntime.regenerateEvidence() };
+    if (options.json) console.log(JSON.stringify(result, null, 2));
+    else console.log(JSON.stringify(result, null, 2));
+}
+
+export async function assuranceRenewCertificationsCommand(options: any) {
+    const result = { status: CertificationRenewalRuntime.renewCertifications() };
     if (options.json) console.log(JSON.stringify(result, null, 2));
     else console.log(JSON.stringify(result, null, 2));
 }

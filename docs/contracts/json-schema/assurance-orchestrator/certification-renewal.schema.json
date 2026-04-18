@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CertificationRenewal",
+  "type": "object",
+  "properties": {
+    "renewalId": { "type": "string" }
+  },
+  "required": ["renewalId"]
+}

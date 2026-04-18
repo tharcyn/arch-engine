@@ -1999,6 +1999,38 @@ export async function run() {
     });
 
   cli
+    .command('assurance orchestrate', 'Orchestrate governance assurance')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceOrchestrateCommand } = await import('./commands/assurance/index.js');
+      await assuranceOrchestrateCommand(options);
+    });
+
+  cli
+    .command('assurance regenerate', 'Regenerate evidence')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceRegenerateCommand } = await import('./commands/assurance/index.js');
+      await assuranceRegenerateCommand(options);
+    });
+
+  cli
+    .command('assurance renew-certifications', 'Renew certifications')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { assuranceRenewCertificationsCommand } = await import('./commands/assurance/index.js');
+      await assuranceRenewCertificationsCommand(options);
+    });
+
+  cli
+    .command('agent maintain-assurance', 'Maintain evidence autonomy')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { agentMaintainAssuranceCommand } = await import('./commands/agent/index.js');
+      await agentMaintainAssuranceCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
