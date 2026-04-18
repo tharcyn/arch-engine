@@ -51,7 +51,7 @@ export class PolicyPackRunner {
           if (Array.isArray((rawResult as any).findings)) {
             diagnostics = (rawResult as any).findings.map((f: any) => {
               const nf = normalizePolicyPackFinding(f || {});
-              return { severity: nf.severity, message: nf.message, code: nf.code || 'UNKNOWN' };
+              return nf;
             });
           } else if (Array.isArray((rawResult as any).diagnostics)) {
             diagnostics = [...(rawResult as any).diagnostics];

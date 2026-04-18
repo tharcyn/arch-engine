@@ -513,3 +513,4 @@ export {
 export {
   extractTopologyGraphFromSnapshot,
 } from './topology/extractTopologyGraphFromSnapshot';
+export * from './federation/index.js';

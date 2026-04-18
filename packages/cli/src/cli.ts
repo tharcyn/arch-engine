@@ -87,6 +87,16 @@ export async function run() {
       await gitlabCreatePolicyMrCommand(args);
     });
 
+  // 8. Evaluate (Multi-Provider Federation)
+  cli
+    .command('evaluate', 'Execute multi-provider federated topology evaluation')
+    .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .action(async (options) => {
+      const { runFederatedEvaluationCommand } = await import('./runFederatedEvaluationCommand.js');
+      const exitCode = await runFederatedEvaluationCommand(options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {
