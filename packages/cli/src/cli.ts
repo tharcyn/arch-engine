@@ -671,6 +671,126 @@ export async function run() {
     });
 
   cli
+    .command('identity create', 'Create governance identity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { identityCreateCommand } = await import('./commands/identity/index.js');
+      await identityCreateCommand(options);
+    });
+
+  cli
+    .command('identity inspect', 'Inspect governance identity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { identityInspectCommand } = await import('./commands/identity/index.js');
+      await identityInspectCommand(options);
+    });
+
+  cli
+    .command('identity verify', 'Verify governance identity')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { identityVerifyCommand } = await import('./commands/identity/index.js');
+      await identityVerifyCommand(options);
+    });
+
+  cli
+    .command('pack sign', 'Sign policy pack')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { packSignCommand } = await import('./commands/pack/index.js');
+      await packSignCommand(options);
+    });
+
+  cli
+    .command('pack verify-signature', 'Verify policy pack signature')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { packVerifySignatureCommand } = await import('./commands/pack/index.js');
+      await packVerifySignatureCommand(options);
+    });
+
+  cli
+    .command('bundle verify-authority', 'Verify bundle authority certificate')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { bundleVerifyAuthorityCommand } = await import('./commands/bundle/verify-authority.js');
+      await bundleVerifyAuthorityCommand(options);
+    });
+
+  cli
+    .command('registry verify-authority', 'Verify registry trust anchor chain')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryVerifyAuthorityCommand } = await import('./commands/registry/verify-authority.js');
+      await registryVerifyAuthorityCommand(options);
+    });
+
+  cli
+    .command('trust graph', 'Resolve organization trust graph')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustGraphCommand } = await import('./commands/identity/index.js');
+      await trustGraphCommand(options);
+    });
+
+  cli
+    .command('marketplace list', 'List marketplace entries')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { marketplaceListCommand } = await import('./commands/marketplace/index.js');
+      await marketplaceListCommand(options);
+    });
+
+  cli
+    .command('marketplace inspect', 'Inspect marketplace entry')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { marketplaceInspectCommand } = await import('./commands/marketplace/index.js');
+      await marketplaceInspectCommand(options);
+    });
+
+  cli
+    .command('marketplace verified', 'List verified publishers and bundles')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { marketplaceVerifiedCommand } = await import('./commands/marketplace/index.js');
+      await marketplaceVerifiedCommand(options);
+    });
+
+  cli
+    .command('trust-score pack', 'Compute policy pack quality score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustScorePackCommand } = await import('./commands/reputation/index.js');
+      await trustScorePackCommand(options);
+    });
+
+  cli
+    .command('trust-score bundle', 'Compute bundle reliability score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustScoreBundleCommand } = await import('./commands/reputation/index.js');
+      await trustScoreBundleCommand(options);
+    });
+
+  cli
+    .command('trust-score registry', 'Compute registry credibility score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustScoreRegistryCommand } = await import('./commands/reputation/index.js');
+      await trustScoreRegistryCommand(options);
+    });
+
+  cli
+    .command('trust-score publisher', 'Compute publisher trust score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { trustScorePublisherCommand } = await import('./commands/reputation/index.js');
+      await trustScorePublisherCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

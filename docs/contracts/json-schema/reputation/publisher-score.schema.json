@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PublisherScore",
+  "type": "object",
+  "properties": {
+    "publisherTrustScore": { "type": "number" }
+  },
+  "required": ["publisherTrustScore"]
+}

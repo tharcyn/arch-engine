@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GovernanceIdentity",
+  "type": "object",
+  "properties": {
+    "publicKey": { "type": "string" },
+    "signatureAlgorithm": { "type": "string" },
+    "trustTier": { "type": "string" },
+    "issuerIdentity": { "type": "string" },
+    "validityWindow": { "type": "string" },
+    "revocationStatus": { "type": "string" }
+  },
+  "required": ["publicKey", "signatureAlgorithm", "trustTier", "issuerIdentity", "validityWindow", "revocationStatus"]
+}
