@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackCompatibilityResult",
+  "type": "object",
+  "properties": {
+    "eligible": {
+      "type": "array",
+      "items": { "$ref": "policy-pack-manifest.schema.json" }
+    },
+    "blocked": {
+      "type": "array",
+      "items": { "$ref": "policy-pack-manifest.schema.json" }
+    },
+    "blockingCapabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "blockingDatasets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "blockingExecutionModes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "eligible",
+    "blocked",
+    "blockingCapabilities",
+    "blockingDatasets",
+    "blockingExecutionModes"
+  ],
+  "additionalProperties": false
+}

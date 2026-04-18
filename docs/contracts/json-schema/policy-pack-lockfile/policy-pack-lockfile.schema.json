@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackLockfile",
+  "type": "object",
+  "properties": {
+    "lockfileVersion": { "type": "string", "enum": ["1"] },
+    "generatedAtExcludedFromHash": { "type": "string", "format": "date-time" },
+    "capabilityIntersectionHash": { "type": "string" },
+    "datasetCompatibilityHash": { "type": "string" },
+    "executionModeHash": { "type": "string" },
+    "federationExecutionHash": { "type": "string" },
+    "policyPacks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "policyPackId": { "type": "string" },
+          "resolvedVersion": { "type": "string" },
+          "manifestHash": { "type": "string" },
+          "dependencyHash": { "type": "string" },
+          "capabilityCompatibilityHash": { "type": "string" },
+          "datasetCompatibilityHash": { "type": "string" },
+          "executionModeCompatibilityHash": { "type": "string" }
+        },
+        "required": [
+          "policyPackId",
+          "resolvedVersion",
+          "manifestHash",
+          "dependencyHash",
+          "capabilityCompatibilityHash",
+          "datasetCompatibilityHash",
+          "executionModeCompatibilityHash"
+        ]
+      }
+    }
+  },
+  "required": [
+    "lockfileVersion",
+    "generatedAtExcludedFromHash",
+    "capabilityIntersectionHash",
+    "datasetCompatibilityHash",
+    "executionModeHash",
+    "federationExecutionHash",
+    "policyPacks"
+  ],
+  "additionalProperties": false
+}

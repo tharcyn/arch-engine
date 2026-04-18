@@ -514,3 +514,13 @@ export {
   extractTopologyGraphFromSnapshot,
 } from './topology/extractTopologyGraphFromSnapshot';
 export * from './federation/index.js';
+
+// --- Registry & Distribution ---
+export * from './policy-registry/PolicyPackManifest.js';
+export * from './policy-registry/PolicyPackRegistry.js';
+export * from './policy-registry/resolvePolicyPackCompatibility.js';
+export * from './policy-registry/resolveFederatedPolicyPackPlan.js';
+export * from './policy-registry/resolvePolicyPackVersions.js';
+export * from './policy-registry/resolvePolicyPackDependencyGraph.js';
+export * from './policy-registry/generatePolicyPackLockfile.js';
+export * from './policy-registry/verifyPolicyPackLockfileReplay.js';

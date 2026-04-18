@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FederatedPolicyPackExecutionPlan",
+  "type": "object",
+  "properties": {
+    "eligiblePolicyPacks": {
+      "type": "array",
+      "items": { "$ref": "policy-pack-manifest.schema.json" }
+    },
+    "blockedPolicyPacks": {
+      "type": "array",
+      "items": { "$ref": "policy-pack-manifest.schema.json" }
+    },
+    "capabilityIntersectionUsed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "selectionDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "eligiblePolicyPacks",
+    "blockedPolicyPacks",
+    "capabilityIntersectionUsed",
+    "selectionDiagnostics"
+  ],
+  "additionalProperties": false
+}

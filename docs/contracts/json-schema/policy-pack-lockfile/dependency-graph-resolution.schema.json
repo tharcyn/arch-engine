@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackDependencyGraphResolutionResult",
+  "type": "object",
+  "properties": {
+    "resolvedGraph": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "dependencyClosure": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "missingDependencies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "circularDependencies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "resolutionDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "resolvedGraph",
+    "dependencyClosure",
+    "conflicts",
+    "missingDependencies",
+    "circularDependencies",
+    "resolutionDiagnostics"
+  ],
+  "additionalProperties": false
+}

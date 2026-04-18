@@ -128,6 +128,62 @@ export async function run() {
       process.exit(exitCode);
     });
 
+  // 10. Registry Commands
+  cli
+    .command('registry list', 'List all registered policy packs')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryListCommand } = await import('./commands/registry/list.js');
+      const exitCode = await registryListCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry inspect <pack-id>', 'Inspect a registered policy pack manifest')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packId, options) => {
+      const { registryInspectCommand } = await import('./commands/registry/inspect.js');
+      const exitCode = await registryInspectCommand(packId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry resolve', 'Resolve compatible policy packs for a given federation configuration')
+    .option('--providers <...providers>', 'Providers to map capabilities against')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registryResolveCommand } = await import('./commands/registry/resolve.js');
+      const exitCode = await registryResolveCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry explain <pack-id>', 'Explain policy pack dependency resolution and constraints')
+    .option('--providers <...providers>', 'Providers to map capabilities against')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (packId, options) => {
+      const { registryExplainCommand } = await import('./commands/registry/explain.js');
+      const exitCode = await registryExplainCommand(packId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry lock', 'Generate a deterministic lockfile for the current registry state')
+    .option('--providers <...providers>', 'Providers to evaluate capabilities against')
+    .action(async (options) => {
+      const { registryLockCommand } = await import('./commands/registry/lock.js');
+      const exitCode = await registryLockCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry verify-lock', 'Verify an existing lockfile matches current registry state')
+    .action(async (options) => {
+      const { registryVerifyLockCommand } = await import('./commands/registry/verify-lock.js');
+      const exitCode = await registryVerifyLockCommand(options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {
