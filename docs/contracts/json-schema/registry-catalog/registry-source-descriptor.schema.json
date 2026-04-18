@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegistrySourceDescriptor",
+  "type": "object",
+  "properties": {
+    "registrySourceId": { "type": "string" },
+    "registrySourceType": {
+      "type": "string",
+      "enum": ["local", "filesystem-mirror", "remote-catalog", "offline-snapshot"]
+    },
+    "registrySourcePriority": { "type": "integer" },
+    "registryTrustLevel": {
+      "type": "string",
+      "enum": ["verified-internal", "verified-ecosystem", "unverified"]
+    },
+    "catalogLocation": { "type": "string" },
+    "catalogFormatVersion": { "type": "string" },
+    "signatureRequirement": {
+      "type": "string",
+      "enum": ["required", "optional", "none"]
+    }
+  },
+  "required": [
+    "registrySourceId",
+    "registrySourceType",
+    "registrySourcePriority",
+    "registryTrustLevel",
+    "catalogLocation",
+    "catalogFormatVersion",
+    "signatureRequirement"
+  ],
+  "additionalProperties": false
+}

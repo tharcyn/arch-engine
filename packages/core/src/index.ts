@@ -524,3 +524,11 @@ export * from './policy-registry/resolvePolicyPackVersions.js';
 export * from './policy-registry/resolvePolicyPackDependencyGraph.js';
 export * from './policy-registry/generatePolicyPackLockfile.js';
 export * from './policy-registry/verifyPolicyPackLockfileReplay.js';
+
+// --- Registry Sources ---
+export * from './policy-registry/RegistrySourceDescriptor.js';
+export * from './policy-registry/RegistryCatalogManifest.js';
+export * from './policy-registry/resolveRegistrySources.js';
+export * from './policy-registry/verifyRegistryCatalogSignature.js';
+export * from './policy-registry/resolveRegistryMirrorFallback.js';
+export * from './policy-registry/loadOfflineRegistrySnapshot.js';

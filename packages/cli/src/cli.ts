@@ -184,6 +184,34 @@ export async function run() {
       process.exit(exitCode);
     });
 
+  // 11. Registry Sources Commands
+  cli
+    .command('registry sources list', 'List all configured registry sources')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { registrySourcesListCommand } = await import('./commands/registry/sources/list.js');
+      const exitCode = await registrySourcesListCommand(options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry sources inspect <source-id>', 'Inspect a registry source configuration and catalog status')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (sourceId, options) => {
+      const { registrySourcesInspectCommand } = await import('./commands/registry/sources/inspect.js');
+      const exitCode = await registrySourcesInspectCommand(sourceId, options);
+      process.exit(exitCode);
+    });
+
+  cli
+    .command('registry sources verify <source-id>', 'Verify registry source catalog signature and schema compatibility')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (sourceId, options) => {
+      const { registrySourcesVerifyCommand } = await import('./commands/registry/sources/verify.js');
+      const exitCode = await registrySourcesVerifyCommand(sourceId, options);
+      process.exit(exitCode);
+    });
+
   // ─── Error Handling ────────────────────────────────────────
 
   cli.on('command:*', () => {

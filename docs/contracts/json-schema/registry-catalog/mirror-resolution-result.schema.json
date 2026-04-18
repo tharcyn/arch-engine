@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MirrorFallbackResolutionResult",
+  "type": "object",
+  "properties": {
+    "resolvedFromMirror": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "mirrorFallbackUsed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "mirrorConflicts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "mirrorDiagnostics": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "resolvedFromMirror",
+    "mirrorFallbackUsed",
+    "mirrorConflicts",
+    "mirrorDiagnostics"
+  ],
+  "additionalProperties": false
+}

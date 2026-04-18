@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegistryCatalogManifest",
+  "type": "object",
+  "properties": {
+    "catalogId": { "type": "string" },
+    "catalogVersion": { "type": "string" },
+    "catalogGeneratedAtExcludedFromHash": { "type": "string", "format": "date-time" },
+    "policyPacks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "policyPackId": { "type": "string" },
+          "availableVersions": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "manifestHashPerVersion": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "dependencyGraphHashPerVersion": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        },
+        "required": [
+          "policyPackId",
+          "availableVersions",
+          "manifestHashPerVersion",
+          "dependencyGraphHashPerVersion"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "catalogSignature": { "type": ["string", "null"] },
+    "catalogHash": { "type": "string" }
+  },
+  "required": [
+    "catalogId",
+    "catalogVersion",
+    "catalogGeneratedAtExcludedFromHash",
+    "policyPacks",
+    "catalogSignature",
+    "catalogHash"
+  ],
+  "additionalProperties": false
+}
