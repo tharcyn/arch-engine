@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DatasetEligibilityTrace",
+  "type": "object",
+  "properties": {
+    "traceStepId": { "type": "string" },
+    "traceType": { "type": "string", "const": "DATASET_ELIGIBILITY" },
+    "inputContextHash": { "type": "string" },
+    "decisionOutcome": { "type": "string" },
+    "decisionReason": { "type": "string" },
+    "schemaIntersectionResult": { "type": "string" }
+  },
+  "required": ["traceStepId", "traceType", "inputContextHash", "decisionOutcome", "decisionReason", "schemaIntersectionResult"]
+}

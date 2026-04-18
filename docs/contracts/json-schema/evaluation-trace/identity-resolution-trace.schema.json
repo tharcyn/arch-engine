@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IdentityResolutionTrace",
+  "type": "object",
+  "properties": {
+    "traceStepId": { "type": "string" },
+    "traceType": { "type": "string", "const": "IDENTITY_RESOLUTION" },
+    "inputContextHash": { "type": "string" },
+    "decisionOutcome": { "type": "string" },
+    "decisionReason": { "type": "string" },
+    "nodeId": { "type": "string" },
+    "collisionCategory": { "type": "string" },
+    "providerPrecedenceNeutrality": { "type": "boolean" },
+    "mergeJustification": { "type": "string" }
+  },
+  "required": ["traceStepId", "traceType", "inputContextHash", "decisionOutcome", "decisionReason", "nodeId", "collisionCategory", "providerPrecedenceNeutrality", "mergeJustification"]
+}

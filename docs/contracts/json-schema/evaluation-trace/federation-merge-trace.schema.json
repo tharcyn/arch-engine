@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FederationMergeTrace",
+  "type": "object",
+  "properties": {
+    "traceStepId": { "type": "string" },
+    "traceType": { "type": "string", "const": "FEDERATION_MERGE" },
+    "inputContextHash": { "type": "string" },
+    "decisionOutcome": { "type": "string" },
+    "decisionReason": { "type": "string" },
+    "deduplicationReason": { "type": "string" }
+  },
+  "required": ["traceStepId", "traceType", "inputContextHash", "decisionOutcome", "decisionReason", "deduplicationReason"]
+}

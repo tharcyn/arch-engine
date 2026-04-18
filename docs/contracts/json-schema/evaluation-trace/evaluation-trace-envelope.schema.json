@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvaluationTraceEnvelope",
+  "type": "object",
+  "properties": {
+    "traces": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "traceHash": { "type": "string" }
+  },
+  "required": ["traces", "traceHash"]
+}

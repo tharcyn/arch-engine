@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RuleActivationTrace",
+  "type": "object",
+  "properties": {
+    "traceStepId": { "type": "string" },
+    "traceType": { "type": "string", "const": "RULE_ACTIVATION" },
+    "inputContextHash": { "type": "string" },
+    "decisionOutcome": { "type": "string" },
+    "decisionReason": { "type": "string" },
+    "ruleId": { "type": "string" },
+    "packId": { "type": "string" },
+    "activationDecision": { "type": "string" }
+  },
+  "required": ["traceStepId", "traceType", "inputContextHash", "decisionOutcome", "decisionReason", "ruleId", "packId", "activationDecision"]
+}

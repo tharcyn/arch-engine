@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GateEvaluationResult",
+  "type": "object",
+  "properties": {
+    "passed": { "type": "boolean" },
+    "exitCode": { "type": "number" },
+    "findingsDetected": { "type": "number" },
+    "identityCollisionsUnresolved": { "type": "number" },
+    "capabilityIntersectionFailures": { "type": "number" },
+    "datasetCompatibilityFailures": { "type": "number" },
+    "registryTrustViolations": { "type": "number" },
+    "bundleSignatureViolations": { "type": "number" },
+    "lockfileDriftDetected": { "type": "boolean" }
+  },
+  "required": ["passed", "exitCode", "findingsDetected", "identityCollisionsUnresolved", "capabilityIntersectionFailures", "datasetCompatibilityFailures", "registryTrustViolations", "bundleSignatureViolations", "lockfileDriftDetected"]
+}

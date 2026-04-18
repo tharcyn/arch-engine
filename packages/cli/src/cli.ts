@@ -365,7 +365,69 @@ export async function run() {
     .option('--json', 'Output report as strict JSON')
     .action(async (bundlePath, options) => {
       const { bundlePublishCommand } = await import('./commands/bundle/publish.js');
-      const exitCode = await bundlePublishCommand(bundlePath, options);
+      await bundlePublishCommand(bundlePath, options);
+    });
+
+  cli
+    .command('evaluate explain-capability <capability-id>', 'Explain capability gating trace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (capabilityId, options) => {
+      const { explainCapabilityCommand } = await import('./commands/evaluate/explain.js');
+      await explainCapabilityCommand(capabilityId, options);
+    });
+
+  cli
+    .command('evaluate explain-dataset <schema-id>', 'Explain dataset eligibility trace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (schemaId, options) => {
+      const { explainDatasetCommand } = await import('./commands/evaluate/explain.js');
+      await explainDatasetCommand(schemaId, options);
+    });
+
+  cli
+    .command('evaluate explain-identity <node-id>', 'Explain identity resolution trace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (nodeId, options) => {
+      const { explainIdentityCommand } = await import('./commands/evaluate/explain.js');
+      await explainIdentityCommand(nodeId, options);
+    });
+
+  cli
+    .command('evaluate explain-finding <finding-id>', 'Explain finding generation trace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (findingId, options) => {
+      const { explainFindingCommand } = await import('./commands/evaluate/explain.js');
+      await explainFindingCommand(findingId, options);
+    });
+
+  cli
+    .command('evaluate explain-merge', 'Explain federation merge trace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { explainMergeCommand } = await import('./commands/evaluate/explain.js');
+      await explainMergeCommand(options);
+    });
+
+  cli
+    .command('evaluate trace', 'Execute evaluation and output trace')
+    .option('--providers <providers...>', 'List of providers')
+    .option('--packs <packs...>', 'List of policy packs')
+    .option('--json', 'Output report as strict JSON')
+    .option('--mermaid', 'Output as Mermaid diagram')
+    .action(async (options) => {
+      const { evaluateTraceCommand } = await import('./commands/evaluate/explain.js');
+      await evaluateTraceCommand(options);
+    });
+
+  cli
+    .command('gate evaluate', 'CI enforcement gate mode for evaluation')
+    .option('--providers <providers...>', 'List of providers')
+    .option('--packs <packs...>', 'List of policy packs')
+    .option('--fail-on <expression>', 'Severity threshold expression (e.g. severity>=high)')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { gateEvaluateCommand } = await import('./commands/gate/evaluate.js');
+      const exitCode = await gateEvaluateCommand(options);
       process.exit(exitCode);
     });
 

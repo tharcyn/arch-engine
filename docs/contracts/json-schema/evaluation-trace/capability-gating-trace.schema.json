@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityGatingTrace",
+  "type": "object",
+  "properties": {
+    "traceStepId": { "type": "string" },
+    "traceType": { "type": "string", "const": "CAPABILITY_GATING" },
+    "inputContextHash": { "type": "string" },
+    "decisionOutcome": { "type": "string" },
+    "decisionReason": { "type": "string" },
+    "requestedCapability": { "type": "string" },
+    "intersectionResult": { "type": "string" }
+  },
+  "required": ["traceStepId", "traceType", "inputContextHash", "decisionOutcome", "decisionReason", "requestedCapability", "intersectionResult"]
+}
