@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityGap",
+  "type": "object",
+  "properties": {
+    "gapId": { "type": "string" }
+  },
+  "required": ["gapId"]
+}

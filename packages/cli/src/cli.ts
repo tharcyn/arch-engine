@@ -1263,6 +1263,62 @@ export async function run() {
     });
 
   cli
+    .command('dataset exchange publish', 'Publish dataset')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { datasetExchangePublishCommand } = await import('./commands/dataset/index.js');
+      await datasetExchangePublishCommand(options);
+    });
+
+  cli
+    .command('dataset exchange subscribe', 'Subscribe dataset')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { datasetExchangeSubscribeCommand } = await import('./commands/dataset/index.js');
+      await datasetExchangeSubscribeCommand(options);
+    });
+
+  cli
+    .command('dataset learning aggregate', 'Aggregate federated learning')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { datasetLearningAggregateCommand } = await import('./commands/dataset/index.js');
+      await datasetLearningAggregateCommand(options);
+    });
+
+  cli
+    .command('dataset benchmark aggregate', 'Aggregate benchmark')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { datasetBenchmarkAggregateCommand } = await import('./commands/dataset/index.js');
+      await datasetBenchmarkAggregateCommand(options);
+    });
+
+  cli
+    .command('maturity score', 'Compute maturity score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { maturityScoreCommand } = await import('./commands/maturity/index.js');
+      await maturityScoreCommand(options);
+    });
+
+  cli
+    .command('maturity explain', 'Explain maturity score')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { maturityExplainCommand } = await import('./commands/maturity/index.js');
+      await maturityExplainCommand(options);
+    });
+
+  cli
+    .command('maturity gaps', 'Analyze capability gaps')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { maturityGapsCommand } = await import('./commands/maturity/index.js');
+      await maturityGapsCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
