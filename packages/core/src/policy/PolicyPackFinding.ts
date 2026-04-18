@@ -17,6 +17,10 @@ export interface PolicyPackFinding {
     readonly policyPackId?: string;
     readonly policyRuleId?: string;
     readonly evaluationMode?: string;
+    
+    // Federation Phase
+    readonly providerProvenance?: readonly string[];
+    readonly datasetProvenance?: readonly string[];
 
     /** @deprecated Use taxonomyRepaired instead */
     readonly _taxonomyRepaired?: boolean;

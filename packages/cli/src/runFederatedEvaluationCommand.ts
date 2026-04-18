@@ -27,6 +27,22 @@ export async function runFederatedEvaluationCommand(options: any): Promise<numbe
         console.log(`Federation Execution Hash: ${result.federationExecutionHash}`);
         console.log(`Merged Findings Count: ${result.mergedFindings.length}`);
         
+        if (options.showProvenance) {
+            console.log('\n--- Federation Provenance Report ---');
+            console.log(`Participating Providers: ${result.providers.join(', ')}`);
+            if (result.compatibilityDiagnostics.length > 0) {
+                console.log('Compatibility Constraints:');
+                result.compatibilityDiagnostics.forEach(d => console.log(` - ${d}`));
+            }
+            
+            console.log('\nMerged Findings Provenance:');
+            result.mergedFindings.forEach((f: any, idx) => {
+                console.log(`[${idx + 1}] ${f.code}: ${f.message}`);
+                console.log(`    Contributors: ${(f.providerProvenance || []).join(', ')}`);
+            });
+            console.log('------------------------------------\n');
+        }
+
         if (options.json) {
             console.log(JSON.stringify(result, null, 2));
         }

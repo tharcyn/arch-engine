@@ -18,7 +18,22 @@ export function mergeFederatedFindings(
             totalFindings++;
             const hash = computeFindingStructuralHash(finding);
             if (!uniqueFindings.has(hash)) {
-                uniqueFindings.set(hash, finding);
+                // Initialize the finding with empty arrays if not present
+                const initialFinding = { ...finding };
+                if (!initialFinding.providerProvenance) (initialFinding as any).providerProvenance = [];
+                if (!initialFinding.datasetProvenance) (initialFinding as any).datasetProvenance = [];
+                uniqueFindings.set(hash, initialFinding);
+            } else {
+                const existing = uniqueFindings.get(hash)!;
+                // Merge provenance arrays
+                const mergedProviders = new Set(existing.providerProvenance);
+                if (finding.providerProvenance) finding.providerProvenance.forEach(p => mergedProviders.add(p));
+                
+                const mergedDatasets = new Set(existing.datasetProvenance);
+                if (finding.datasetProvenance) finding.datasetProvenance.forEach(d => mergedDatasets.add(d));
+
+                (existing as any).providerProvenance = Array.from(mergedProviders).sort();
+                (existing as any).datasetProvenance = Array.from(mergedDatasets).sort();
             }
         }
     }

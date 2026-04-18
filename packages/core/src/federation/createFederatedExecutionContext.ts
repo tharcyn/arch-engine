@@ -31,11 +31,11 @@ export function createFederatedExecutionContext(
         const view = projectValidatedDatasetToValidatorView(ds);
         const graph = extractTopologyGraph(view);
         
-        allNodes.push(...graph.nodes);
-        allEdges.push(...graph.edges);
-        
         const extracted = extractLockfileDatasetIdentity(ds as any);
         const identityHash = datasetIdentityHashes[i];
+
+        allNodes.push(...graph.nodes.map(n => ({ node: n, providerId, datasetHash: identityHash })));
+        allEdges.push(...graph.edges.map(e => ({ edge: e, providerId, datasetHash: identityHash })));
         
         providers.push({
             providerId,
@@ -47,9 +47,29 @@ export function createFederatedExecutionContext(
         datasetIdentities.push(identityHash);
     }
     
-    // De-dup nodes and edges
-    const uniqueNodes = Array.from(new Map(allNodes.map(n => [n.id, n])).values());
-    const uniqueEdges = Array.from(new Map(allEdges.map(e => [`${e.sourceId}->${e.targetId}`, e])).values());
+    // De-dup nodes and edges and aggregate provenance
+    const nodeMap = new Map<string, any>();
+    for (const { node, providerId, datasetHash } of allNodes) {
+        if (!nodeMap.has(node.id)) {
+            nodeMap.set(node.id, { ...node, providerProvenance: [], datasetProvenance: [] });
+        }
+        const existing = nodeMap.get(node.id);
+        if (!existing.providerProvenance.includes(providerId)) existing.providerProvenance.push(providerId);
+        if (!existing.datasetProvenance.includes(datasetHash)) existing.datasetProvenance.push(datasetHash);
+    }
+    const uniqueNodes = Array.from(nodeMap.values());
+
+    const edgeMap = new Map<string, any>();
+    for (const { edge, providerId, datasetHash } of allEdges) {
+        const key = `${edge.sourceId}->${edge.targetId}`;
+        if (!edgeMap.has(key)) {
+            edgeMap.set(key, { ...edge, providerProvenance: [], datasetProvenance: [] });
+        }
+        const existing = edgeMap.get(key);
+        if (!existing.providerProvenance.includes(providerId)) existing.providerProvenance.push(providerId);
+        if (!existing.datasetProvenance.includes(datasetHash)) existing.datasetProvenance.push(datasetHash);
+    }
+    const uniqueEdges = Array.from(edgeMap.values());
     
     const mergedGraph: TopologyGraph = {
         nodes: uniqueNodes,

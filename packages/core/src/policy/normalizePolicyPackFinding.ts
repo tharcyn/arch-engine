@@ -19,7 +19,9 @@ export function normalizePolicyPackFinding(finding: PolicyPackFinding): Normaliz
         mutationClass: finding.mutationClass,
         policyPackId: finding.policyPackId,
         policyRuleId: finding.policyRuleId,
-        evaluationMode: finding.evaluationMode
+        evaluationMode: finding.evaluationMode,
+        providerProvenance: finding.providerProvenance,
+        datasetProvenance: finding.datasetProvenance
     };
 
     const isRepaired = codeResult.taxonomyRepaired || finding._taxonomyRepaired === true;

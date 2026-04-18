@@ -91,6 +91,7 @@ export async function run() {
   cli
     .command('evaluate', 'Execute multi-provider federated topology evaluation')
     .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .option('--show-provenance', 'Output a detailed provenance and contribution report')
     .action(async (options) => {
       const { runFederatedEvaluationCommand } = await import('./runFederatedEvaluationCommand.js');
       const exitCode = await runFederatedEvaluationCommand(options);
