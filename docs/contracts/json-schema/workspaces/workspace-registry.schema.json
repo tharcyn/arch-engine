@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WorkspaceRegistry",
+  "type": "object",
+  "properties": {
+    "workspaceRegistryOverlay": { "type": "array", "items": { "type": "string" } },
+    "tenantRegistryPriority": { "type": "string" },
+    "overlayTrustTier": { "type": "string" }
+  },
+  "required": ["workspaceRegistryOverlay", "tenantRegistryPriority", "overlayTrustTier"]
+}

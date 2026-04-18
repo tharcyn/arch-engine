@@ -791,6 +791,110 @@ export async function run() {
     });
 
   cli
+    .command('workspace create', 'Create multi-tenant workspace')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceCreateCommand } = await import('./commands/workspace/index.js');
+      await workspaceCreateCommand(options);
+    });
+
+  cli
+    .command('workspace list', 'List workspaces')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceListCommand } = await import('./commands/workspace/index.js');
+      await workspaceListCommand(options);
+    });
+
+  cli
+    .command('workspace inspect', 'Inspect workspace overlay')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceInspectCommand } = await import('./commands/workspace/index.js');
+      await workspaceInspectCommand(options);
+    });
+
+  cli
+    .command('workspace registry list', 'List tenant-scoped registry overlay sources')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceRegistryListCommand } = await import('./commands/workspace/index.js');
+      await workspaceRegistryListCommand(options);
+    });
+
+  cli
+    .command('workspace trust list', 'List tenant-scoped trust anchors')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceTrustListCommand } = await import('./commands/workspace/index.js');
+      await workspaceTrustListCommand(options);
+    });
+
+  cli
+    .command('workspace bundle promote', 'Promote bundle in isolated workspace scope')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workspaceBundlePromoteCommand } = await import('./commands/workspace/index.js');
+      await workspaceBundlePromoteCommand(options);
+    });
+
+  cli
+    .command('sandbox evaluate', 'Execute pack sandboxed')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { sandboxEvaluateCommand } = await import('./commands/sandbox/index.js');
+      await sandboxEvaluateCommand(options);
+    });
+
+  cli
+    .command('sandbox simulate', 'Simulate pack sandboxed')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { sandboxSimulateCommand } = await import('./commands/sandbox/index.js');
+      await sandboxSimulateCommand(options);
+    });
+
+  cli
+    .command('sandbox simulate topology-change', 'Simulate topology-change sandboxed')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { sandboxSimulateTopologyChangeCommand } = await import('./commands/sandbox/index.js');
+      await sandboxSimulateTopologyChangeCommand(options);
+    });
+
+  cli
+    .command('cost evaluate', 'Estimate policy execution cost')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { costEvaluateCommand } = await import('./commands/cost/index.js');
+      await costEvaluateCommand(options);
+    });
+
+  cli
+    .command('cost federation', 'Estimate federation merge cost')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { costFederationCommand } = await import('./commands/cost/index.js');
+      await costFederationCommand(options);
+    });
+
+  cli
+    .command('cost simulation', 'Estimate remote simulation cost')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { costSimulationCommand } = await import('./commands/cost/index.js');
+      await costSimulationCommand(options);
+    });
+
+  cli
+    .command('profile evaluate', 'Profile evaluation runtime')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { profileEvaluateCommand } = await import('./commands/profile/index.js');
+      await profileEvaluateCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')

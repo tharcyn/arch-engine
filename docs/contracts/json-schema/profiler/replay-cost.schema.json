@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReplayCost",
+  "type": "object",
+  "properties": {
+    "estimatedCost": { "type": "number" }
+  },
+  "required": ["estimatedCost"]
+}
