@@ -101,6 +101,7 @@ export async function run() {
   // 9. Federation Inspection Surface
   cli
     .command('federation doctor', 'Diagnose multi-provider federation readiness')
+    .option('--json', 'Output report as strict JSON')
     .action(async (options) => {
       const { federationDoctorCommand } = await import('./commands/federationDoctor.js');
       const exitCode = await federationDoctorCommand(options);
@@ -110,6 +111,7 @@ export async function run() {
   cli
     .command('federation inspect', 'Inspect merged federated topology and capability matrices without running evaluations')
     .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .option('--json', 'Output report as strict JSON')
     .action(async (options) => {
       const { federationInspectCommand } = await import('./commands/federationInspect.js');
       const exitCode = await federationInspectCommand(options);
@@ -119,6 +121,7 @@ export async function run() {
   cli
     .command('federation explain', 'Explain provider contribution, capability intersection, and finding provenance')
     .option('--providers <...providers>', 'Providers to ingest (e.g. github gitlab)')
+    .option('--json', 'Output report as strict JSON')
     .action(async (options) => {
       const { federationExplainCommand } = await import('./commands/federationExplain.js');
       const exitCode = await federationExplainCommand(options);
