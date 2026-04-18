@@ -1319,6 +1319,78 @@ export async function run() {
     });
 
   cli
+    .command('ledger append', 'Append ledger')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ledgerAppendCommand } = await import('./commands/ledger/index.js');
+      await ledgerAppendCommand(options);
+    });
+
+  cli
+    .command('ledger inspect', 'Inspect ledger')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ledgerInspectCommand } = await import('./commands/ledger/index.js');
+      await ledgerInspectCommand(options);
+    });
+
+  cli
+    .command('ledger prove execution', 'Prove execution')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ledgerProveExecutionCommand } = await import('./commands/ledger/index.js');
+      await ledgerProveExecutionCommand(options);
+    });
+
+  cli
+    .command('attest decision', 'Attest decision')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { attestDecisionCommand } = await import('./commands/ledger/index.js');
+      await attestDecisionCommand(options);
+    });
+
+  cli
+    .command('notarize fingerprint', 'Notarize fingerprint')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { notarizeFingerprintCommand } = await import('./commands/ledger/index.js');
+      await notarizeFingerprintCommand(options);
+    });
+
+  cli
+    .command('ledger campaign-lineage', 'Campaign lineage')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { ledgerCampaignLineageCommand } = await import('./commands/ledger/index.js');
+      await ledgerCampaignLineageCommand(options);
+    });
+
+  cli
+    .command('transparency explore bundle', 'Explore bundle transparency')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { transparencyExploreBundleCommand } = await import('./commands/transparency/index.js');
+      await transparencyExploreBundleCommand(options);
+    });
+
+  cli
+    .command('transparency explore policy', 'Explore policy transparency')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { transparencyExplorePolicyCommand } = await import('./commands/transparency/index.js');
+      await transparencyExplorePolicyCommand(options);
+    });
+
+  cli
+    .command('transparency explore campaign', 'Explore campaign transparency')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { transparencyExploreCampaignCommand } = await import('./commands/transparency/index.js');
+      await transparencyExploreCampaignCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
