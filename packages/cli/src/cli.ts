@@ -2537,6 +2537,62 @@ export async function run() {
     });
 
   cli
+    .command('foundation inspect', 'Inspect foundation descriptor')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationInspectCommand } = await import('./commands/foundation/index.js');
+      await foundationInspectCommand(options);
+    });
+
+  cli
+    .command('foundation governance-model', 'Inspect foundation governance model')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationGovernanceModelCommand } = await import('./commands/foundation/index.js');
+      await foundationGovernanceModelCommand(options);
+    });
+
+  cli
+    .command('foundation working-groups', 'List working groups')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationWorkingGroupsCommand } = await import('./commands/foundation/index.js');
+      await foundationWorkingGroupsCommand(options);
+    });
+
+  cli
+    .command('foundation extension-propose', 'Propose an extension')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationExtensionProposeCommand } = await import('./commands/foundation/index.js');
+      await foundationExtensionProposeCommand(options);
+    });
+
+  cli
+    .command('foundation extension-status', 'Check extension status')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationExtensionStatusCommand } = await import('./commands/foundation/index.js');
+      await foundationExtensionStatusCommand(options);
+    });
+
+  cli
+    .command('foundation registry-bootstrap', 'Bootstrap registry authority')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationRegistryBootstrapCommand } = await import('./commands/foundation/index.js');
+      await foundationRegistryBootstrapCommand(options);
+    });
+
+  cli
+    .command('foundation spec-lifecycle', 'Inspect spec lifecycle')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { foundationSpecLifecycleCommand } = await import('./commands/foundation/index.js');
+      await foundationSpecLifecycleCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
