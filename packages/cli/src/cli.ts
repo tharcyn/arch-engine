@@ -1095,6 +1095,102 @@ export async function run() {
     });
 
   cli
+    .command('workflow start', 'Start governance workflow')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workflowStartCommand } = await import('./commands/workflow/index.js');
+      await workflowStartCommand(options);
+    });
+
+  cli
+    .command('workflow list', 'List governance workflows')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workflowListCommand } = await import('./commands/workflow/index.js');
+      await workflowListCommand(options);
+    });
+
+  cli
+    .command('workflow inspect', 'Inspect governance workflow')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workflowInspectCommand } = await import('./commands/workflow/index.js');
+      await workflowInspectCommand(options);
+    });
+
+  cli
+    .command('workflow plan', 'Plan governance workflow DAG')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workflowPlanCommand } = await import('./commands/workflow/index.js');
+      await workflowPlanCommand(options);
+    });
+
+  cli
+    .command('workflow trigger list', 'List event triggers')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { workflowTriggerListCommand } = await import('./commands/workflow/index.js');
+      await workflowTriggerListCommand(options);
+    });
+
+  cli
+    .command('app install', 'Install policy app')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { appInstallCommand } = await import('./commands/app/index.js');
+      await appInstallCommand(options);
+    });
+
+  cli
+    .command('app run', 'Run policy app')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { appRunCommand } = await import('./commands/app/index.js');
+      await appRunCommand(options);
+    });
+
+  cli
+    .command('app inspect', 'Inspect policy app')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { appInspectCommand } = await import('./commands/app/index.js');
+      await appInspectCommand(options);
+    });
+
+  cli
+    .command('operator init', 'Init governance operator')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { operatorInitCommand } = await import('./commands/operator/index.js');
+      await operatorInitCommand(options);
+    });
+
+  cli
+    .command('operator validate', 'Validate governance operator')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { operatorValidateCommand } = await import('./commands/operator/index.js');
+      await operatorValidateCommand(options);
+    });
+
+  cli
+    .command('operator publish', 'Publish governance operator')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { operatorPublishCommand } = await import('./commands/operator/index.js');
+      await operatorPublishCommand(options);
+    });
+
+  cli
+    .command('simulate workflow', 'Simulate workflow execution')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { simulateWorkflowCommand } = await import('./commands/workflow/index.js');
+      await simulateWorkflowCommand(options);
+    });
+
+  cli
     .command('gate evaluate', 'CI enforcement gate mode for evaluation')
     .option('--providers <providers...>', 'List of providers')
     .option('--packs <packs...>', 'List of policy packs')
