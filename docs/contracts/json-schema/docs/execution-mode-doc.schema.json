@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutionModeDoc",
+  "type": "object",
+  "properties": {
+    "modeId": { "type": "string" },
+    "modeDescription": { "type": "string" },
+    "providerCompatibilityRules": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "federationEligibility": { "type": "boolean" },
+    "bundleCompatibility": { "type": "boolean" },
+    "offlineCompatibility": { "type": "boolean" },
+    "lockfileCompatibility": { "type": "boolean" },
+    "datasetCompatibilityExpectations": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "modeId",
+    "modeDescription",
+    "providerCompatibilityRules",
+    "federationEligibility",
+    "bundleCompatibility",
+    "offlineCompatibility",
+    "lockfileCompatibility",
+    "datasetCompatibilityExpectations"
+  ]
+}

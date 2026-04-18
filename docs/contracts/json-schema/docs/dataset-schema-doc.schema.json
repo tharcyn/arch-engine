@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DatasetSchemaDoc",
+  "type": "object",
+  "properties": {
+    "schemaId": { "type": "string" },
+    "schemaVersion": { "type": "string" },
+    "requiredTopologyNodes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "requiredTopologyEdges": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "compatibilityWithPolicyPackCapabilitySurfaces": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "federationMergeSemantics": { "type": "string" },
+    "identityResolutionBehavior": { "type": "string" }
+  },
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "requiredTopologyNodes",
+    "requiredTopologyEdges",
+    "compatibilityWithPolicyPackCapabilitySurfaces",
+    "federationMergeSemantics",
+    "identityResolutionBehavior"
+  ]
+}

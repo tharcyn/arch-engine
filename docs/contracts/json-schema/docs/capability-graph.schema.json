@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CapabilityGraph",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "target": { "type": "string" }
+        },
+        "required": ["source", "target"]
+      }
+    },
+    "capabilityDependencies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "capabilityIntersections": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "datasetRequirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "executionModeEligibility": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "policyPackProviders": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "nodes",
+    "edges",
+    "capabilityDependencies",
+    "capabilityIntersections",
+    "datasetRequirements",
+    "executionModeEligibility",
+    "policyPackProviders"
+  ]
+}

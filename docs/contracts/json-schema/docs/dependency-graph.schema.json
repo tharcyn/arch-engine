@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DependencyGraph",
+  "type": "object",
+  "properties": {
+    "packId": { "type": "string" },
+    "dependencyGraph": { "type": "object" },
+    "optionalDependencyGraph": { "type": "object" },
+    "conflictGraph": { "type": "object" },
+    "resolutionOrder": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lockfileClosureMapping": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "required": [
+    "packId",
+    "dependencyGraph",
+    "optionalDependencyGraph",
+    "conflictGraph",
+    "resolutionOrder",
+    "lockfileClosureMapping"
+  ]
+}

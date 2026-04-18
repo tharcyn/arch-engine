@@ -268,6 +268,99 @@ export async function run() {
     });
 
   cli
+    .command('capability list', 'List available capabilities')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { capabilityListCommand } = await import('./commands/docs/capability.js');
+      await capabilityListCommand(options);
+    });
+
+  cli
+    .command('capability explain <capability-id>', 'Explain a specific capability')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (capabilityId, options) => {
+      const { capabilityExplainCommand } = await import('./commands/docs/capability.js');
+      await capabilityExplainCommand(capabilityId, options);
+    });
+
+  cli
+    .command('dataset-schemas list', 'List available dataset schemas')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { datasetSchemasListCommand } = await import('./commands/docs/dataset.js');
+      await datasetSchemasListCommand(options);
+    });
+
+  cli
+    .command('dataset-schemas explain <schema-id>', 'Explain a dataset schema')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (schemaId, options) => {
+      const { datasetSchemasExplainCommand } = await import('./commands/docs/dataset.js');
+      await datasetSchemasExplainCommand(schemaId, options);
+    });
+
+  cli
+    .command('execution-modes list', 'List execution modes')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (options) => {
+      const { executionModesListCommand } = await import('./commands/docs/executionMode.js');
+      await executionModesListCommand(options);
+    });
+
+  cli
+    .command('execution-modes explain <mode-id>', 'Explain an execution mode')
+    .option('--json', 'Output report as strict JSON')
+    .action(async (modeId, options) => {
+      const { executionModesExplainCommand } = await import('./commands/docs/executionMode.js');
+      await executionModesExplainCommand(modeId, options);
+    });
+
+  cli
+    .command('pack docs <pack-id>', 'Generate policy pack documentation')
+    .option('--json', 'Output report as strict JSON')
+    .option('--markdown', 'Output as Markdown')
+    .action(async (packId, options) => {
+      const { packDocsCommand } = await import('./commands/docs/pack.js');
+      await packDocsCommand(packId, options);
+    });
+
+  cli
+    .command('bundle docs <bundle-path>', 'Generate bundle documentation')
+    .option('--json', 'Output report as strict JSON')
+    .option('--markdown', 'Output as Markdown')
+    .action(async (bundlePath, options) => {
+      const { bundleDocsCommand } = await import('./commands/docs/bundle.js');
+      await bundleDocsCommand(bundlePath, options);
+    });
+
+  cli
+    .command('registry docs [pack-id]', 'Generate registry documentation')
+    .option('--json', 'Output report as strict JSON')
+    .option('--markdown', 'Output as Markdown')
+    .action(async (packId, options) => {
+      const { registryDocsCommand } = await import('./commands/docs/registry.js');
+      await registryDocsCommand(packId, options);
+    });
+
+  cli
+    .command('capability graph', 'Generate capability compatibility graph')
+    .option('--json', 'Output report as strict JSON')
+    .option('--mermaid', 'Output as Mermaid diagram')
+    .action(async (options) => {
+      const { capabilityGraphCommand } = await import('./commands/docs/capabilityGraph.js');
+      await capabilityGraphCommand(options);
+    });
+
+  cli
+    .command('pack graph <pack-id>', 'Generate policy pack dependency graph')
+    .option('--json', 'Output report as strict JSON')
+    .option('--mermaid', 'Output as Mermaid diagram')
+    .action(async (packId, options) => {
+      const { packGraphCommand } = await import('./commands/docs/packGraph.js');
+      await packGraphCommand(packId, options);
+    });
+
+  cli
     .command('bundle publish <bundle-path>', 'Publish a bundle to a registry catalog')
     .option('--json', 'Output report as strict JSON')
     .action(async (bundlePath, options) => {

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BundleDoc",
+  "type": "object",
+  "properties": {
+    "bundlePath": { "type": "string" },
+    "includedPolicyPacks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "capabilitySnapshotHash": { "type": "string" },
+    "datasetCompatibilitySnapshotHash": { "type": "string" },
+    "executionModeSnapshotHash": { "type": "string" },
+    "dependencyClosureGraph": { "type": "object" },
+    "promotionEligibility": { "type": "string" },
+    "registryCompatibilityEligibility": { "type": "boolean" },
+    "signerIdentity": { "type": "string" },
+    "sourceCatalogLineage": { "type": "string" },
+    "lockfileCompatibilityStatus": { "type": "string" }
+  },
+  "required": [
+    "bundlePath",
+    "includedPolicyPacks",
+    "capabilitySnapshotHash",
+    "datasetCompatibilitySnapshotHash",
+    "executionModeSnapshotHash",
+    "dependencyClosureGraph",
+    "promotionEligibility",
+    "registryCompatibilityEligibility",
+    "signerIdentity",
+    "sourceCatalogLineage",
+    "lockfileCompatibilityStatus"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegistryDoc",
+  "type": "object",
+  "properties": {
+    "packId": { "type": "string" },
+    "availableVersions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "semverResolutionSurfaces": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "capabilityCompatibilitySurfaces": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "datasetCompatibilityMatrices": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "executionModeCompatibilityMatrices": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dependencyClosurePreviews": { "type": "object" },
+    "promotionLadderEligibility": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "trustTierClassification": { "type": "string" },
+    "mirrorAvailability": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "availableVersions",
+    "semverResolutionSurfaces",
+    "capabilityCompatibilitySurfaces",
+    "datasetCompatibilityMatrices",
+    "executionModeCompatibilityMatrices",
+    "dependencyClosurePreviews",
+    "promotionLadderEligibility",
+    "trustTierClassification",
+    "mirrorAvailability"
+  ]
+}

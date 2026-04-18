@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PolicyPackDoc",
+  "type": "object",
+  "properties": {
+    "packId": { "type": "string" },
+    "manifestSummary": { "type": "string" },
+    "capabilityRequirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "datasetCompatibility": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "executionModeCompatibility": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dependencyClosureGraph": { "type": "object" },
+    "optionalDependencySurface": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "conflictDeclarations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "registryCompatibilityEligibility": { "type": "boolean" },
+    "bundleCompatibilityEligibility": { "type": "boolean" },
+    "promotionStageReadiness": { "type": "string" }
+  },
+  "required": [
+    "packId",
+    "manifestSummary",
+    "capabilityRequirements",
+    "datasetCompatibility",
+    "executionModeCompatibility",
+    "dependencyClosureGraph",
+    "optionalDependencySurface",
+    "conflictDeclarations",
+    "registryCompatibilityEligibility",
+    "bundleCompatibilityEligibility",
+    "promotionStageReadiness"
+  ]
+}
