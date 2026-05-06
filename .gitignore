@@ -13,3 +13,6 @@ site/out/
 site/node_modules/
 site/.vercel/
 .tmp-site/
+
+# Local Claude workspace metadata
+.claude/
