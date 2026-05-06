@@ -1,5 +1,19 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "outDir": "./dist", "rootDir": "./src" },
-  "include": ["src/**/*.ts", "bin/**/*.ts"]
+  "include": [
+    "src/bin.ts",
+    "src/cli.ts",
+    "src/commands/doctor.ts",
+    "src/commands/inspect.ts",
+    "src/commands/analyze.ts",
+    "src/commands/check.ts",
+    "src/commands/explain.ts",
+    "src/autodiscovery.ts",
+    "src/auto-init.ts",
+    "src/renderers.ts",
+    "src/runner-bridge.ts",
+    "src/snapshot.ts",
+    "src/policy-lift.ts"
+  ]
 }

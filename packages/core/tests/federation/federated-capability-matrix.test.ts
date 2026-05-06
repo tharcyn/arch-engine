@@ -2,17 +2,25 @@ import { describe, test, expect, vi } from 'vitest';
 import { computeFederatedCapabilityMatrix } from '../../src/federation/computeFederatedCapabilityMatrix.js';
 import * as assess from '../../src/policy/assessPolicyPackExecutionCompatibility.js';
 
+// The real assessPolicyPackExecutionCompatibility returns
+// { overallStatus, packResults, findings, summaryMessage }; computeFederatedCapabilityMatrix
+// consumes `.findings.map(f => f.code + ': ' + f.packId)`. Match the production
+// shape here so the diagnostics field is populated correctly.
 vi.mock('../../src/policy/assessPolicyPackExecutionCompatibility.js', () => ({
     assessPolicyPackExecutionCompatibility: vi.fn((manifest, mut, auth, surf, trust, packs) => {
         if (!manifest.supports_magic && packs.length > 0) {
             return {
                 overallStatus: 'incompatible',
-                violations: ['Missing supports_magic']
+                packResults: [],
+                findings: [{ code: 'Missing supports_magic', packId: 'mock-pack' }],
+                summaryMessage: 'Missing supports_magic'
             };
         }
         return {
             overallStatus: 'compatible',
-            violations: []
+            packResults: [],
+            findings: [],
+            summaryMessage: 'compatible'
         };
     })
 }));
@@ -37,6 +45,8 @@ describe('Federated Capability Matrix', () => {
         const result = computeFederatedCapabilityMatrix(intersection, union, {}, {}, {}, {}, packs);
 
         expect(result.federationCompatible).toBe(false);
-        expect(result.diagnostics).toContain('Missing supports_magic');
+        // Production formats each diagnostic as `${code}: ${packId}`. Test that
+        // at least one diagnostic surfaces the missing-capability code.
+        expect(result.diagnostics.some(d => d.includes('Missing supports_magic'))).toBe(true);
     });
 });

@@ -87,7 +87,7 @@ export class EvaluationTraceEngine {
         this.currentIndex++;
         this.traces.push({
             ...trace,
-            traceStepId: \`trace-\${this.currentIndex}\`,
+            traceStepId: `trace-${this.currentIndex}`,
             timestampDeterministicIndex: this.currentIndex
         });
     }

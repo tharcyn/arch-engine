@@ -2,7 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/@arch-engine/cli.svg)](https://www.npmjs.com/package/@arch-engine/cli)
 [![Build Status](https://github.com/tharcyn/arch-engine/actions/workflows/test.yml/badge.svg)](https://github.com/tharcyn/arch-engine/actions)
-[![Coverage](https://img.shields.io/badge/tests-915%20passed-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/tharcyn/arch-engine/blob/main/LICENSE)
 
 Architecture governance runtime for real codebases.
@@ -19,8 +18,11 @@ Code → Graph Extraction → Capability Adapters → Policy Packs → Diagnosti
 
 ## Quickstart
 
+The CLI requires the workspace topology adapter to extract a graph from a real
+repository. Install both packages:
+
 ```bash
-npm install @arch-engine/cli
+npm install @arch-engine/cli @arch-engine/adapter-monorepo
 npx arch-engine doctor
 ```
 
@@ -131,25 +133,14 @@ governance policy pack layer        ← architecture enforcement (optional)
 
 ---
 
-## Provider Adapter Architecture
+## Provider Adapter Architecture (preview, not yet released)
 
-Arch-Engine includes a provider adapter layer designed to automatically propose architectural policy updates directly to version control providers via Pull/Merge Requests.
-
-- **GitHub Adapter** (`@arch-engine/adapter-github`) — Complete and fully operational.
-- **GitLab Adapter** (`@arch-engine/adapter-gitlab`) — Planned next.
-
-### Adapter Execution Contract
-All adapters consume a provider-neutral JSON payload containing the cryptographic identity, proposed commits, and integrity hashes. They operate entirely off this JSON payload rather than local filesystem state, making them highly portable across CI pipelines.
-
-By default, all adapters operate in **dry-run** mode. They will validate payloads, verify the runtime repository context, and format a deterministic execution plan, but will **not** execute mutative network calls unless explicitly permitted with `--execute` and a valid provider token.
-
-### Execution-Result Telemetry
-Adapters return a highly structured `AdapterExecutionResultBase` providing explicitly boolean flags for `branchCreated`, `branchReused`, `pullRequestCreated`, and a single unified `adapterOutcome` signal (`dry-run`, `refused`, `pr-created`, `pr-reused`). This allows CI pipelines to make deterministic decisions without complex log parsing.
-
-```bash
-# Example: Pipe a deterministic patch payload into the GitHub adapter
-arch-engine policies emit-policy-pr --json | arch-engine github create-policy-pr --execute --json-output-plan
-```
+A provider adapter layer for proposing architectural policy updates to GitHub /
+GitLab via PR/MR exists in the repository but is **not** part of the current
+`@arch-engine/*@1.0.x` published surface. The packages
+`@arch-engine/adapter-github` and `@arch-engine/adapter-gitlab` are not on npm
+and the corresponding `arch-engine github …` / `arch-engine gitlab …` CLI
+verbs are not in the published CLI yet.
 
 For a deeper dive into the adapter substrate, see [Provider Adapter Architecture](docs/architecture/adapters.md).
 
@@ -247,12 +238,22 @@ site/                        Landing page (arch-engine.dev)
 
 Arch Engine follows semantic versioning. 1.x releases maintain CLI compatibility guarantees across adapters and governance packs.
 
+## AGP integration (upcoming)
+
+The Architecture Governance Protocol (AGP) is a separate ecosystem published
+under the `@arch-governance/*` scope. Arch-Engine v1.0.x does **not** yet emit
+AGP records and does **not** depend on any `@arch-governance/*` package. AGP
+emitter integration is planned as a separate, opt-in package (e.g.
+`@arch-engine/agp-emitter`) and will not change the existing
+`doctor`/`inspect`/`analyze`/`check`/`explain` surface.
+
 ## Out of scope
 
 - Production routing enforcement
 - Multi-repo federation handshake protocol
 - Ecosystem registry marketplace
 - Graph database persistence
+- AGP emitter (planned, see above)
 
 ## License
 

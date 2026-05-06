@@ -128,6 +128,12 @@ export function reconcileEdges(
   const edgeIndex: Map<string, Array<ReconcilableEdge & { adapter_id: string }>> = new Map();
 
   for (const [adapterId, edges] of Object.entries(edgesByAdapter)) {
+    if (!Array.isArray(edges)) {
+      throw new Error(
+        `reconcileEdges: edgesByAdapter[${JSON.stringify(adapterId)}] must be ReconcilableEdge[], received ${typeof edges}. ` +
+          `Adapters must emit an array of edges, not a count or other shape.`,
+      );
+    }
     for (const edge of edges) {
       const key = edgeKey(edge.source, edge.target, edge.type);
       if (!edgeIndex.has(key)) {

@@ -5,6 +5,15 @@ export function normalizePolicyPackFinding(finding: PolicyPackFinding): Normaliz
     const category = finding.category || 'policy-pack';
     const codeResult = validateOrNormalizePolicyPackFindingCode(finding.code, category);
 
+    // providerProvenance / datasetProvenance are federation-internal fields
+    // that are not part of the v1.0.x public PolicyPackFinding type. Accessed
+    // via `as any` so the public type contract stays frozen while the
+    // post-v1.0 federation subsystem can still pass them through.
+    const findingRaw = finding as PolicyPackFinding & {
+        providerProvenance?: readonly string[];
+        datasetProvenance?: readonly string[];
+    };
+
     const normalized: NormalizedPolicyPackFinding = {
         severity: finding.severity || 'warning',
         message: finding.message || 'Unknown finding',
@@ -20,9 +29,9 @@ export function normalizePolicyPackFinding(finding: PolicyPackFinding): Normaliz
         policyPackId: finding.policyPackId,
         policyRuleId: finding.policyRuleId,
         evaluationMode: finding.evaluationMode,
-        providerProvenance: finding.providerProvenance,
-        datasetProvenance: finding.datasetProvenance
-    };
+        ...(findingRaw.providerProvenance !== undefined ? { providerProvenance: findingRaw.providerProvenance } : {}),
+        ...(findingRaw.datasetProvenance !== undefined ? { datasetProvenance: findingRaw.datasetProvenance } : {}),
+    } as NormalizedPolicyPackFinding;
 
     const isRepaired = codeResult.taxonomyRepaired || finding._taxonomyRepaired === true;
 

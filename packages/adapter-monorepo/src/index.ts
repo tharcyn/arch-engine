@@ -133,6 +133,29 @@ export function runMonorepoExtraction(cwd: string): MonorepoExtractionResult {
     adjacencyMap[node] = edges.filter(e => internalNodes.has(e)).sort();
   }
 
+  // Project the adjacency map into a flat array of reconcilable edges.
+  // The reconciliation runner iterates each adapter's edge list, so this
+  // value must be an array — historically a count was emitted here, which
+  // tripped TypeError: edges is not iterable downstream.
+  const edges: Array<{
+    source: string;
+    target: string;
+    type: string;
+    confidence: 'namespace_inferred';
+    adapter_id: 'local_fs';
+  }> = [];
+  for (const source of Object.keys(adjacencyMap).sort()) {
+    for (const target of adjacencyMap[source]) {
+      edges.push({
+        source,
+        target,
+        type: 'workspace_dependency',
+        confidence: 'namespace_inferred',
+        adapter_id: 'local_fs',
+      });
+    }
+  }
+
   return {
     metadata: {
       coverage: internalNodes.size > 0 ? 1.0 : 0,
@@ -148,6 +171,6 @@ export function runMonorepoExtraction(cwd: string): MonorepoExtractionResult {
     adjacencyMap,
     routeServiceMap,
     authorityCrossings: [],
-    edgesByAdapter: { local_fs: internalNodes.size }
+    edgesByAdapter: { local_fs: edges }
   };
 }

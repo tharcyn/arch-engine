@@ -17,10 +17,12 @@ export interface PolicyPackFinding {
     readonly policyPackId?: string;
     readonly policyRuleId?: string;
     readonly evaluationMode?: string;
-    
-    // Federation Phase
-    readonly providerProvenance?: readonly string[];
-    readonly datasetProvenance?: readonly string[];
+
+    // Federation provenance fields (providerProvenance, datasetProvenance)
+    // were prototyped post-v1.0.0 and are used internally by the federation
+    // subsystem via `(finding as any).providerProvenance = ...`. They are
+    // intentionally NOT part of the v1.0.x public PolicyPackFinding shape;
+    // adding them here would expand the frozen public type surface.
 
     /** @deprecated Use taxonomyRepaired instead */
     readonly _taxonomyRepaired?: boolean;

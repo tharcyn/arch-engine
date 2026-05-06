@@ -513,36 +513,20 @@ export {
 export {
   extractTopologyGraphFromSnapshot,
 } from './topology/extractTopologyGraphFromSnapshot';
-export * from './federation/index.js';
 
-// --- Registry & Distribution ---
-export * from './policy-registry/PolicyPackManifest.js';
-export * from './policy-registry/PolicyPackRegistry.js';
-export * from './policy-registry/resolvePolicyPackCompatibility.js';
-export * from './policy-registry/resolveFederatedPolicyPackPlan.js';
-export * from './policy-registry/resolvePolicyPackVersions.js';
-export * from './policy-registry/resolvePolicyPackDependencyGraph.js';
-export * from './policy-registry/generatePolicyPackLockfile.js';
-export * from './policy-registry/verifyPolicyPackLockfileReplay.js';
-
-// --- Registry Sources ---
-export * from './policy-registry/RegistrySourceDescriptor.js';
-export * from './policy-registry/RegistryCatalogManifest.js';
-export * from './policy-registry/resolveRegistrySources.js';
-export * from './policy-registry/verifyRegistryCatalogSignature.js';
-export * from './policy-registry/resolveRegistryMirrorFallback.js';
-export * from './policy-registry/loadOfflineRegistrySnapshot.js';
-
-// --- Policy Bundles ---
-export * from './policy-bundles/ArchPolicyPackBundleFormat.js';
-export * from './policy-bundles/PolicyPackBundleManifest.js';
-export * from './policy-bundles/buildPolicyPackBundle.js';
-export * from './policy-bundles/loadPolicyPackBundle.js';
-export * from './policy-bundles/verifyPolicyPackBundleSignature.js';
-export * from './policy-bundles/verifyBundleLockfileCompatibility.js';
-export * from './policy-bundles/BundlePublishingDescriptor.js';
-export * from './policy-bundles/performBundleRegistryUploadHandshake.js';
-export * from './policy-bundles/resolveBundlePromotionStage.js';
-export * from './policy-registry/mutateRegistryCatalogDeterministically.js';
-export * from './policy-registry/propagateBundleAcrossMirrors.js';
-export * from './policy-registry/exportOfflineRegistrySnapshot.js';
+// ─── Post-v1.0.0 surfaces — INTENTIONALLY NOT EXPORTED for v1.0.x ──
+//
+// The federation/, policy-registry/, and policy-bundles/ subsystems
+// were prototyped after the v1.0.0 public surface freeze. Their
+// implementation files remain on disk, but they are NOT part of the
+// v1.0.x published API. Re-exporting them here would expand the
+// public surface and break the strict-patch contract enforced by
+// packages/core/tests/freeze/distribution_exports_surface.test.ts,
+// packages/core/tests/freeze/distribution_declaration_surface.test.ts,
+// packages/core/tests/publicSurface.snapshot.test.ts, and
+// packages/core/tests/sdk/core_public_surface_snapshot.test.ts.
+//
+// To consume any of these surfaces, import from the direct internal
+// path (e.g. './federation/runFederatedEvaluationPlan.js') from
+// inside the package — never through this public barrel — until
+// they are formally promoted in a future minor release.
