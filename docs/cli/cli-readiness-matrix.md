@@ -81,3 +81,22 @@ Reasoning trace and policy explanation:
 |---|---|
 | `--json` | Output results as JSON conforming to CLI output contract schema |
 | `--no-color` | Disable colorized terminal output |
+
+## v1.0.3 JSON Polish (Additive)
+
+As of v1.0.3, every command's `--json` output additively carries:
+
+| Field | Description |
+|---|---|
+| `diagnostics: []` | Structured `ARCH_ENGINE_*` diagnostics with `code`, `severity`, `title`, `message`, `fix`, `ciBlocking`, optional `path`/`details`/`docsHint`. Always present (empty when no diagnostics apply). |
+
+`check --json` additionally carries:
+
+| Field | Description |
+|---|---|
+| `violations: []` | Per-violation entries with `id` (stable hash), `ruleId`, `edge`, `severity`, `ciBlocking`, `category`, `code`. Empty when there are no policy violations. |
+| `artifactRelativePath` | Repo-relative POSIX path to the stability artifact written this run. |
+
+Existing JSON keys are preserved verbatim — none are removed or renamed.
+See [`json-error-language-spec.md`](./json-error-language-spec.md) for the
+full v1.0.3 grammar and the `ARCH_ENGINE_*` error-code vocabulary.

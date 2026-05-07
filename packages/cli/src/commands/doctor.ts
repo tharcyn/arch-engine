@@ -4,6 +4,7 @@ import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
+import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
 import {
   confidenceDescription,
   classifyConfidence,
@@ -49,6 +50,28 @@ export async function doctorCommand(options: any) {
   const domainIntegrity = checkDomainIntegrity(domainDist);
   const stability = classifyStability(meta.topologyConfidence); // Approximate from confidence for doctor (no engine run)
 
+  // Phase 6 (v1.0.3): build the structured `diagnostics[]` array
+  // additively. Existing JSON keys above are preserved verbatim.
+  const diagnostics: CliDiagnostic[] = [];
+  if (!policyPresence.configured) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+        message:
+          'No policy file is configured yet. Topology was extracted successfully; nothing was enforced.',
+      }),
+    );
+  }
+  const floorCheck = checkQualityFloor(meta);
+  if (floorCheck.belowFloor) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+        message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
+      }),
+    );
+  }
+
   const results = {
     environment: meta.workspaceType,
     extractionMode: meta.extractionMode,
@@ -66,6 +89,9 @@ export async function doctorCommand(options: any) {
     warnings: meta.warnings,
     autoInitialized: initResult.initialized,
     hasPolicyFile: policyPresence.configured,
+    // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
+    // command's --json. Always present (empty when no diagnostics).
+    diagnostics: diagnostics.map(diagnosticToJson),
   };
 
   if (options.json) {

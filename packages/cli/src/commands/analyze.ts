@@ -5,6 +5,7 @@ import { executeRunnerBridge, loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
+import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
 import {
   classifyStability,
   classifyConfidence,
@@ -52,11 +53,30 @@ export async function analyzeCommand(options: any) {
   const artifact = createStabilityArtifact(cwd, meta, score, crossingCount, executionMetrics);
   const artifactPath = writeStabilityArtifact(cwd, artifact);
 
+  // Phase 6 (v1.0.3): structured diagnostics array (additive).
+  const diagnostics: CliDiagnostic[] = [];
+  if (!policyPresence.configured) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+        message: 'No policy configured — topology was captured but not evaluated.',
+      }),
+    );
+  }
+  const floorCheck = checkQualityFloor(meta);
+  if (floorCheck.belowFloor) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+        message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
+      }),
+    );
+  }
+
   if (options.json) {
     // Backward-compatible JSON shape: existing keys preserved verbatim.
-    // Two additive fields: `policyConfigured` and `headlineKind` so that
-    // machine consumers can distinguish a no-policy / low-signal run from a
-    // genuine "CRITICAL" classification.
+    // Phase A additive: `policyConfigured`, `headlineKind`. Phase 6
+    // (v1.0.3) additive: `diagnostics: []`. No existing keys removed.
     console.log(JSON.stringify({
       score,
       classification: stability.tier,
@@ -75,6 +95,7 @@ export async function analyzeCommand(options: any) {
       executionMetrics,
       policyConfigured: policyPresence.configured,
       headlineKind: headline.kind,
+      diagnostics: diagnostics.map(diagnosticToJson),
     }, null, 2));
     return;
   }

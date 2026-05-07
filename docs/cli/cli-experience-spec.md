@@ -629,6 +629,16 @@ Artifact: …/stability-score.json
 
 ## 7. JSON Output Contract
 
+> **v1.0.3 implementation note.** The full top-level envelope below
+> (`schemaVersion`, `command`, `version`, `emittedAt`, `status`, `exitCode`,
+> `summary`, `data`, `artifacts`, `nextActions`) is the v1.1 candidate
+> shape and is **deferred** until a minor release. v1.0.3 ships an
+> additive subset compatible with the existing flat JSON keys:
+> `diagnostics: []` lands on every command's `--json`, and `check --json`
+> additionally gains `violations: []` and `artifactRelativePath`. See
+> [`json-error-language-spec.md`](./json-error-language-spec.md) for the
+> exact v1.0.3 grammar; existing keys are preserved verbatim.
+
 ### 7.1 Top-level envelope (every command)
 
 ```jsonc
@@ -831,6 +841,17 @@ When `targetKind === "unknown"` the response includes `didYouMean: ["frontend/ch
 ---
 
 ## 8. Error Language Contract
+
+> **v1.0.3 implementation note.** The structured error renderer described
+> in this section ships in v1.0.3 via `packages/cli/src/error-codes.ts`
+> and `packages/cli/src/format-error.ts`. The codified, byte-exact
+> grammar (`diagnostics: []` JSON shape, `Title / Problem / Fix / Exit /
+> Docs` human template, locked exit-code semantics) lives in
+> [`json-error-language-spec.md`](./json-error-language-spec.md). Where
+> §8 below conflicts with the JSON / Error-Language spec (notably the
+> exit codes for `ARCH_ENGINE_GRAPH_SHAPE_INVALID` and
+> `ARCH_ENGINE_INTERNAL_INVARIANT_FAILED`, which are now both `5`),
+> the JSON / Error-Language spec is the source of truth.
 
 ### 8.1 Error envelope
 
@@ -1124,6 +1145,7 @@ The following are non-breaking and may ship as patches:
 - Path normalization in `artifactPath` outputs.
 - Better `--help` per-command output (examples, exit codes, docs links).
 - Documented `explain <target>` vocabulary in `--help`.
+- **v1.0.3 (shipped):** additive `diagnostics: []` array on every command's `--json`; structured `ARCH_ENGINE_*` error-code vocabulary; `Title / Problem / Fix / Exit / Docs` human renderer; `violations: []` and `artifactRelativePath` on `check --json`. Existing keys preserved verbatim. See [`json-error-language-spec.md`](./json-error-language-spec.md).
 
 ### 13.2 v1.1 candidate (additive, non-breaking)
 

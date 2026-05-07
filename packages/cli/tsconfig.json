@@ -16,6 +16,8 @@
     "src/snapshot.ts",
     "src/policy-lift.ts",
     "src/policy-presence.ts",
-    "src/help-text.ts"
+    "src/help-text.ts",
+    "src/error-codes.ts",
+    "src/format-error.ts"
   ]
 }

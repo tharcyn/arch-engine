@@ -7,6 +7,11 @@ import {
   FIRST_RUN_PATH,
   SUPPORTED_EXPLAIN_TARGETS,
 } from './help-text.js';
+import {
+  diagnosticFromUnknownError,
+  emitDiagnosticHuman,
+  exitCodeForDiagnostic,
+} from './format-error.js';
 
 export async function run() {
   const cli = cac('arch-engine');
@@ -165,11 +170,13 @@ export async function run() {
 
     await cli.runMatchedCommand();
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(pc.red(`Fatal: ${error.message}`));
-      if (process.env.DEBUG) console.error(error.stack);
-    }
-    // Exit code 1: CLI/runtime/internal failure
-    process.exit(1);
+    // Phase 5 (v1.0.3): structured error rendering for any
+    // uncaught throw. Per spec §11.4, unknown errors map to
+    // ARCH_ENGINE_INTERNAL_INVARIANT_FAILED with exit code 5.
+    // Stack traces are hidden by default; visible only when
+    // DEBUG=arch-engine:* is set (handled inside emitDiagnosticHuman).
+    const diagnostic = diagnosticFromUnknownError(error);
+    emitDiagnosticHuman(diagnostic, error);
+    process.exit(exitCodeForDiagnostic(diagnostic));
   }
 }

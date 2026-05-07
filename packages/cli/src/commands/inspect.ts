@@ -3,6 +3,7 @@ import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
+import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
 import {
   classifyConfidence,
   confidenceDescription,
@@ -38,6 +39,19 @@ export async function inspectCommand(options: any) {
   const edgeCount = Object.values(extraction.edgesByAdapter).flat().length;
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
 
+  // Phase 6 (v1.0.3): structured diagnostics array (additive; never
+  // removes or renames existing JSON keys).
+  const diagnostics: CliDiagnostic[] = [];
+  const floorCheck = checkQualityFloor(meta);
+  if (floorCheck.belowFloor) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+        message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
+      }),
+    );
+  }
+
   const data = {
     nodes: meta.detectedNodes,
     edges: edgeCount,
@@ -52,6 +66,8 @@ export async function inspectCommand(options: any) {
     domainDistribution: domainDist,
     warnings: meta.warnings,
     adaptersActive: ['adapter-monorepo'],
+    // Phase 6 additive
+    diagnostics: diagnostics.map(diagnosticToJson),
   };
 
   if (options.json) {

@@ -1,10 +1,18 @@
 import pc from 'picocolors';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
+import {
+  buildDiagnostic,
+  diagnosticToJson,
+  emitDiagnosticHuman,
+  emitDiagnosticJson,
+  type CliDiagnostic,
+} from '../format-error.js';
 import {
   classifyStability,
   classifyConfidence,
@@ -15,7 +23,7 @@ import {
   formatWarningHeader,
 } from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
-import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthorityCrossing } from '@arch-engine/core';
+import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthorityCrossing, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
 
 export async function checkCommand(options: any) {
@@ -40,8 +48,27 @@ export async function checkCommand(options: any) {
   try {
     bridge = await executeRunnerBridge(cwd, discovery);
   } catch (error) {
-    if (!options.json) {
-      console.error(pc.red(`✖ Topology extraction failed: ${(error as Error).message}`));
+    // Phase 8 (v1.0.3): structurised fatal path. Maps generic
+    // adapter/runner-bridge failures to ARCH_ENGINE_ADAPTER_NOT_FOUND
+    // (severity ERROR, exit 3). Exit code is preserved verbatim — only
+    // the rendering becomes structured. JSON mode now emits a minimal
+    // `{ diagnostics: [...] }` envelope instead of silent exit, closing a
+    // pre-existing JSON contract hole additively (no existing keys are
+    // altered because there were none).
+    const diagnostic = buildDiagnostic({
+      code: 'ARCH_ENGINE_ADAPTER_NOT_FOUND',
+      title: 'Topology extraction failed.',
+      message:
+        `The workspace adapter could not extract topology for this repo. ` +
+        `Underlying error: ${(error as Error).message}`,
+      fix:
+        'Run `arch-engine doctor` to inspect adapter detection. If `@arch-engine/adapter-monorepo` ' +
+        'is not installed, install it with `npm install --save-dev @arch-engine/adapter-monorepo`.',
+    });
+    if (options.json) {
+      emitDiagnosticJson(diagnostic);
+    } else {
+      emitDiagnosticHuman(diagnostic, error);
     }
     process.exit(3);
   }
@@ -141,8 +168,44 @@ export async function checkCommand(options: any) {
     }
   } else {
     // Backward-compatible JSON shape. Existing keys preserved verbatim.
-    // Two additive fields so machine consumers can distinguish a no-policy
-    // run from an actual blocking-violation run.
+    // Phase A additive: `policyConfigured`, `headlineKind`.
+    // Phase 6 (v1.0.3) additive: `diagnostics: []`.
+    // Phase 7 (v1.0.3) additive: `violations: []`, `artifactRelativePath`.
+    const diagnostics: CliDiagnostic[] = [];
+    if (!policyExists) {
+      diagnostics.push(
+        buildDiagnostic({
+          code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+          message:
+            'No policy file is configured yet — nothing was enforced. ' +
+            'Run with a policy file at .archengine/policy.yml to evaluate architecture rules.',
+        }),
+      );
+    }
+    const floorCheck = checkQualityFloor(meta);
+    if (floorCheck.belowFloor) {
+      diagnostics.push(
+        buildDiagnostic({
+          code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+          message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
+        }),
+      );
+    }
+    const violationsJson = buildViolationsJson(policyEval);
+    if (violationsJson.length > 0 && policyEval && policyEval.policyMode === 'enforce') {
+      diagnostics.push(
+        buildDiagnostic({
+          code: 'ARCH_ENGINE_BLOCKING_VIOLATION',
+          title: `Blocked: ${violationsJson.length} architecture violation${violationsJson.length === 1 ? '' : 's'}.`,
+          message:
+            `Detected ${violationsJson.length} blocking architecture ` +
+            `violation${violationsJson.length === 1 ? '' : 's'} in enforce mode. ` +
+            'Each violation appears in the `violations[]` array below.',
+          details: { count: violationsJson.length },
+        }),
+      );
+    }
+
     console.log(JSON.stringify({
       score,
       classification: stability.tier,
@@ -159,6 +222,11 @@ export async function checkCommand(options: any) {
       artifactPath,
       policyConfigured: policyExists,
       headlineKind: headline.kind,
+      // Phase 6 additive
+      diagnostics: diagnostics.map(diagnosticToJson),
+      // Phase 7 additive: violation surface + repo-relative artifact path
+      violations: violationsJson,
+      artifactRelativePath: toRepoRelative(cwd, artifactPath),
     }, null, 2));
   }
 
@@ -257,4 +325,65 @@ export async function checkCommand(options: any) {
     }
   }
   process.exit(0);
+}
+
+// ─── Phase 7 (v1.0.3) helpers ────────────────────────────
+
+/**
+ * Convert the policy-evaluator's violation list into the
+ * `violations[]` JSON shape per spec §10.4.
+ *
+ * Each violation gets a stable hash-based id (no timestamps,
+ * no random) so re-running the same input yields byte-identical
+ * IDs.
+ */
+function buildViolationsJson(
+  policyEval: { violations: PolicyViolation[]; policyMode: string } | null,
+): Array<{
+  id: string;
+  ruleId: string | undefined;
+  edge: { from: string; to: string; type: string };
+  severity: string;
+  ciBlocking: boolean;
+  category: string;
+  code: 'ARCH_ENGINE_BLOCKING_VIOLATION';
+}> {
+  if (!policyEval || policyEval.violations.length === 0) return [];
+  const isEnforcing = policyEval.policyMode === 'enforce';
+  return policyEval.violations.map((v) => {
+    const hash = crypto
+      .createHash('sha256')
+      .update(`check|${v.ruleId ?? ''}|${v.from}|${v.to}|${v.violationCategory}`)
+      .digest('hex')
+      .slice(0, 8);
+    return {
+      id: `v_${hash}`,
+      ruleId: v.ruleId,
+      edge: { from: v.from, to: v.to, type: 'workspace_dependency' },
+      severity: v.severity ?? 'error',
+      ciBlocking: isEnforcing && (v.severity ?? 'error') === 'error',
+      category: v.violationCategory,
+      code: 'ARCH_ENGINE_BLOCKING_VIOLATION' as const,
+    };
+  });
+}
+
+/**
+ * Convert an absolute artifact path to a repo-relative form. If
+ * the artifact lives outside the cwd (e.g. running on a tempdir
+ * fixture), we still emit a relative form using `…/<file>` so
+ * machine consumers don't have to special-case absolute paths.
+ *
+ * Path separators are normalised to POSIX forward slashes per
+ * spec §12.1.
+ */
+function toRepoRelative(cwd: string, absPath: string): string {
+  const rel = path.relative(cwd, absPath);
+  // If `rel` starts with `..` the artifact is outside the cwd.
+  // Surface it as `…/<basename>` to avoid leaking `../../tmp/...`
+  // chains in CI logs.
+  if (rel.startsWith('..')) {
+    return `…/${path.basename(absPath)}`;
+  }
+  return rel.split(path.sep).join('/');
 }

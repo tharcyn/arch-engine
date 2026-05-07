@@ -4,6 +4,85 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] — 2026-05-07
+
+Patch release. The frozen v1.0.x public API surface is preserved exactly;
+freeze tests pass without snapshot updates. All v1.0.2 JSON keys are
+preserved verbatim; every v1.0.3 JSON change is **additive**. Consumers of
+`@arch-engine/*@1.0.2` can upgrade with no code changes.
+
+### Added
+
+- Added internal `ARCH_ENGINE_*` error-code vocabulary for structured CLI
+  diagnostics (`packages/cli/src/error-codes.ts`). Eleven codes locked per
+  `docs/cli/json-error-language-spec.md` §6.2 with severity, exit-code,
+  title, default fix, and `ciBlocking` metadata. Internal — not exported
+  from `@arch-engine/cli`.
+- Added structured human error formatting using
+  `Title / Problem / Fix / Exit / Docs` shape
+  (`packages/cli/src/format-error.ts`). `INFO` severity uses
+  `Next:` instead of `Fix:` and omits the `Exit` line.
+- Added additive `diagnostics: []` array to every command's `--json`
+  output (`doctor`, `inspect`, `analyze`, `check`, `explain`). Always
+  present; populated with `ARCH_ENGINE_POLICY_NOT_FOUND`,
+  `ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL`, `ARCH_ENGINE_TARGET_NOT_FOUND`,
+  `ARCH_ENGINE_NO_BASELINE`, or `ARCH_ENGINE_BLOCKING_VIOLATION` per
+  scenario.
+- Added additive `violations: []` array to `check --json`. Each entry
+  carries a stable `id` (sha256-truncated 8-char), `ruleId`, `edge`,
+  `severity`, `ciBlocking`, `category`, and `code`.
+- Added additive `artifactRelativePath` to `check --json` for path-safe
+  machine consumption. POSIX-normalised; never absolute; sibling to the
+  existing absolute `artifactPath`.
+- Added stable violation IDs for `check --json` violation entries: a
+  re-run on the same fixture produces byte-identical IDs.
+- Added 44 new tests in `packages/cli/tests/cli-experience-phase-e.test.ts`
+  covering vocabulary, rendering, debug gate, process-level diagnostics,
+  stack-trace policy, path normalisation, determinism, and JSON
+  backward-compatibility per spec §15.1–§15.6.
+- Added implementation audit at
+  `audits/ARCH_ENGINE_JSON_ERROR_LANGUAGE_IMPLEMENTATION_AUDIT.md`.
+
+### Fixed
+
+- Structured top-level unknown CLI failures as
+  `ARCH_ENGINE_INTERNAL_INVARIANT_FAILED`. The CLI's top-level catch now
+  routes any unhandled throw through the structured renderer, exits with
+  code `5`, and never leaks a raw stack trace by default.
+- Hid stack traces by default while preserving a debug toggle:
+  `DEBUG=arch-engine:*` (or `DEBUG=*`) re-enables stack frame output for
+  bug investigation. Matches the existing v1.0.x convention; centralised
+  in `format-error.ts`.
+- Improved `check` JSON output so blocking violations include rule, edge,
+  severity, and code in a structured `violations[]` entry rather than
+  only the artifact-side count. Human output is unchanged.
+- Improved `explain --json` diagnostics for no-baseline /
+  target-not-found / no-policy / low-signal situations: each emits the
+  appropriate `ARCH_ENGINE_*` diagnostic with severity `INFO` while
+  preserving every existing JSON key.
+- Structurised the `Topology extraction failed` fatal path in
+  `arch-engine check` as `ARCH_ENGINE_ADAPTER_NOT_FOUND` (severity
+  `ERROR`, exit `3`). Exit code unchanged; rendering now follows the
+  `Title / Problem / Fix / Exit / Docs` template.
+
+### Compatibility
+
+- No existing JSON keys were removed or renamed.
+- No commands or flags were added.
+- No AGP dependency was added.
+- No public exports widened. `error-codes.ts` and `format-error.ts` are
+  internal CLI modules; `package.json#exports` for `@arch-engine/cli`
+  remains exactly `{ ".": "./dist/bin.js" }`.
+- JSON v2 envelope (`schemaVersion`, `command`, `version`, `emittedAt`,
+  `status`, `summary`, `nextActions`) and `--json-schema=v2` flag remain
+  deferred to a future minor release.
+- All existing v1.0.2 `check --json` keys (`score`, `stabilityTier`,
+  `artifactPath`, `policyConfigured`, `headlineKind`, etc.) preserved
+  verbatim with the same value types.
+- Phase A / B / C / D-Lite invariants pinned by Phase A–D test files all
+  still hold.
+- All previous freeze snapshots accepted with no snapshot updates.
+
 ## [1.0.2] — 2026-05-07
 
 Patch release. The frozen v1.0.x public API surface is preserved exactly;

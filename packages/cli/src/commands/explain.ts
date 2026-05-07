@@ -6,6 +6,7 @@ import { executeRunnerBridge } from '../runner-bridge.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
 import { SUPPORTED_EXPLAIN_TARGETS } from '../help-text.js';
+import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
 
 export async function explainCommand(target: string, options: any) {
   const cwd = process.cwd();
@@ -32,13 +33,24 @@ export async function explainCommand(target: string, options: any) {
   const canonicalIndex = engineResult.canonicalIndex;
 
   if (!canonicalIndex || canonicalIndex.total_edges === 0) {
-    if (!options.json) {
+    if (options.json) {
+      // Phase 6 (v1.0.3): emit a structured TOPOLOGY_LOW_SIGNAL diagnostic
+      // when the canonical index has no edges to explain. Previously this
+      // path produced no JSON output; v1.0.3 closes that contract hole
+      // additively (no existing keys are altered because there were none).
+      const diagnostic = buildDiagnostic({
+        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+        message:
+          'No edges in canonical index. Topology coverage is too low to explain any relationships.',
+      });
+      console.log(JSON.stringify({
+        matches: [],
+        suggestions: [],
+        supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
+        diagnostics: [diagnosticToJson(diagnostic)],
+      }, null, 2));
+    } else {
       console.log(pc.yellow('No edges in canonical index. Falling back to raw extraction data.\n'));
-    }
-
-    // Fallback: search raw edges from adapter output
-    const allEdges = Object.values(engineResult.reconciliationTrace)
-    if (!options.json) {
       console.log(pc.dim('Try running with a more populated workspace.'));
       console.log('');
       console.log('Next: run `arch-engine inspect` to confirm what topology was extracted.');
@@ -65,10 +77,17 @@ export async function explainCommand(target: string, options: any) {
       .slice(0, 5);
 
     if (options.json) {
+      const diagnostic = buildDiagnostic({
+        code: 'ARCH_ENGINE_TARGET_NOT_FOUND',
+        message: `No matches found for '${target}'. Supported special targets are listed in supportedSpecialTargets[].`,
+        details: { target },
+      });
       console.log(JSON.stringify({
         matches: [],
         suggestions,
         supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
+        // Phase 6 additive
+        diagnostics: [diagnosticToJson(diagnostic)],
       }, null, 2));
     } else {
       console.log(pc.yellow(`No matches found for '${target}'.`));
@@ -91,7 +110,14 @@ export async function explainCommand(target: string, options: any) {
   }
 
   if (options.json) {
-    console.log(JSON.stringify({ matches, extractionMode: extractionMetadata.extractionMode }, null, 2));
+    console.log(JSON.stringify({
+      matches,
+      extractionMode: extractionMetadata.extractionMode,
+      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
+      // command's --json. Empty here because the matched-target path is a
+      // pure informational success (no policy, no signal floor, no error).
+      diagnostics: [],
+    }, null, 2));
     return;
   }
 
@@ -137,7 +163,16 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
 
   if (!fs.existsSync(artifactPath)) {
     if (options.json) {
-      console.log(JSON.stringify({ error: 'No stability-score.json artifact found. Run arch-engine check first.' }));
+      // Phase 6 additive: surface this as a structured ARCH_ENGINE_NO_BASELINE
+      // diagnostic. Existing `error` key preserved for backward compatibility.
+      const diagnostic = buildDiagnostic({
+        code: 'ARCH_ENGINE_NO_BASELINE',
+        message: 'No stability-score.json artifact found. Run arch-engine check first.',
+      });
+      console.log(JSON.stringify({
+        error: 'No stability-score.json artifact found. Run arch-engine check first.',
+        diagnostics: [diagnosticToJson(diagnostic)],
+      }, null, 2));
     } else {
       console.log(pc.yellow('No stability-score.json found.'));
       console.log(pc.dim('Run `arch-engine check` to generate the artifact first.'));
@@ -170,8 +205,28 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     stabilityScore: artifact.stabilityScore,
   };
 
+  // Phase 6 (v1.0.3): structured diagnostics array. Surfaces
+  // ARCH_ENGINE_NO_BASELINE when regression has no baseline to compare
+  // against (e.g., first run after check). Severity: INFO, exit 0.
+  const diagnostics: CliDiagnostic[] = [];
+  const regForDiag = context.regression as Record<string, unknown> | null;
+  if (regForDiag?.baselineFound === false) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_NO_BASELINE',
+        message:
+          'No baseline found for regression comparison. The current run will become the baseline for future comparisons.',
+      }),
+    );
+  }
+
   if (options.json) {
-    console.log(JSON.stringify(context, null, 2));
+    console.log(JSON.stringify({
+      ...context,
+      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
+      // command's --json. Always present (empty when no diagnostics).
+      diagnostics: diagnostics.map(diagnosticToJson),
+    }, null, 2));
     return;
   }
 
@@ -242,8 +297,20 @@ async function explainPolicy(cwd: string, options: any) {
   const policyDoc = loadPolicyConfig(cwd);
 
   if (!policyDoc) {
-    if (options.json) console.log(JSON.stringify({ error: 'No policy found' }));
-    else console.log(pc.yellow('No .archengine/policy.yml configuration found.'));
+    if (options.json) {
+      // Phase 6 additive: structured ARCH_ENGINE_POLICY_NOT_FOUND
+      // diagnostic. Existing `error` key preserved verbatim.
+      const diagnostic = buildDiagnostic({
+        code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+        message: 'No .archengine/policy.yml configuration found.',
+      });
+      console.log(JSON.stringify({
+        error: 'No policy found',
+        diagnostics: [diagnosticToJson(diagnostic)],
+      }, null, 2));
+    } else {
+      console.log(pc.yellow('No .archengine/policy.yml configuration found.'));
+    }
     return;
   }
 
@@ -272,7 +339,11 @@ async function explainPolicy(cwd: string, options: any) {
       policyMode: evalResult.policyMode,
       policyVersion: evalResult.policyVersion,
       matchedEdges: evalResult.matchedEdges,
-      violations
+      violations,
+      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
+      // command's --json. Empty here because explain is informational and
+      // the `violations` array is the authoritative signal for this path.
+      diagnostics: [],
     }, null, 2));
     return;
   }
