@@ -90,13 +90,10 @@ export async function analyzeCommand(options: any) {
   console.log(`  Topology Confidence:  ${pc.bold(confidenceDescription(meta))}`);
 
   // ── Core Metrics ────────────────────────────────────────
+  // The score itself is now in the calibrated headline (above) when
+  // it should be displayed; we don't duplicate it here.
   console.log(`\n  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
   console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
-  // Numeric score is shown only when the headline grades it. For
-  // no-policy / low-signal runs the raw score is misleading.
-  if (headline.kind === 'tier') {
-    console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
-  }
 
   // ── Quality Floor ───────────────────────────────────────
   const floor = checkQualityFloor(meta);

@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/adapter-monorepo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Federation-ready architecture extraction adapter for resolving workspace topologies deterministically.",
   "license": "MIT",
   "type": "module",
@@ -36,7 +36,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean"
   },
   "dependencies": {
-    "@arch-engine/core": "^1.0.1"
+    "@arch-engine/core": "^1.0.2"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

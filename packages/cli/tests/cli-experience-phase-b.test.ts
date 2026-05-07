@@ -191,13 +191,19 @@ describe('Phase B — per-command --help', () => {
     expect(stdout).toMatch(/informational/i);
   });
 
-  test('check --help includes an Exit codes section with the four documented codes', () => {
+  test('check --help includes an Exit codes section with the documented codes (Phase D-Lite: 0/1/2/3/5)', () => {
     const { stdout } = runCli(['check', '--help']);
     expect(stdout).toMatch(/Exit codes:/);
     expect(stdout).toMatch(/^\s+0\s/m);
+    // Phase D-Lite: blocking violations now exit 1; help must document
+    // it explicitly.
+    expect(stdout).toMatch(/^\s+1\s/m);
     expect(stdout).toMatch(/^\s+2\s/m);
     expect(stdout).toMatch(/^\s+3\s/m);
     expect(stdout).toMatch(/^\s+5\s/m);
+    // The old advert that 5 means "blocking policy violations" must
+    // be gone; 5 is now reserved for internal invariant failure.
+    expect(stdout).not.toMatch(/blocking policy violations \(ENFORCE mode\)/i);
   });
 
   test('explain --help documents the supported target vocabulary', () => {
@@ -245,10 +251,11 @@ describe('Phase B — examples/demo-drift fixture', () => {
     }
   });
 
-  test('fixture has NO .archengine policy directory committed', () => {
-    // Per the README, the fixture is intentionally policy-free until a future
-    // pass wires up the per-package authority hints needed for enforcement.
-    expect(fs.existsSync(path.join(DEMO_DRIFT, '.archengine'))).toBe(false);
+  test('fixture ships an enforcement policy (Phase C)', () => {
+    // Phase C lands a real policy that produces the canonical
+    // "Blocked: 1 architecture violation." demo output. The exact
+    // shape is asserted in cli-experience-phase-c.test.ts.
+    expect(fs.existsSync(path.join(DEMO_DRIFT, '.archengine', 'policy.yml'))).toBe(true);
   });
 
   test('demo-drift README mentions the v1.0.x command set', () => {

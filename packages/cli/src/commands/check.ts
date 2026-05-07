@@ -114,7 +114,10 @@ export async function checkCommand(options: any) {
     console.log(`  Workspace:            ${pc.bold(meta.workspaceType)} (${meta.extractionMode})`);
     console.log(`  Confidence:           ${pc.bold(confidenceDescription(meta))}`);
     if (headline.kind === 'tier') {
-      console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
+      // Single, calibrated stability line (Phase C unified the previous
+      // "Stability Score: CRITICAL (0.47)" + headline duplication into
+      // one line).
+      console.log(`  Stability:            ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)} / 1.00)`))}`);
     }
     console.log(`  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
     console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
@@ -172,28 +175,52 @@ export async function checkCommand(options: any) {
 
   // Exit code 5: Policy violations in ENFORCE mode
   if (policyEval && policyEval.violations.length > 0) {
+    const isEnforcing = policyEval.policyMode === 'enforce';
     if (!options.json) {
-      const modeStr = policyEval.policyMode === 'enforce' ? pc.red('(ENFORCE)') : pc.yellow('(ADVISORY)');
-      console.log(`\n${pc.red('⚠')} Detected ${policyEval.violations.length} policy violation(s) ${modeStr}.`);
+      const verdict = isEnforcing
+        ? pc.red(pc.bold(`Blocked: ${policyEval.violations.length} architecture violation${policyEval.violations.length === 1 ? '' : 's'}.`))
+        : pc.yellow(pc.bold(`${policyEval.violations.length} policy warning${policyEval.violations.length === 1 ? '' : 's'} (advisory mode).`));
+      console.log('');
+      console.log(verdict);
+      console.log('');
+      // Per-violation block. Show rule id and severity so the user can
+      // act on exactly the rule they need to. Five-violation cap kept
+      // from v1.0.1 — the artifact JSON has the full list.
       for (const v of policyEval.violations.slice(0, 5)) {
-        console.log(`  ${v.from} → ${v.to} [${v.violationCategory}]`);
+        const ciNote = isEnforcing && v.severity === 'error' ? pc.dim('(blocks CI)') : pc.dim('(advisory)');
+        const arrow = isEnforcing ? pc.red('✗') : pc.yellow('⚠');
+        console.log(`  ${arrow} ${pc.bold(v.from)} → ${pc.bold(v.to)}   ${ciNote}`);
+        if (v.ruleId) {
+          console.log(`    Rule:     ${v.ruleId}`);
+        }
+        console.log(`    Severity: ${v.severity}`);
+      }
+      if (policyEval.violations.length > 5) {
+        console.log(pc.dim(`    ... and ${policyEval.violations.length - 5} more (see ${artifactPath}).`));
       }
     }
-    if (policyEval.policyMode === 'enforce') {
+    if (isEnforcing) {
       if (!options.json) {
         console.log('');
-        console.log(`Fix: review the offending edge(s) above, or update your policy to allow them.`);
-        console.log(`Exit 5: blocking policy violations.`);
+        console.log(`Fix: remove or re-route the offending edge(s) above, or update your policy to allow them.`);
+        console.log(`Exit 1: blocking architecture violations.`);
       }
-      process.exit(5);
+      // Phase D-Lite: blocking architecture violations exit with code 1
+      // (was 5 in v1.0.1 — see audit
+      // ARCH_ENGINE_CLI_EXPERIENCE_EXIT_CODE_REPAIR_AUDIT.md). Code 5 is
+      // now reserved for internal invariant failures.
+      process.exit(1);
     }
   }
 
-  // Exit code 2: BLOCKER policy violations (internal authority-tier blockers)
+  // BLOCKER authority-tier crossings (internal heuristic-detected
+  // architecture violations). These are blocking violations from the
+  // user's perspective and now exit with the same code as enforce-mode
+  // policy violations: 1.
   const blockerCount = engineResult.stabilityIndex.authority_crossings.blocker_crossings;
   if (blockerCount > 0) {
     if (!options.json) {
-      console.error(pc.red(`\n✖ Detected ${blockerCount} internal BLOCKER violation(s).`));
+      console.error(pc.red(`\n✖ Detected ${blockerCount} blocking authority-tier violation(s).`));
       const blockers = engineResult.stabilityIndex.authority_crossings.entries
         .filter((c: RankedAuthorityCrossing) => c.recommended_severity === 'BLOCKER');
       for (const b of blockers.slice(0, 5)) {
@@ -201,9 +228,12 @@ export async function checkCommand(options: any) {
       }
       console.error('');
       console.error(`Fix: review the authority-tier crossings above. Each must be either resolved or explicitly allowed.`);
-      console.error(`Exit 2: blocking authority-tier violations.`);
+      console.error(`Exit 1: blocking architecture violations.`);
     }
-    process.exit(2);
+    // Phase D-Lite: was exit 2 in v1.0.1; migrated to 1 to align with
+    // the "blocking architecture violations" semantic. Code 2 is now
+    // reserved for invalid input or configuration.
+    process.exit(1);
   }
 
   // Happy path. The verdict line MUST be consistent with the rest of the

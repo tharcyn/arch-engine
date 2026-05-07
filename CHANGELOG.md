@@ -4,6 +4,87 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] — 2026-05-07
+
+Patch release. The frozen v1.0.x public API surface is preserved exactly;
+freeze tests pass without snapshot updates. Consumers of `@arch-engine/*@1.0.1`
+can upgrade with no code changes other than the CI exit-code note below.
+
+### Fixed
+
+- Removed misleading command-name echoes (`arch-engine doctor`,
+  `arch-engine inspect`, `arch-engine check`, `arch-engine explain …`) from
+  human CLI output.
+- Removed hardcoded stale `Arch Engine CLI v1.0.0` and `Schema runtime v1.0.0`
+  diagnostic strings from `arch-engine doctor`.
+- Calibrated `arch-engine analyze` and `arch-engine check` so a healthy
+  no-policy fixture is no longer labelled `Stability Score: CRITICAL` —
+  the headline now reads `No policy configured — topology captured but not
+  evaluated.` when no policy file is present.
+- Removed the `Stability Score: CRITICAL` + `✔ Verification complete. No
+  blocking violations.` contradiction from `arch-engine check`'s no-policy
+  output.
+- Every command's human output now ends with exactly one
+  `Next: …` / `Fix: …` / `Exit N: …` line.
+- Root `arch-engine --help` now leads with the product promise
+  *"Catch architecture drift before merge."*, lists the five v1.0.x commands
+  with plainer descriptions, and ends with a recommended first-run path
+  plus a docs URL.
+- Per-command help now ships an Examples block. `arch-engine check --help`
+  documents exit codes; `arch-engine explain --help` documents the
+  supported target vocabulary (`regression`, `policy`, plus free-form
+  node/edge substring search).
+- `arch-engine explain <unknown-target>` now lists the supported special
+  targets in both human and JSON modes.
+- Added a deterministic `examples/demo-drift/` fixture that produces the
+  canonical `Blocked: 1 architecture violation.` output suitable for the
+  README and screenshots.
+- Updated `docs/cli/cli-readiness-matrix.md` exit-code documentation to
+  match the current canonical mapping.
+
+### Behavior change (CI scripts may need updating)
+
+- **`arch-engine check` now exits `1` for blocking architecture violations.**
+  In v1.0.1, blocking enforce-mode policy violations exited `5` and BLOCKER
+  authority-tier crossings exited `2`. Both now exit `1`.
+- Exit `5` is reserved for internal invariant failure.
+- Exit `2` is reserved for invalid input or configuration.
+- Exit `3` continues to indicate adapter/workspace failure (coverage
+  threshold not met).
+- Successful runs and runs with no blocking violations still exit `0`.
+- CI scripts that explicitly checked `if exit_code == 5` or `if exit_code
+  == 2` for blocking violations need updating to check `if exit_code != 0`
+  (most CI scripts already do this) or `if exit_code == 1`.
+- No published v1.0.1 fixture triggers the old `5` or `2` codes; only
+  consumers running their own `.archengine/policy.yml` in `mode: enforce`
+  observe the change.
+
+### Compatibility
+
+- No new commands.
+- No new flags.
+- No public export widening — `@arch-engine/core`'s public 110-symbol
+  freeze set is byte-identical.
+- No AGP dependency added — `@arch-governance/*` is not required.
+- JSON keys preserved verbatim. Two backward-compatible additive fields
+  from v1.0.1 + Phase A continue (`policyConfigured`, `headlineKind`).
+  One additive field on `arch-engine explain --json` unknown-target
+  responses (`supportedSpecialTargets[]`).
+- Auto-init `.arch-engine/` directory and stability artifact behavior
+  unchanged.
+
+### Packages
+
+- `@arch-engine/schema` — v1.0.2
+- `@arch-engine/core` — v1.0.2
+- `@arch-engine/cli` — v1.0.2
+- `@arch-engine/adapter-monorepo` — v1.0.2
+- `@arch-engine/governance-pack-authority` — v1.0.2
+- `@arch-engine/governance-pack-rest-contract` — v1.0.2
+- `@arch-engine/governance-pack-journey` — v1.0.2
+
+---
+
 ## [1.0.1] — 2026-05-06
 
 Strict patch release. No public API expansion. The frozen v1.0.0 export

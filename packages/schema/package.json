@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/schema",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Canonical JSON schemas and TypeScript types for architecture reasoning.",
   "license": "MIT",
   "type": "module",

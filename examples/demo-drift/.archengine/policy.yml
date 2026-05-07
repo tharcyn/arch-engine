@@ -1,0 +1,24 @@
+# Arch-Engine policy for the demo-drift fixture.
+#
+# This policy enforces one architecture rule: the frontend workspace must
+# not depend on the payments gateway directly. All payment integrations
+# should route through the services layer (PaymentService) so payment
+# provider changes never trigger a frontend release.
+#
+# Without this rule, `arch-engine check` would not block the
+# CheckoutButton.ts → PaymentGateway import. With this rule, `check`
+# exits non-zero and the violation is surfaced for the developer.
+#
+# The rule uses exact workspace node IDs — the v1.0.x policy evaluator
+# matches `from` / `to` as path-style prefixes against extracted node
+# identifiers. See packages/core/src/policy/evaluator.ts.
+
+version: 1
+mode: enforce
+
+rules:
+  forbid:
+    - id: frontend-must-not-touch-payment-gateway
+      from: '@demo-drift/frontend'
+      to: '@demo-drift/payments'
+      severity: error

@@ -55,7 +55,7 @@ Full architecture pipeline execution:
 - Regression detection (vs baseline artifact)
 - Stability artifact generation
 
-**Exit codes:** 0 (pass), 2 (blocker violations), 3 (coverage threshold), 5 (policy violations in enforce mode)
+**Exit codes:** 0 (no blocking architecture violations), 1 (blocking architecture violations found), 2 (invalid input or configuration), 3 (adapter/workspace failure), 5 (internal invariant failure)
 
 ### `analyze` — Discovery & Insights
 
