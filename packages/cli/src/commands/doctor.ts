@@ -3,6 +3,7 @@ import { discoverEnvironment } from '../autodiscovery.js';
 import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
+import { detectPolicyFile } from '../policy-presence.js';
 import {
   confidenceDescription,
   classifyConfidence,
@@ -21,12 +22,9 @@ export async function doctorCommand(options: any) {
   const initResult = autoInitializeArchitectureContext(cwd);
 
   if (!options.json) {
-    console.log(pc.bold(pc.cyan('arch-engine doctor')));
-    console.log(pc.green('Arch Engine CLI v1.0.0'));
-    console.log(pc.green('Schema runtime v1.0.0'));
-    console.log(pc.green('Adapter resolution OK'));
-    console.log(pc.green('Topology extraction ready'));
-    console.log('');
+    // No literal command echo. No hardcoded version strings. The pre-extraction
+    // "Adapter resolution OK / Topology extraction ready" lines were removed
+    // because they ran BEFORE the adapter was actually loaded — false reassurance.
     console.log(pc.dim('Diagnosing environment readiness...\n'));
 
     if (initResult.initialized) {
@@ -41,6 +39,7 @@ export async function doctorCommand(options: any) {
   const discovery = discoverEnvironment(cwd);
   const extraction = adapter.runMonorepoExtraction(cwd);
   const meta = extraction.metadata;
+  const policyPresence = detectPolicyFile(cwd);
 
   // Domain distribution
   const domainPackages = Object.entries(extraction.routeServiceMap.forward as Record<string, RouteServiceEntry>).map(
@@ -66,7 +65,7 @@ export async function doctorCommand(options: any) {
     domainIntegrity,
     warnings: meta.warnings,
     autoInitialized: initResult.initialized,
-    hasPolicyFile: false,
+    hasPolicyFile: policyPresence.configured,
   };
 
   if (options.json) {
@@ -114,10 +113,13 @@ export async function doctorCommand(options: any) {
     console.log(`\n${pc.yellow('⚠')} ${pc.yellow(floor.message!)}`);
   }
 
-  // Policy file
-  console.log(`\n${pc.yellow('⚠')} No policy file detected (arch-policy.yml)`);
-  console.log(pc.green('  Topology extraction completed successfully.'));
-  console.log(pc.dim('  Policy packs can be added later to enforce architectural invariants.'));
+  // Policy file — informational, not a warning. Setup gap, not error.
+  if (policyPresence.configured) {
+    console.log(`\n${pc.green('✔')} Policy file detected: ${pc.bold(policyPresence.path!)}`);
+  } else {
+    console.log(`\n${pc.dim('No policy file is configured yet.')}`);
+    console.log(pc.dim('  Topology extraction completed successfully.'));
+  }
 
   // Warnings
   if (meta.warnings.length > 0) {
@@ -125,5 +127,16 @@ export async function doctorCommand(options: any) {
     for (const line of formatWarnings(meta.warnings)) {
       console.log(line);
     }
+  }
+
+  // Single final next-action line.
+  console.log('');
+  if (!policyPresence.configured) {
+    console.log(
+      'Next: run `arch-engine inspect` to review the topology, then add ' +
+        '`arch-policy.yml` when you are ready to enforce rules.',
+    );
+  } else {
+    console.log('Next: run `arch-engine check` to evaluate your policy.');
   }
 }

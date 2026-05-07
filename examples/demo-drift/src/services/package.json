@@ -1,0 +1,9 @@
+{
+  "name": "@demo-drift/services",
+  "version": "0.0.0",
+  "private": true,
+  "main": "PaymentService.ts",
+  "dependencies": {
+    "@demo-drift/payments": "*"
+  }
+}

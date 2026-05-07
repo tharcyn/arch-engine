@@ -4,7 +4,16 @@ import * as crypto from 'node:crypto';
 import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
-import { classifyStability, classifyConfidence, confidenceDescription, checkQualityFloor, formatWarnings, formatWarningHeader } from '../renderers.js';
+import { detectPolicyFile } from '../policy-presence.js';
+import {
+  classifyStability,
+  classifyConfidence,
+  confidenceDescription,
+  checkQualityFloor,
+  deriveAnalysisHeadline,
+  formatWarnings,
+  formatWarningHeader,
+} from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthorityCrossing } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
@@ -16,7 +25,7 @@ export async function checkCommand(options: any) {
   autoInitializeArchitectureContext(cwd);
 
   if (!options.json) {
-    console.log(pc.bold(pc.cyan('arch-engine check')));
+    // No literal command echo — see CLI Experience Specification §4 P12.
     console.log(pc.dim('Executing policy pipeline...\n'));
   }
 
@@ -43,9 +52,10 @@ export async function checkCommand(options: any) {
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
   const crossingCount = engineResult.stabilityIndex.authority_crossings.total_crossings;
 
-  // Global policy detected computation
-  const policyCfgPath = `${cwd}/.archengine/policy.yml`;
-  const policyExists = fs.existsSync(policyCfgPath);
+  // Single source of truth for policy presence (matches doctor + analyze).
+  const policyPresence = detectPolicyFile(cwd);
+  const policyExists = policyPresence.configured;
+  const headline = deriveAnalysisHeadline({ score, meta, policyConfigured: policyExists });
 
   // Policy Evaluation
   const policyDoc = loadPolicyConfig(cwd);
@@ -96,10 +106,16 @@ export async function checkCommand(options: any) {
   const minCoverage = options.minCoverage ? parseFloat(options.minCoverage) : 0;
 
   if (!options.json) {
-    // Workspace detection transparency
+    // Workspace detection transparency. The "Stability Score" line that
+    // previously printed "CRITICAL" before "No blocking violations" was
+    // removed — see CLI Experience Specification §5.4 for the contradiction
+    // it produced. The numeric score remains visible only when the headline
+    // grades it (i.e., a policy file is configured AND signal is sufficient).
     console.log(`  Workspace:            ${pc.bold(meta.workspaceType)} (${meta.extractionMode})`);
     console.log(`  Confidence:           ${pc.bold(confidenceDescription(meta))}`);
-    console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
+    if (headline.kind === 'tier') {
+      console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
+    }
     console.log(`  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
     console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
     console.log(`  Authority cross.:     ${pc.bold(crossingCount)} observed`);
@@ -121,6 +137,9 @@ export async function checkCommand(options: any) {
       }
     }
   } else {
+    // Backward-compatible JSON shape. Existing keys preserved verbatim.
+    // Two additive fields so machine consumers can distinguish a no-policy
+    // run from an actual blocking-violation run.
     console.log(JSON.stringify({
       score,
       classification: stability.tier,
@@ -135,6 +154,8 @@ export async function checkCommand(options: any) {
       warnings: meta.warnings,
       executionMetrics,
       artifactPath,
+      policyConfigured: policyExists,
+      headlineKind: headline.kind,
     }, null, 2));
   }
 
@@ -142,6 +163,9 @@ export async function checkCommand(options: any) {
   if (minCoverage > 0 && meta.coverage < minCoverage) {
     if (!options.json) {
       console.error(pc.red(`\n✖ Topology coverage (${meta.coverage.toFixed(2)}) is below the required threshold of ${minCoverage}.`));
+      console.error('');
+      console.error(`Fix: lower --min-coverage, or improve adapter coverage (see https://arch-engine.dev/adapters).`);
+      console.error(`Exit 3: coverage threshold not met.`);
     }
     process.exit(3);
   }
@@ -150,17 +174,22 @@ export async function checkCommand(options: any) {
   if (policyEval && policyEval.violations.length > 0) {
     if (!options.json) {
       const modeStr = policyEval.policyMode === 'enforce' ? pc.red('(ENFORCE)') : pc.yellow('(ADVISORY)');
-      console.log(`\n${pc.red('⚠')} Detected ${policyEval.violations.length} Policy violation(s) ${modeStr}.`);
+      console.log(`\n${pc.red('⚠')} Detected ${policyEval.violations.length} policy violation(s) ${modeStr}.`);
       for (const v of policyEval.violations.slice(0, 5)) {
         console.log(`  ${v.from} → ${v.to} [${v.violationCategory}]`);
       }
     }
     if (policyEval.policyMode === 'enforce') {
+      if (!options.json) {
+        console.log('');
+        console.log(`Fix: review the offending edge(s) above, or update your policy to allow them.`);
+        console.log(`Exit 5: blocking policy violations.`);
+      }
       process.exit(5);
     }
   }
 
-  // Exit code 2: BLOCKER policy violations
+  // Exit code 2: BLOCKER policy violations (internal authority-tier blockers)
   const blockerCount = engineResult.stabilityIndex.authority_crossings.blocker_crossings;
   if (blockerCount > 0) {
     if (!options.json) {
@@ -170,14 +199,32 @@ export async function checkCommand(options: any) {
       for (const b of blockers.slice(0, 5)) {
         console.error(pc.red(`  ${b.source_entity} → ${b.target_entity} [${b.authority_domain}]`));
       }
+      console.error('');
+      console.error(`Fix: review the authority-tier crossings above. Each must be either resolved or explicitly allowed.`);
+      console.error(`Exit 2: blocking authority-tier violations.`);
     }
     process.exit(2);
   }
 
+  // Happy path. The verdict line MUST be consistent with the rest of the
+  // output — never "CRITICAL" + "no blocking violations" together. We
+  // distinguish two no-block scenarios:
+  //   1. policy is configured AND was evaluated cleanly → "Pass."
+  //   2. no policy is configured → "No policy to evaluate against."
   if (!options.json) {
-    console.log(pc.green(`\n✔ Verification complete. No blocking violations.`));
+    if (policyExists) {
+      console.log(pc.green(`\n✔ Pass. No blocking architecture violations.`));
+    } else {
+      console.log(pc.dim(`\nNo policy file is configured yet — nothing was enforced.`));
+    }
     console.log(pc.dim(`Artifact: ${artifactPath}`));
     console.log(pc.dim(`Extraction: ${executionMetrics.extractionMs}ms | Pipeline: ${executionMetrics.pipelineMs}ms | Total: ${executionMetrics.totalMs}ms`));
+    console.log('');
+    if (policyExists) {
+      console.log('Exit 0: no blocking architecture violations.');
+    } else {
+      console.log('Next: add `arch-policy.yml` to enforce boundaries. No blocking rules were evaluated.');
+    }
   }
   process.exit(0);
 }

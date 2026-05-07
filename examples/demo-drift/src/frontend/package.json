@@ -1,0 +1,10 @@
+{
+  "name": "@demo-drift/frontend",
+  "version": "0.0.0",
+  "private": true,
+  "main": "CheckoutButton.ts",
+  "dependencies": {
+    "@demo-drift/services": "*",
+    "@demo-drift/payments": "*"
+  }
+}

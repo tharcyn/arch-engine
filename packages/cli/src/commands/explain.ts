@@ -5,6 +5,7 @@ import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge } from '../runner-bridge.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
+import { SUPPORTED_EXPLAIN_TARGETS } from '../help-text.js';
 
 export async function explainCommand(target: string, options: any) {
   const cwd = process.cwd();
@@ -20,7 +21,7 @@ export async function explainCommand(target: string, options: any) {
   }
 
   if (!options.json) {
-    console.log(pc.bold(pc.cyan(`arch-engine explain ${target}`)));
+    // No literal command echo — see CLI Experience Specification §4 P12.
     console.log(pc.dim('Querying reasoning trace...\n'));
   }
 
@@ -39,6 +40,8 @@ export async function explainCommand(target: string, options: any) {
     const allEdges = Object.values(engineResult.reconciliationTrace)
     if (!options.json) {
       console.log(pc.dim('Try running with a more populated workspace.'));
+      console.log('');
+      console.log('Next: run `arch-engine inspect` to confirm what topology was extracted.');
     }
     return;
   }
@@ -62,15 +65,27 @@ export async function explainCommand(target: string, options: any) {
       .slice(0, 5);
 
     if (options.json) {
-      console.log(JSON.stringify({ matches: [], suggestions }, null, 2));
+      console.log(JSON.stringify({
+        matches: [],
+        suggestions,
+        supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
+      }, null, 2));
     } else {
       console.log(pc.yellow(`No matches found for '${target}'.`));
+      console.log('');
+      console.log(pc.dim('Supported special targets:'));
+      for (const t of SUPPORTED_EXPLAIN_TARGETS) {
+        console.log(pc.dim(`  ${t.keyword.padEnd(12)} ${t.description}`));
+      }
       if (suggestions.length > 0) {
-        console.log(pc.dim('\nDid you mean:'));
+        console.log('');
+        console.log(pc.dim('Or did you mean a topology node/edge:'));
         for (const s of suggestions) {
           console.log(pc.dim(`  → ${s}`));
         }
       }
+      console.log('');
+      console.log('Next: run `arch-engine inspect` to list every node and edge.');
     }
     return;
   }
@@ -102,6 +117,10 @@ export async function explainCommand(target: string, options: any) {
   if (matches.length > 10) {
     console.log(pc.dim(`\n... and ${matches.length - 10} more edges. Use --json to see all.`));
   }
+
+  // Single final next-action line.
+  console.log('');
+  console.log('Next: run `arch-engine check` to verify whether this explanation affects the policy verdict.');
 }
 
 // ─── Regression Context Explainer ───────────────────────
@@ -156,7 +175,7 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     return;
   }
 
-  console.log(pc.bold(pc.cyan('arch-engine explain regression')));
+  // No literal command echo — see CLI Experience Specification §4 P12.
   console.log(pc.dim('Regression context from stability-score.json\n'));
 
   // Status
@@ -213,6 +232,10 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     console.log(`  Artifact Version: ${baseline.baselineArtifactVersion ?? 'unknown'}`);
     console.log(`  Lineage Depth: ${baseline.lineageDepth ?? 'unknown'}`);
   }
+
+  // Single final next-action line.
+  console.log('');
+  console.log('Next: run `arch-engine check` to verify whether this regression affects the policy verdict.');
 }
 
 async function explainPolicy(cwd: string, options: any) {
@@ -254,11 +277,13 @@ async function explainPolicy(cwd: string, options: any) {
     return;
   }
 
-  console.log(pc.bold(pc.cyan(`arch-engine explain policy${targetRuleId ? ` ${targetRuleId}` : ''}`)));
-  console.log(`Hash: ${evalResult.policyHash} | Mode: ${evalResult.policyMode}\n`);
+  // No literal command echo — see CLI Experience Specification §4 P12.
+  console.log(`Policy: hash ${evalResult.policyHash} | mode ${evalResult.policyMode}\n`);
 
   if (violations.length === 0) {
     console.log(pc.green(`✔ No policy violations ${targetRuleId ? `for rule '${targetRuleId}' ` : ''}detected.`));
+    console.log('');
+    console.log('Next: run `arch-engine check` to confirm the verdict in CI mode.');
     return;
   }
 
@@ -285,5 +310,7 @@ async function explainPolicy(cwd: string, options: any) {
 
     console.log('');
   }
+
+  console.log('Next: run `arch-engine check` to confirm whether these violations block CI.');
 }
 

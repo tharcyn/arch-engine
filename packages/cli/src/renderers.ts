@@ -27,6 +27,56 @@ export function classifyStability(score: number): StabilityClassification {
   return { tier: 'CRITICAL', score, color: pc.red };
 }
 
+// ─── Headline Calibration ──────────────────────────────
+//
+// Per the CLI Experience Specification §5.3 and §5.4, a headline
+// classification must be calibrated to reality:
+//
+// - When no policy file is configured, the run is "no-policy" — the score
+//   collapses against synthetic zero baselines and is not meaningful. Render
+//   a neutral headline; do not show the negative tier.
+// - When coverage / detected-nodes are too small to evaluate, the run is
+//   "low-signal" — render a warning headline; do not show the negative tier.
+// - Otherwise, render the actual stability tier from the score.
+
+export type AnalysisHeadlineKind = 'no-policy' | 'low-signal' | 'tier';
+
+export interface AnalysisHeadline {
+  readonly kind: AnalysisHeadlineKind;
+  readonly text: string;
+  readonly color: (s: string) => string;
+}
+
+export interface AnalysisHeadlineContext {
+  readonly score: number;
+  readonly meta: ExtractionMetadata;
+  readonly policyConfigured: boolean;
+}
+
+export function deriveAnalysisHeadline(ctx: AnalysisHeadlineContext): AnalysisHeadline {
+  const { score, meta, policyConfigured } = ctx;
+  if (!policyConfigured) {
+    return {
+      kind: 'no-policy',
+      text: 'No policy configured — topology captured but not evaluated.',
+      color: pc.dim,
+    };
+  }
+  if (meta.coverage < 0.30 || meta.detectedNodes < 2) {
+    return {
+      kind: 'low-signal',
+      text: 'Topology captured with low signal — score not graded.',
+      color: pc.yellow,
+    };
+  }
+  const cls = classifyStability(score);
+  return {
+    kind: 'tier',
+    text: `Stability: ${cls.tier} (${score.toFixed(2)} / 1.00)`,
+    color: cls.color,
+  };
+}
+
 // ─── Confidence Label Mapping ───────────────────────────
 
 export type ConfidenceLabel = 'HIGH' | 'MODERATE' | 'LOW' | 'VERY_LOW';

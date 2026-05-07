@@ -2,6 +2,7 @@ import pc from 'picocolors';
 import { loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
+import { detectPolicyFile } from '../policy-presence.js';
 import {
   classifyConfidence,
   confidenceDescription,
@@ -19,7 +20,7 @@ export async function inspectCommand(options: any) {
   autoInitializeArchitectureContext(cwd);
 
   if (!options.json) {
-    console.log(pc.bold(pc.cyan('arch-engine inspect')));
+    // No literal command echo — see CLI Experience Specification §4 P12.
     console.log(pc.dim('Summarizing canonical topology...\n'));
   }
 
@@ -99,5 +100,14 @@ export async function inspectCommand(options: any) {
   console.log(`\n${pc.bold('Adapters active:')}`);
   for (const adapter of data.adaptersActive) {
     console.log(`  ${pc.green('●')} ${adapter}`);
+  }
+
+  // Single final next-action line.
+  const policyPresence = detectPolicyFile(cwd);
+  console.log('');
+  if (!policyPresence.configured) {
+    console.log('Next: run `arch-engine analyze` to score architecture signal, or add `arch-policy.yml` and run `arch-engine check`.');
+  } else {
+    console.log('Next: run `arch-engine check` to evaluate your policy against this topology.');
   }
 }

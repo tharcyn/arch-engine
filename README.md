@@ -186,8 +186,23 @@ See the [Determinism Contract](docs/determinism-contract.md) and [Identity Surfa
 
 ## Examples
 
+Try the demo fixture for a 60-second tour of the v1.0.x command surface:
+
+```bash
+cd examples/demo-drift
+npx arch-engine doctor
+npx arch-engine inspect
+npx arch-engine analyze
+npx arch-engine check
+```
+
+The fixture is three small workspaces (`frontend`, `services`, `payments`)
+illustrating an architecture-drift scenario. See
+[examples/demo-drift/README.md](examples/demo-drift/README.md) for the story.
+
 | Example | Demonstrates |
 | --- | --- |
+| [demo-drift](examples/demo-drift/) | Tiny topology fixture for first-run CLI walkthrough |
 | [Reference Policy Pack](examples/reference-policy-pack/) | Canonical topology specimen, authority-tier enforcement |
 | [Multi-Policy Composition](examples/multi-policy-composition/) | Severity escalation, provenance chains, composition hash stability |
 | [Federation Overlay](examples/federation-overlay/) | Cross-registry composition, mirror fallback, closure hash parity |

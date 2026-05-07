@@ -1,0 +1,11 @@
+{
+  "name": "demo-drift",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tiny deterministic fixture for arch-engine README screenshots and CLI demos. Three workspaces — frontend, services, payments — illustrating an architecture-drift scenario.",
+  "workspaces": [
+    "src/frontend",
+    "src/services",
+    "src/payments"
+  ]
+}

@@ -14,6 +14,8 @@
     "src/renderers.ts",
     "src/runner-bridge.ts",
     "src/snapshot.ts",
-    "src/policy-lift.ts"
+    "src/policy-lift.ts",
+    "src/policy-presence.ts",
+    "src/help-text.ts"
   ]
 }

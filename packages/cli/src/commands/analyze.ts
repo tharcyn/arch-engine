@@ -4,6 +4,7 @@ import { discoverEnvironment } from '../autodiscovery.js';
 import { executeRunnerBridge, loadMonorepoAdapter } from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
+import { detectPolicyFile } from '../policy-presence.js';
 import {
   classifyStability,
   classifyConfidence,
@@ -11,6 +12,7 @@ import {
   checkQualityFloor,
   countDomainDistribution,
   checkDomainIntegrity,
+  deriveAnalysisHeadline,
   formatWarnings,
   formatWarningHeader,
 } from '../renderers.js';
@@ -34,6 +36,8 @@ export async function analyzeCommand(options: any) {
   const stability = classifyStability(score);
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
   const crossingCount = engineResult.stabilityIndex.authority_crossings.total_crossings;
+  const policyPresence = detectPolicyFile(cwd);
+  const headline = deriveAnalysisHeadline({ score, meta, policyConfigured: policyPresence.configured });
 
   // Domain distribution (adapter resolved lazily via runner-bridge)
   const adapter = await loadMonorepoAdapter();
@@ -49,6 +53,10 @@ export async function analyzeCommand(options: any) {
   const artifactPath = writeStabilityArtifact(cwd, artifact);
 
   if (options.json) {
+    // Backward-compatible JSON shape: existing keys preserved verbatim.
+    // Two additive fields: `policyConfigured` and `headlineKind` so that
+    // machine consumers can distinguish a no-policy / low-signal run from a
+    // genuine "CRITICAL" classification.
     console.log(JSON.stringify({
       score,
       classification: stability.tier,
@@ -65,19 +73,30 @@ export async function analyzeCommand(options: any) {
       components: engineResult.stabilityIndex.components,
       warnings: meta.warnings,
       executionMetrics,
+      policyConfigured: policyPresence.configured,
+      headlineKind: headline.kind,
     }, null, 2));
     return;
   }
 
+  // ── Headline ────────────────────────────────────────────
+  // Calibrated to policy presence and signal quality. We DO NOT print
+  // "Stability Score: CRITICAL" on a no-policy or low-signal fixture.
+  console.log(`\n  ${headline.color(pc.bold(headline.text))}`);
+
   // ── Header ──────────────────────────────────────────────
-  console.log(`  Workspace Type:       ${pc.bold(meta.workspaceType)}`);
+  console.log(`\n  Workspace Type:       ${pc.bold(meta.workspaceType)}`);
   console.log(`  Extraction Mode:      ${pc.bold(meta.extractionMode)}`);
   console.log(`  Topology Confidence:  ${pc.bold(confidenceDescription(meta))}`);
 
   // ── Core Metrics ────────────────────────────────────────
   console.log(`\n  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
   console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
-  console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
+  // Numeric score is shown only when the headline grades it. For
+  // no-policy / low-signal runs the raw score is misleading.
+  if (headline.kind === 'tier') {
+    console.log(`  Stability Score:      ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)})`))}`)
+  }
 
   // ── Quality Floor ───────────────────────────────────────
   const floor = checkQualityFloor(meta);
@@ -137,5 +156,13 @@ export async function analyzeCommand(options: any) {
 
   // ── Footer ──────────────────────────────────────────────
   console.log(pc.dim(`\n  Artifact written to ${artifactPath}`));
-  console.log(pc.dim(`  Extraction: ${executionMetrics.extractionMs}ms | Pipeline: ${executionMetrics.pipelineMs}ms | Total: ${executionMetrics.totalMs}ms\n`));
+  console.log(pc.dim(`  Extraction: ${executionMetrics.extractionMs}ms | Pipeline: ${executionMetrics.pipelineMs}ms | Total: ${executionMetrics.totalMs}ms`));
+
+  // ── Single final next-action line ──────────────────────
+  console.log('');
+  if (!policyPresence.configured) {
+    console.log('Next: add `arch-policy.yml` to turn topology analysis into enforceable architecture checks.');
+  } else {
+    console.log('Next: run `arch-engine check` to apply your policy and get a CI verdict.');
+  }
 }
