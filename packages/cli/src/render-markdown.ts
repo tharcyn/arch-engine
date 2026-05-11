@@ -78,7 +78,7 @@ function renderCheckMarkdown(input: V2RenderInput): string {
 
   lines.push('# Arch-Engine `check`');
   lines.push('');
-  lines.push(`**Verdict:** ${verdictPhrase(input.status)}`);
+  lines.push(`**Verdict:** ${verdictPhrase(input.status)}${buildDriftVerdictSuffix(data)}`);
   lines.push('');
 
   // Metrics
@@ -135,6 +135,7 @@ function renderCheckMarkdown(input: V2RenderInput): string {
     lines.push('');
   }
 
+  appendDriftBlock(lines, input.data as Record<string, unknown>);
   appendDiagnosticsBlock(lines, input.diagnostics);
   appendNextActionsBlock(lines, input.nextActions);
   appendExitFooter(lines, input.exitCode);
@@ -175,6 +176,7 @@ function renderAnalyzeMarkdown(input: V2RenderInput): string {
   }
   lines.push('');
 
+  appendDriftBlock(lines, input.data as Record<string, unknown>);
   appendDiagnosticsBlock(lines, input.diagnostics);
 
   if (input.artifacts.length > 0) {
@@ -473,6 +475,147 @@ function exitSemantic(exitCode: number): string {
       return 'internal invariant failure';
     default:
       return 'failure';
+  }
+}
+
+// ─── v1.2.0 drift section ───────────────────────────────────────
+
+const DRIFT_TABLE_CAP = 25;
+
+/**
+ * Build the parenthetical to append to the **Verdict:** line when
+ * drift is non-zero. Returns the empty string when drift is absent
+ * or zero. Mirrors the human-output behaviour in check.ts /
+ * analyze.ts.
+ */
+function buildDriftVerdictSuffix(data: Record<string, unknown>): string {
+  const drift = data.drift as Record<string, unknown> | undefined;
+  if (!drift) return '';
+  const summary = drift.summary as Record<string, number> | undefined;
+  if (!summary) return '';
+  const parts: string[] = [];
+  if ((summary.newViolations ?? 0) > 0) parts.push(`+${summary.newViolations} violation${summary.newViolations === 1 ? '' : 's'}`);
+  if ((summary.resolvedViolations ?? 0) > 0) parts.push(`-${summary.resolvedViolations} resolved`);
+  if ((summary.addedEdges ?? 0) > 0) parts.push(`+${summary.addedEdges} edge${summary.addedEdges === 1 ? '' : 's'}`);
+  if ((summary.removedEdges ?? 0) > 0) parts.push(`-${summary.removedEdges} edge${summary.removedEdges === 1 ? '' : 's'}`);
+  if (parts.length === 0) return '';
+  return ` _(drift: ${parts.join(', ')})_`;
+}
+
+/**
+ * Append the `## Architecture Drift` section, between Violations
+ * and Diagnostics, when `data.drift` is present.
+ */
+function appendDriftBlock(lines: string[], data: Record<string, unknown>): void {
+  const drift = data.drift as Record<string, unknown> | undefined;
+  if (!drift) return;
+  const baseline = drift.baseline as Record<string, unknown> | undefined;
+  const summary = drift.summary as Record<string, number | boolean> | undefined;
+  const topology = drift.topology as Record<string, unknown> | undefined;
+  const violations = drift.violations as Record<string, ReadonlyArray<Record<string, unknown>>> | undefined;
+  if (!summary) return;
+
+  lines.push('## Architecture Drift');
+  lines.push('');
+
+  const path = typeof baseline?.path === 'string' ? baseline.path : '(unknown baseline)';
+  const ver = typeof baseline?.archEngineVersion === 'string' ? baseline.archEngineVersion : 'unknown';
+  lines.push(`Compared against \`${escapeMd(path)}\` (arch-engine@${ver}).`);
+  lines.push('');
+
+  // Detect "no drift" by looking at the entire summary block.
+  const hasAny =
+    Number(summary.newViolations ?? 0) +
+      Number(summary.resolvedViolations ?? 0) +
+      Number(summary.persistedViolations ?? 0) +
+      Number(summary.addedEdges ?? 0) +
+      Number(summary.removedEdges ?? 0) +
+      Number(summary.addedNodes ?? 0) +
+      Number(summary.removedNodes ?? 0) >
+      0 || summary.graphSurfaceHashChanged === true;
+
+  if (!hasAny) {
+    lines.push('_No architectural drift detected._');
+    lines.push('');
+    return;
+  }
+
+  lines.push('| Type | Count |');
+  lines.push('| --- | ---: |');
+  if ((summary.newViolations as number) > 0)
+    lines.push(`| New blocking violations | ${summary.newViolations} |`);
+  if ((summary.resolvedViolations as number) > 0)
+    lines.push(`| Resolved violations | ${summary.resolvedViolations} |`);
+  if ((summary.persistedViolations as number) > 0)
+    lines.push(`| Persisted violations | ${summary.persistedViolations} |`);
+  if ((summary.addedEdges as number) > 0) lines.push(`| Added edges | ${summary.addedEdges} |`);
+  if ((summary.removedEdges as number) > 0) lines.push(`| Removed edges | ${summary.removedEdges} |`);
+  if ((summary.addedNodes as number) > 0) lines.push(`| Added nodes | ${summary.addedNodes} |`);
+  if ((summary.removedNodes as number) > 0) lines.push(`| Removed nodes | ${summary.removedNodes} |`);
+  if (summary.scoreDelta !== null && summary.scoreDelta !== undefined && typeof summary.scoreDelta === 'number' && Math.abs(summary.scoreDelta) > 0.005) {
+    lines.push(`| Score delta | ${(summary.scoreDelta as number).toFixed(3)} |`);
+  }
+  lines.push('');
+
+  // New violating edges (only emit if non-empty).
+  const newViolations = violations?.new ?? [];
+  if (newViolations.length > 0) {
+    lines.push('### New violating edges');
+    lines.push('');
+    lines.push('| Rule | From | To | Severity | CI-blocking |');
+    lines.push('| --- | --- | --- | --- | --- |');
+    const shown = newViolations.slice(0, DRIFT_TABLE_CAP);
+    for (const v of shown) {
+      const edge = (v.edge as Record<string, string>) ?? { from: '?', to: '?', type: '' };
+      const rule = (v.ruleId as string | undefined) ?? '_(unknown)_';
+      const sev = (v.severity as string | undefined) ?? 'error';
+      const ci = (v.ciBlocking as boolean | undefined) ? 'yes' : 'no';
+      lines.push(
+        `| \`${escapeMd(rule)}\` | \`${escapeMd(edge.from)}\` | \`${escapeMd(edge.to)}\` | ${sev} | ${ci} |`,
+      );
+    }
+    if (newViolations.length > DRIFT_TABLE_CAP) {
+      lines.push(`\n_…and ${newViolations.length - DRIFT_TABLE_CAP} more (see JSON v2 for full data)._`);
+    }
+    lines.push('');
+  }
+
+  // Added edges.
+  const addedEdges = (topology?.addedEdges as ReadonlyArray<Record<string, unknown>> | undefined) ?? [];
+  if (addedEdges.length > 0) {
+    lines.push('### Added edges');
+    lines.push('');
+    lines.push('| From | To | Type |');
+    lines.push('| --- | --- | --- |');
+    const shown = addedEdges.slice(0, DRIFT_TABLE_CAP);
+    for (const e of shown) {
+      lines.push(
+        `| \`${escapeMd(String(e.from))}\` | \`${escapeMd(String(e.to))}\` | \`${escapeMd(String(e.type ?? ''))}\` |`,
+      );
+    }
+    if (addedEdges.length > DRIFT_TABLE_CAP) {
+      lines.push(`\n_…and ${addedEdges.length - DRIFT_TABLE_CAP} more (see JSON v2 for full data)._`);
+    }
+    lines.push('');
+  }
+
+  // Removed edges.
+  const removedEdges = (topology?.removedEdges as ReadonlyArray<Record<string, unknown>> | undefined) ?? [];
+  if (removedEdges.length > 0) {
+    lines.push('### Removed edges');
+    lines.push('');
+    lines.push('| From | To | Type |');
+    lines.push('| --- | --- | --- |');
+    const shown = removedEdges.slice(0, DRIFT_TABLE_CAP);
+    for (const e of shown) {
+      lines.push(
+        `| \`${escapeMd(String(e.from))}\` | \`${escapeMd(String(e.to))}\` | \`${escapeMd(String(e.type ?? ''))}\` |`,
+      );
+    }
+    if (removedEdges.length > DRIFT_TABLE_CAP) {
+      lines.push(`\n_…and ${removedEdges.length - DRIFT_TABLE_CAP} more (see JSON v2 for full data)._`);
+    }
+    lines.push('');
   }
 }
 

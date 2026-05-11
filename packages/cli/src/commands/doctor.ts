@@ -24,10 +24,12 @@ import {
 import { renderCliMarkdown } from '../render-markdown.js';
 import { emitFormattedOutput } from '../output-writer.js';
 import type { CliOutputOptions } from '../cli-options.js';
+import { rejectBaselineForUnsupportedCommand } from '../cli-options.js';
 
 export async function doctorCommand(options: any) {
   const cwd = process.cwd();
   const out: CliOutputOptions = options.outputOptions;
+  rejectBaselineForUnsupportedCommand(out, 'doctor');
 
   // Auto-init on first run
   const initResult = autoInitializeArchitectureContext(cwd);

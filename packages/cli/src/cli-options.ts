@@ -83,6 +83,13 @@ export interface CliOutputOptions {
    * `--no-color` (or implicit via `--ci`).
    */
   readonly noColor: boolean;
+  /**
+   * `--baseline <path>` — v1.2.0. When set, compare the current
+   * run against a prior JSON v2 envelope at this path. Valid only
+   * on `check` and `analyze` (commands without baseline support
+   * reject this flag with `ARCH_ENGINE_INVALID_CONFIG`).
+   */
+  readonly baseline: string | undefined;
 }
 
 /**
@@ -97,6 +104,7 @@ export const DEFAULT_OUTPUT_OPTIONS: CliOutputOptions = {
   verbose: false,
   quiet: false,
   noColor: false,
+  baseline: undefined,
 };
 
 /**
@@ -115,6 +123,7 @@ export function parseAndValidateCliOptions(raw: any): CliOutputOptions {
   const rawVerbose = raw?.verbose === true;
   const rawQuiet = raw?.quiet === true;
   const rawOutput = typeof raw?.output === 'string' ? raw.output : undefined;
+  const rawBaseline = typeof raw?.baseline === 'string' ? raw.baseline : undefined;
   // cac maps `--no-color` → `options.color === false`.
   const rawNoColor = raw?.color === false;
 
@@ -211,6 +220,19 @@ export function parseAndValidateCliOptions(raw: any): CliOutputOptions {
   // ── noColor (union: explicit --no-color OR --ci) ──────────────
   const noColor = rawNoColor || rawCi;
 
+  // ── Validate --baseline shape (path-form only; command compat
+  //    is enforced by the consuming command since cli-options.ts
+  //    doesn't know which command is running) ──────────────────
+  if (rawBaseline !== undefined) {
+    if (rawBaseline === '') {
+      failInvalidConfig(
+        '--baseline requires a non-empty path.',
+        'Pass a path: `--baseline path/to/baseline.json`.',
+        json,
+      );
+    }
+  }
+
   return {
     json,
     format,
@@ -220,6 +242,7 @@ export function parseAndValidateCliOptions(raw: any): CliOutputOptions {
     verbose: rawVerbose,
     quiet: rawQuiet,
     noColor,
+    baseline: rawBaseline,
   };
 }
 
@@ -239,6 +262,26 @@ export function attachOutputOptions(raw: any, options: CliOutputOptions): void {
   if (options.noColor && raw.color !== false) {
     raw.color = false;
   }
+}
+
+/**
+ * Reject `--baseline` when used on a command that doesn't support
+ * it. Per spec §7.2, only `check` and `analyze` accept baseline in
+ * v1.2.0. This is called by `doctor`, `inspect`, and `explain`
+ * before any other work.
+ *
+ * Exits 2 with `ARCH_ENGINE_INVALID_CONFIG`.
+ */
+export function rejectBaselineForUnsupportedCommand(
+  options: CliOutputOptions,
+  commandName: string,
+): void {
+  if (options.baseline === undefined) return;
+  failInvalidConfig(
+    `--baseline is not supported on \`${commandName}\` in v1.2.0.`,
+    'Use --baseline with `arch-engine check` or `arch-engine analyze`.',
+    options.json,
+  );
 }
 
 /**

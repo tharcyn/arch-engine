@@ -43,6 +43,11 @@ export async function run() {
   cli.option('--ci', 'Deterministic CI-friendly output (forces no-color).');
   cli.option('--verbose', 'Include extra diagnostic detail.');
   cli.option('--quiet', 'Suppress non-essential human output.');
+  // v1.2.0 — baseline comparison.
+  cli.option(
+    '--baseline <path>',
+    'Compare against a prior JSON v2 report (check/analyze only).',
+  );
 
   // ─── The Progressive Trust Ladder ──────────────────────────
   //
@@ -92,6 +97,7 @@ export async function run() {
     .example('  $ arch-engine analyze')
     .example('  $ arch-engine analyze --json --json-schema=v2')
     .example('  $ arch-engine analyze --format markdown')
+    .example('  $ arch-engine analyze --baseline arch-engine-baseline.json')
     .example('')
     .example('  Without a policy file, analyze is informational only.')
     .example('  Docs: ' + DOCS_URL + '/cli/analyze')
@@ -112,6 +118,8 @@ export async function run() {
     .example('  $ arch-engine check --ci')
     .example('  $ arch-engine check --json --json-schema=v2')
     .example('  $ arch-engine check --format markdown --output arch-engine-report.md')
+    .example('  $ arch-engine check --baseline arch-engine-baseline.json')
+    .example('  $ arch-engine check --baseline baseline.json --format markdown')
     .example('  $ arch-engine check --min-coverage 0.80')
     .example('')
     .example('  Exit codes:')

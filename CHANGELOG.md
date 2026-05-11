@@ -4,6 +4,132 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] — 2026-05-11
+
+Minor release. Adds cross-run **architecture drift detection** via
+the new `--baseline <path>` flag on `check` and `analyze`, plus a
+deterministic canonical-topology surface emitted unconditionally in
+JSON v2. All v1.1.0 defaults are preserved exactly: JSON v1 remains
+the default for `--json`, the five-command surface is unchanged, no
+existing JSON keys were removed or renamed, no AGP dependency was
+added. Consumers of `@arch-engine/*@1.1.0` can upgrade with no code
+changes; opt-in to v1.2.0 baseline comparison by passing the new
+flag.
+
+### Added
+
+- Added `--baseline <path>` for cross-run architecture drift
+  detection. Valid on `check` (primary) and `analyze` (secondary).
+  Rejected on `doctor`, `inspect`, `explain` with exit 2
+  (`ARCH_ENGINE_INVALID_CONFIG`). The baseline file must be a prior
+  Arch-Engine JSON v2 envelope (`schemaVersion:
+  "arch-engine.cli.v2"`) emitted by `check`, `analyze`, or
+  `inspect` with `data.topology.canonical` present.
+- Added `data.topology.canonical` to every JSON v2 output on
+  `inspect`, `analyze`, and `check`. Carries a deterministic
+  workspace topology: `{ graphSurfaceVersion: "1.0.0",
+  graphSurfaceHash: "<64-hex>", nodes[], edges[] }`. Nodes sorted by
+  `id` ascending; edges sorted by `id` ascending with stable
+  `e_<8-hex>` ids derived from `(from, to, type)`; `graphSurfaceHash`
+  is the sha256 of the canonical serialisation. Always present in
+  v2; never present in v1.
+- Added deterministic architecture-drift detection across three
+  orthogonal axes:
+  - **Topology** — `addedNodes`, `removedNodes`, `addedEdges`,
+    `removedEdges`, plus reserved `changedNodes` / `changedEdges`
+    for forward compatibility.
+  - **Policy** — `new`, `resolved`, `persisted`, `severityChanged`
+    violations keyed by the v1.0.3 stable `v_<hex8>` id.
+  - **Signal** — `scoreDelta`, `coverageDelta`, `connectivityDelta`,
+    `confidenceDelta`, `violationsDelta`,
+    `graphSurfaceHashChanged`.
+- Added `data.drift` to JSON v2 output when `--baseline` is set.
+  Contains `baseline` (metadata), `summary` (counter rollup),
+  `topology`, `violations`, and `signal` sub-objects per spec §11.3.
+  Drift arrays sorted by id; deltas computed at full numeric
+  precision; null-on-missing for baseline-side scalars.
+- Added `summary.drift` counter mirror to JSON v2 when `--baseline`
+  is set: `{ newViolations, resolvedViolations, addedEdges,
+  removedEdges }`. Top-level `summary.headline` gains a `(drift:
+  +N violation, +N edge)` parenthetical when drift is non-zero.
+- Added `## Architecture Drift` section to markdown output for
+  `check` and `analyze` when `--baseline` is set. Includes a summary
+  table (only non-zero rows), per-table caps of 25 entries, and
+  sub-sections for New violating edges / Added edges / Removed
+  edges. No-drift path emits `_No architectural drift detected._`.
+  Verdict line gains `_(drift: ...)_` parenthetical.
+- Added human-readable architecture drift block to `check` and
+  `analyze` (before the exit footer). Variants:
+  - **With drift, blocking:** "Architecture drift detected".
+  - **With drift, non-blocking:** "Architecture drift observed".
+  - **No drift:** "✔ No architectural drift detected".
+  Per-block cap of 5 entries. `--quiet` keeps the summary line but
+  suppresses detail tables. `--verbose` substitutes the absolute
+  baseline path for the basename.
+- Added five new `ARCH_ENGINE_*` error codes (vocabulary grows
+  additively to 16 total):
+  - `ARCH_ENGINE_BASELINE_NOT_FOUND` (ERROR, exit 2)
+  - `ARCH_ENGINE_BASELINE_INVALID` (ERROR, exit 2)
+  - `ARCH_ENGINE_BASELINE_UNSUPPORTED_SCHEMA` (ERROR, exit 2; downgrades to WARNING for the newer-than-runtime path)
+  - `ARCH_ENGINE_BASELINE_COMMAND_MISMATCH` (ERROR, exit 2)
+  - `ARCH_ENGINE_DRIFT_DETECTED` (INFO, exit 0; surfaces drift in `diagnostics[]` without blocking)
+- Added 82 new Phase G tests across four files
+  (`cli-experience-phase-g-{baseline-reader, drift, json-v2-baseline, drift-output}.test.ts`)
+  covering baseline path validation, JSON parsing, schema/command
+  checks, drift across all three axes, JSON v2 integration,
+  canonical-topology presence, markdown drift section, human drift
+  block, --quiet/--verbose interactions, determinism, and JSON v1
+  backward-compatibility.
+- Added three new internal CLI modules:
+  `packages/cli/src/canonical-topology.ts` (deterministic
+  emitter), `packages/cli/src/baseline-reader.ts` (strict
+  validator), and `packages/cli/src/drift.ts` (pure drift engine).
+- Added implementation audit at
+  `audits/ARCH_ENGINE_BASELINE_COMPARISON_IMPLEMENTATION_AUDIT.md`
+  and design spec at `docs/cli/baseline-comparison-spec.md`.
+
+### Changed
+
+- JSON v2 summaries can now include drift counters when baseline
+  comparison is active (`summary.drift`).
+- Markdown reports now include the `## Architecture Drift` section
+  when a baseline is supplied.
+- Human `check` and `analyze` outputs now surface a drift block
+  before the exit footer when a baseline is supplied.
+- The CLI's `ARCH_ENGINE_*` error-code vocabulary grows from 11 to
+  16. The v1.0.3 11-code floor is preserved verbatim and in the
+  same order; v1.2.0 only appends.
+- `readPackageVersion` is now exported from
+  `packages/cli/src/render-v2.ts` (internal helper; not part of
+  the package's public `exports` map).
+
+### Compatibility
+
+- JSON v1 output remains the default for `--json` and is
+  byte-identical to v1.1.0 / v1.0.3.
+- JSON v2 remains opt-in only via `--json-schema=v2`.
+- Canonical topology is in JSON v2 only; never in JSON v1.
+- Drift surfaces in JSON v2 only; v1 consumers see no drift fields.
+- Drift alone never fails CI. The exit code is computed strictly
+  from the current run's state.
+- Current blocking violations still exit `1` (unchanged from
+  v1.1.0).
+- Invalid baselines exit `2` with a structured
+  `ARCH_ENGINE_BASELINE_*` diagnostic.
+- The five-command surface (`doctor`, `inspect`, `analyze`,
+  `check`, `explain <target>`) is unchanged.
+- No new public exports from `@arch-engine/cli` or any other
+  workspace. The three new internal modules are bundled into the
+  CLI's ESM output but not exposed.
+- No AGP dependency. `@arch-engine/agp-emitter` and the
+  `@arch-governance/*` packages remain outside the v1.x runtime
+  bundle.
+- All previous freeze snapshots accepted with no snapshot updates.
+- Phase A / B / C / D-Lite / E / F suites all still green;
+  one Phase E test loosened from "exactly 11 codes" to "11-code
+  v1.0.3 prefix preserved, additive growth allowed" (documented in
+  the test).
+
 ## [1.1.0] — 2026-05-11
 
 Minor release. Adds six new CLI flags and an opt-in JSON v2 output

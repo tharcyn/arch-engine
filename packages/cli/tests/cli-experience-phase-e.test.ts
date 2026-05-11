@@ -121,8 +121,13 @@ function withFixtureCopy<T>(src: string, fn: (cwd: string) => T): T {
 // ═══════════════════════════════════════════════════════════
 
 describe('Phase E — error-codes.ts', () => {
-  test('exports the 11 v1.0.3 ARCH_ENGINE_* codes per spec §6.2', () => {
-    expect(ARCH_ENGINE_ERROR_CODES).toEqual([
+  test('includes the 11 v1.0.3 ARCH_ENGINE_* codes per spec §6.2 (additive in later versions)', () => {
+    // v1.0.3 locked these 11 codes as the floor. Later versions may
+    // grow the vocabulary additively (v1.2.0 added 5 BASELINE/DRIFT
+    // codes; future versions may add more). Phase E asserts that the
+    // v1.0.3 floor is preserved in order; downstream tests for newer
+    // versions assert their own additions.
+    const v1_0_3_FLOOR = [
       'ARCH_ENGINE_POLICY_NOT_FOUND',
       'ARCH_ENGINE_INVALID_POLICY',
       'ARCH_ENGINE_INVALID_CONFIG',
@@ -134,7 +139,11 @@ describe('Phase E — error-codes.ts', () => {
       'ARCH_ENGINE_BLOCKING_VIOLATION',
       'ARCH_ENGINE_INTERNAL_INVARIANT_FAILED',
       'ARCH_ENGINE_NO_BASELINE',
-    ]);
+    ];
+    // The locked v1.0.3 prefix must come first, in this exact order.
+    expect(ARCH_ENGINE_ERROR_CODES.slice(0, v1_0_3_FLOOR.length)).toEqual(v1_0_3_FLOOR);
+    // Any additional codes are allowed (introduced by later versions).
+    expect(ARCH_ENGINE_ERROR_CODES.length).toBeGreaterThanOrEqual(v1_0_3_FLOOR.length);
   });
 
   test('every code maps to a metadata record with severity/exit/title/fix', () => {

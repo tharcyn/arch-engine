@@ -22,6 +22,9 @@
     "src/cli-options.ts",
     "src/output-writer.ts",
     "src/render-v2.ts",
-    "src/render-markdown.ts"
+    "src/render-markdown.ts",
+    "src/canonical-topology.ts",
+    "src/baseline-reader.ts",
+    "src/drift.ts"
   ]
 }

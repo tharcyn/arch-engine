@@ -305,7 +305,13 @@ export function buildSummary(
 
 let _archEngineVersionCache: string | undefined;
 
-function readPackageVersion(): string {
+/**
+ * Read the `@arch-engine/cli` package version. Used by the envelope's
+ * `archEngineVersion` field AND (in v1.2.0+) by the baseline reader's
+ * newer-than-runtime warning gate. Exported so command code can
+ * compare against baselines without redoing the require dance.
+ */
+export function readPackageVersion(): string {
   if (_archEngineVersionCache) return _archEngineVersionCache;
   try {
     const require = createRequire(import.meta.url);

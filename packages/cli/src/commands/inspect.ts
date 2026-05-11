@@ -22,10 +22,16 @@ import {
 import { renderCliMarkdown } from '../render-markdown.js';
 import { emitFormattedOutput } from '../output-writer.js';
 import type { CliOutputOptions } from '../cli-options.js';
+import { rejectBaselineForUnsupportedCommand } from '../cli-options.js';
+import {
+  buildCanonicalTopologyFromAdjacencyMap,
+  type CanonicalTopology,
+} from '../canonical-topology.js';
 
 export async function inspectCommand(options: any) {
   const cwd = process.cwd();
   const out: CliOutputOptions = options.outputOptions;
+  rejectBaselineForUnsupportedCommand(out, 'inspect');
 
   // Auto-init silently
   autoInitializeArchitectureContext(cwd);
@@ -48,6 +54,11 @@ export async function inspectCommand(options: any) {
 
   const edgeCount = Object.values(extraction.edgesByAdapter).flat().length;
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
+
+  // v1.2.0 — build canonical topology unconditionally.
+  const canonicalTopology = buildCanonicalTopologyFromAdjacencyMap(
+    (extraction.adjacencyMap ?? {}) as Record<string, ReadonlyArray<string>>,
+  );
 
   // Phase 6 (v1.0.3): structured diagnostics array (additive; never
   // removes or renames existing JSON keys).
@@ -83,7 +94,7 @@ export async function inspectCommand(options: any) {
   // ── v1.1.0: format-aware emission ──────────────────────────
   if (out.format === 'json') {
     if (out.jsonSchema === 'v2') {
-      emitFormattedOutput(buildInspectV2(out, data, diagnostics) + '\n', out);
+      emitFormattedOutput(buildInspectV2(out, data, diagnostics, canonicalTopology) + '\n', out);
       return;
     }
     emitFormattedOutput(JSON.stringify(data, null, 2) + '\n', out);
@@ -91,7 +102,7 @@ export async function inspectCommand(options: any) {
   }
 
   if (out.format === 'markdown') {
-    const v2 = buildInspectV2EnvelopeInput(out, data, diagnostics);
+    const v2 = buildInspectV2EnvelopeInput(out, data, diagnostics, canonicalTopology);
     emitFormattedOutput(renderCliMarkdown(v2), out);
     return;
   }
@@ -162,6 +173,7 @@ function buildInspectV2EnvelopeInput(
   out: CliOutputOptions,
   v1: any,
   diagnostics: CliDiagnostic[],
+  canonicalTopology: CanonicalTopology,
 ): V2RenderInput {
   const status = deriveStatusForExit(0, diagnostics, 0);
   const summary = buildSummary(
@@ -184,6 +196,9 @@ function buildInspectV2EnvelopeInput(
       topologyConfidenceLabel: v1.topologyConfidenceLabel,
       extractionMode: v1.extractionMode,
       workspaceType: v1.workspaceType,
+      // v1.2.0 — canonical topology is emitted unconditionally for
+      // every command that has topology data.
+      canonical: canonicalTopology,
     },
     domains: v1.domainDistribution,
     warnings: v1.warnings,
@@ -209,6 +224,7 @@ function buildInspectV2(
   out: CliOutputOptions,
   v1: any,
   diagnostics: CliDiagnostic[],
+  canonicalTopology: CanonicalTopology,
 ): string {
-  return renderCliJsonV2(buildInspectV2EnvelopeInput(out, v1, diagnostics));
+  return renderCliJsonV2(buildInspectV2EnvelopeInput(out, v1, diagnostics, canonicalTopology));
 }

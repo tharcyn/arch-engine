@@ -16,10 +16,12 @@ import {
 import { renderCliMarkdown } from '../render-markdown.js';
 import { emitFormattedOutput } from '../output-writer.js';
 import type { CliOutputOptions } from '../cli-options.js';
+import { rejectBaselineForUnsupportedCommand } from '../cli-options.js';
 
 export async function explainCommand(target: string, options: any) {
   const cwd = process.cwd();
   const out: CliOutputOptions = options.outputOptions;
+  rejectBaselineForUnsupportedCommand(out, 'explain');
 
   // ── Special target: regression ────────────────────────
   if (target === 'regression') {
