@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/core",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Deterministic repository-topology reasoning runtime with composable policy-pack enforcement extracted directly from source structure.",
   "type": "module",
   "license": "MIT",
@@ -62,7 +62,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@arch-engine/schema": "^1.0.3",
+    "@arch-engine/schema": "^1.1.0",
     "yaml": "^2.8.3"
   },
   "files": [

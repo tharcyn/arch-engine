@@ -18,14 +18,26 @@ import {
   formatWarningHeader,
 } from '../renderers.js';
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
+import {
+  buildSummary,
+  deriveStatusForExit,
+  normalizeArtifactPath,
+  renderCliJsonV2,
+  type V2Artifact,
+  type V2RenderInput,
+} from '../render-v2.js';
+import { renderCliMarkdown } from '../render-markdown.js';
+import { emitFormattedOutput } from '../output-writer.js';
+import type { CliOutputOptions } from '../cli-options.js';
 
 export async function analyzeCommand(options: any) {
   const cwd = process.cwd();
+  const out: CliOutputOptions = options.outputOptions;
 
   // Auto-init silently
   autoInitializeArchitectureContext(cwd);
 
-  if (!options.json) {
+  if (out.format === 'human' && !out.quiet && !out.json) {
     console.log(pc.bold(pc.cyan('\n  Architecture Stability Report\n')));
   }
 
@@ -73,32 +85,50 @@ export async function analyzeCommand(options: any) {
     );
   }
 
-  if (options.json) {
-    // Backward-compatible JSON shape: existing keys preserved verbatim.
-    // Phase A additive: `policyConfigured`, `headlineKind`. Phase 6
-    // (v1.0.3) additive: `diagnostics: []`. No existing keys removed.
-    console.log(JSON.stringify({
-      score,
-      classification: stability.tier,
-      stabilityTier: stability.tier,
-      topologyConfidenceLabel: confidenceLabel,
-      coverage: meta.coverage,
-      connectivity: meta.connectivity,
-      topologyConfidence: meta.topologyConfidence,
-      extractionMode: meta.extractionMode,
-      workspaceType: meta.workspaceType,
-      authorityCrossings: crossingCount,
-      domainDistribution: domainDist,
-      blast_radius: engineResult.stabilityIndex.blast_radius_analysis,
-      components: engineResult.stabilityIndex.components,
-      warnings: meta.warnings,
-      executionMetrics,
-      policyConfigured: policyPresence.configured,
-      headlineKind: headline.kind,
-      diagnostics: diagnostics.map(diagnosticToJson),
-    }, null, 2));
+  // Common v1 payload (preserve byte-identical default)
+  const v1Json = {
+    score,
+    classification: stability.tier,
+    stabilityTier: stability.tier,
+    topologyConfidenceLabel: confidenceLabel,
+    coverage: meta.coverage,
+    connectivity: meta.connectivity,
+    topologyConfidence: meta.topologyConfidence,
+    extractionMode: meta.extractionMode,
+    workspaceType: meta.workspaceType,
+    authorityCrossings: crossingCount,
+    domainDistribution: domainDist,
+    blast_radius: engineResult.stabilityIndex.blast_radius_analysis,
+    components: engineResult.stabilityIndex.components,
+    warnings: meta.warnings,
+    executionMetrics,
+    policyConfigured: policyPresence.configured,
+    headlineKind: headline.kind,
+    diagnostics: diagnostics.map(diagnosticToJson),
+  };
+
+  // ── v1.1.0: format-aware emission ──────────────────────────
+  if (out.format === 'json') {
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(
+        renderCliJsonV2(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd)) + '\n',
+        out,
+      );
+      return;
+    }
+    emitFormattedOutput(JSON.stringify(v1Json, null, 2) + '\n', out);
     return;
   }
+
+  if (out.format === 'markdown') {
+    emitFormattedOutput(
+      renderCliMarkdown(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd)),
+      out,
+    );
+    return;
+  }
+
+  // ── Human Mode (existing behavior preserved) ──────────────
 
   // ── Headline ────────────────────────────────────────────
   // Calibrated to policy presence and signal quality. We DO NOT print
@@ -106,15 +136,17 @@ export async function analyzeCommand(options: any) {
   console.log(`\n  ${headline.color(pc.bold(headline.text))}`);
 
   // ── Header ──────────────────────────────────────────────
-  console.log(`\n  Workspace Type:       ${pc.bold(meta.workspaceType)}`);
-  console.log(`  Extraction Mode:      ${pc.bold(meta.extractionMode)}`);
-  console.log(`  Topology Confidence:  ${pc.bold(confidenceDescription(meta))}`);
+  if (!out.quiet) {
+    console.log(`\n  Workspace Type:       ${pc.bold(meta.workspaceType)}`);
+    console.log(`  Extraction Mode:      ${pc.bold(meta.extractionMode)}`);
+    console.log(`  Topology Confidence:  ${pc.bold(confidenceDescription(meta))}`);
+  }
 
   // ── Core Metrics ────────────────────────────────────────
-  // The score itself is now in the calibrated headline (above) when
-  // it should be displayed; we don't duplicate it here.
-  console.log(`\n  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
-  console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
+  if (!out.quiet) {
+    console.log(`\n  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
+    console.log(`  Connectivity:         ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
+  }
 
   // ── Quality Floor ───────────────────────────────────────
   const floor = checkQualityFloor(meta);
@@ -123,8 +155,8 @@ export async function analyzeCommand(options: any) {
   }
 
   // ── Authority Domain Distribution ───────────────────────
-  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([domain, c]: [string, number]) => c > 0);
-  if (activeDomains.length > 0) {
+  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([_domain, c]: [string, number]) => c > 0);
+  if (activeDomains.length > 0 && !out.quiet) {
     console.log(`\n  ${pc.bold('Authority Domains:')}`);
     for (const [domain, count] of activeDomains) {
       const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
@@ -139,7 +171,7 @@ export async function analyzeCommand(options: any) {
 
   // ── Observed Crossings ──────────────────────────────────
   const crossingEntries = engineResult.stabilityIndex.authority_crossings.entries;
-  if (crossingEntries.length > 0) {
+  if (crossingEntries.length > 0 && !out.quiet) {
     console.log(`\n  ${pc.bold('Observed Crossings:')} (${crossingEntries.length})`);
     for (const c of crossingEntries.slice(0, 8)) {
       console.log(`    ${pc.dim(c.source_entity)} → ${pc.dim(c.target_entity)} [${c.authority_domain}]`);
@@ -151,7 +183,7 @@ export async function analyzeCommand(options: any) {
 
   // ── Blast Radius ────────────────────────────────────────
   const brEntries = engineResult.stabilityIndex.blast_radius_analysis.entries;
-  if (brEntries.length > 0) {
+  if (brEntries.length > 0 && !out.quiet) {
     console.log(`\n  ${pc.bold('Blast Radius Summary:')}`);
     const table = new Table({
       head: ['Entity', 'Original', 'Weighted', 'Attenuated'],
@@ -165,7 +197,7 @@ export async function analyzeCommand(options: any) {
   }
 
   // ── Warnings ────────────────────────────────────────────
-  if (meta.warnings.length > 0) {
+  if (meta.warnings.length > 0 && !out.quiet) {
     console.log(`\n  ${formatWarningHeader(meta.warnings.length)}`);
     for (const line of formatWarnings(meta.warnings)) {
       console.log(`  ${line}`);
@@ -173,14 +205,96 @@ export async function analyzeCommand(options: any) {
   }
 
   // ── Footer ──────────────────────────────────────────────
-  console.log(pc.dim(`\n  Artifact written to ${artifactPath}`));
-  console.log(pc.dim(`  Extraction: ${executionMetrics.extractionMs}ms | Pipeline: ${executionMetrics.pipelineMs}ms | Total: ${executionMetrics.totalMs}ms`));
+  if (!out.quiet) {
+    console.log(pc.dim(`\n  Artifact written to ${artifactPath}`));
+    console.log(pc.dim(`  Extraction: ${executionMetrics.extractionMs}ms | Pipeline: ${executionMetrics.pipelineMs}ms | Total: ${executionMetrics.totalMs}ms`));
+  }
 
   // ── Single final next-action line ──────────────────────
-  console.log('');
-  if (!policyPresence.configured) {
-    console.log('Next: add `arch-policy.yml` to turn topology analysis into enforceable architecture checks.');
-  } else {
-    console.log('Next: run `arch-engine check` to apply your policy and get a CI verdict.');
+  if (!out.quiet) {
+    console.log('');
+    if (!policyPresence.configured) {
+      console.log('Next: add `arch-policy.yml` to turn topology analysis into enforceable architecture checks.');
+    } else {
+      console.log('Next: run `arch-engine check` to apply your policy and get a CI verdict.');
+    }
   }
+}
+
+// ─── v1.1.0 v2 envelope helpers ────────────────────────────────
+
+function buildAnalyzeV2EnvelopeInput(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+  artifactPath: string,
+  headlineKind: string,
+  cwd: string,
+): V2RenderInput {
+  const status = deriveStatusForExit(0, diagnostics, 0);
+  const summary = buildSummary(
+    headlineKind === 'no-policy'
+      ? 'No policy configured — topology captured but not evaluated.'
+      : headlineKind === 'low-signal'
+        ? 'Low-signal topology — coverage too low for confident evaluation.'
+        : `Stability ${v1.stabilityTier} (${(v1.score as number).toFixed(2)} / 1.00).`,
+    status,
+    {
+      score: v1.score,
+      warnings: diagnostics.filter((d) => d.severity === 'WARNING').length,
+      diagnostics: diagnostics.length,
+    },
+  );
+
+  const data = {
+    stability: {
+      score: v1.score,
+      tier: v1.stabilityTier,
+      headlineKind,
+      policyConfigured: v1.policyConfigured,
+    },
+    topology: {
+      coverage: v1.coverage,
+      connectivity: v1.connectivity,
+      topologyConfidence: v1.topologyConfidence,
+      topologyConfidenceLabel: v1.topologyConfidenceLabel,
+      extractionMode: v1.extractionMode,
+      workspaceType: v1.workspaceType,
+      authorityCrossings: v1.authorityCrossings,
+    },
+    domains: v1.domainDistribution,
+    blastRadius: v1.blast_radius,
+    components: v1.components,
+    executionMetrics: v1.executionMetrics,
+    warnings: v1.warnings,
+  };
+
+  const artifacts: V2Artifact[] = [
+    {
+      kind: 'stability-score',
+      relativePath: normalizeArtifactPath(cwd, artifactPath),
+      ...(out.verbose ? { absolutePath: artifactPath } : {}),
+    },
+  ];
+
+  const nextActions: string[] = [];
+  if (!v1.policyConfigured) {
+    nextActions.push(
+      'Add `arch-policy.yml` to turn topology analysis into enforceable architecture checks.',
+    );
+  } else {
+    nextActions.push('Run `arch-engine check` to apply your policy and get a CI verdict.');
+  }
+
+  return {
+    command: 'analyze',
+    exitCode: 0,
+    status,
+    summary,
+    data,
+    diagnostics,
+    artifacts,
+    nextActions,
+    includeAbsolutePath: out.verbose,
+  };
 }

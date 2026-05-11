@@ -7,22 +7,31 @@ import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type PolicyViolat
 import { liftToComposedPolicy } from '../policy-lift.js';
 import { SUPPORTED_EXPLAIN_TARGETS } from '../help-text.js';
 import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
+import {
+  buildSummary,
+  deriveStatusForExit,
+  renderCliJsonV2,
+  type V2RenderInput,
+} from '../render-v2.js';
+import { renderCliMarkdown } from '../render-markdown.js';
+import { emitFormattedOutput } from '../output-writer.js';
+import type { CliOutputOptions } from '../cli-options.js';
 
 export async function explainCommand(target: string, options: any) {
   const cwd = process.cwd();
+  const out: CliOutputOptions = options.outputOptions;
 
   // ── Special target: regression ────────────────────────
   if (target === 'regression') {
-    return explainRegression(cwd, options);
+    return explainRegression(cwd, options, out);
   }
 
   // ── Special target: policy ────────────────────────────
   if (target === 'policy') {
-    return explainPolicy(cwd, options);
+    return explainPolicy(cwd, options, out);
   }
 
-  if (!options.json) {
-    // No literal command echo — see CLI Experience Specification §4 P12.
+  if (out.format === 'human' && !out.quiet && !out.json) {
     console.log(pc.dim('Querying reasoning trace...\n'));
   }
 
@@ -33,27 +42,45 @@ export async function explainCommand(target: string, options: any) {
   const canonicalIndex = engineResult.canonicalIndex;
 
   if (!canonicalIndex || canonicalIndex.total_edges === 0) {
-    if (options.json) {
-      // Phase 6 (v1.0.3): emit a structured TOPOLOGY_LOW_SIGNAL diagnostic
-      // when the canonical index has no edges to explain. Previously this
-      // path produced no JSON output; v1.0.3 closes that contract hole
-      // additively (no existing keys are altered because there were none).
-      const diagnostic = buildDiagnostic({
-        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
-        message:
-          'No edges in canonical index. Topology coverage is too low to explain any relationships.',
-      });
-      console.log(JSON.stringify({
+    const diagnostic = buildDiagnostic({
+      code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+      message:
+        'No edges in canonical index. Topology coverage is too low to explain any relationships.',
+    });
+    if (out.format === 'json') {
+      const v1 = {
         matches: [],
         suggestions: [],
         supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
         diagnostics: [diagnosticToJson(diagnostic)],
-      }, null, 2));
+      };
+      if (out.jsonSchema === 'v2') {
+        emitFormattedOutput(
+          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])) + '\n',
+          out,
+        );
+      } else {
+        emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+      }
+    } else if (out.format === 'markdown') {
+      const v1 = {
+        target,
+        mode: 'unmatched',
+        matches: [],
+        suggestions: [],
+        supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
+      };
+      emitFormattedOutput(
+        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])),
+        out,
+      );
     } else {
       console.log(pc.yellow('No edges in canonical index. Falling back to raw extraction data.\n'));
       console.log(pc.dim('Try running with a more populated workspace.'));
-      console.log('');
-      console.log('Next: run `arch-engine inspect` to confirm what topology was extracted.');
+      if (!out.quiet) {
+        console.log('');
+        console.log('Next: run `arch-engine inspect` to confirm what topology was extracted.');
+      }
     }
     return;
   }
@@ -65,7 +92,6 @@ export async function explainCommand(target: string, options: any) {
   );
 
   if (matches.length === 0) {
-    // Show nearest suggestions
     const allEntities = new Set<string>();
     for (const edge of canonicalIndex.edges) {
       allEntities.add(edge.source);
@@ -76,51 +102,92 @@ export async function explainCommand(target: string, options: any) {
       .filter((e: string) => e.toLowerCase().includes(target.toLowerCase().slice(0, 3)))
       .slice(0, 5);
 
-    if (options.json) {
-      const diagnostic = buildDiagnostic({
-        code: 'ARCH_ENGINE_TARGET_NOT_FOUND',
-        message: `No matches found for '${target}'. Supported special targets are listed in supportedSpecialTargets[].`,
-        details: { target },
-      });
-      console.log(JSON.stringify({
+    const diagnostic = buildDiagnostic({
+      code: 'ARCH_ENGINE_TARGET_NOT_FOUND',
+      message: `No matches found for '${target}'. Supported special targets are listed in supportedSpecialTargets[].`,
+      details: { target },
+    });
+
+    if (out.format === 'json') {
+      const v1 = {
         matches: [],
         suggestions,
         supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
-        // Phase 6 additive
         diagnostics: [diagnosticToJson(diagnostic)],
-      }, null, 2));
+      };
+      if (out.jsonSchema === 'v2') {
+        emitFormattedOutput(
+          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])) + '\n',
+          out,
+        );
+      } else {
+        emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+      }
+    } else if (out.format === 'markdown') {
+      const v1 = {
+        target,
+        mode: 'unmatched',
+        matches: [],
+        suggestions,
+        supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
+      };
+      emitFormattedOutput(
+        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])),
+        out,
+      );
     } else {
       console.log(pc.yellow(`No matches found for '${target}'.`));
-      console.log('');
-      console.log(pc.dim('Supported special targets:'));
-      for (const t of SUPPORTED_EXPLAIN_TARGETS) {
-        console.log(pc.dim(`  ${t.keyword.padEnd(12)} ${t.description}`));
-      }
-      if (suggestions.length > 0) {
+      if (!out.quiet) {
         console.log('');
-        console.log(pc.dim('Or did you mean a topology node/edge:'));
-        for (const s of suggestions) {
-          console.log(pc.dim(`  → ${s}`));
+        console.log(pc.dim('Supported special targets:'));
+        for (const t of SUPPORTED_EXPLAIN_TARGETS) {
+          console.log(pc.dim(`  ${t.keyword.padEnd(12)} ${t.description}`));
         }
+        if (suggestions.length > 0) {
+          console.log('');
+          console.log(pc.dim('Or did you mean a topology node/edge:'));
+          for (const s of suggestions) {
+            console.log(pc.dim(`  → ${s}`));
+          }
+        }
+        console.log('');
+        console.log('Next: run `arch-engine inspect` to list every node and edge.');
       }
-      console.log('');
-      console.log('Next: run `arch-engine inspect` to list every node and edge.');
     }
     return;
   }
 
-  if (options.json) {
-    console.log(JSON.stringify({
+  // Matched
+  if (out.format === 'json') {
+    const v1 = {
       matches,
       extractionMode: extractionMetadata.extractionMode,
-      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
-      // command's --json. Empty here because the matched-target path is a
-      // pure informational success (no policy, no signal floor, no error).
       diagnostics: [],
-    }, null, 2));
+    };
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(
+        renderCliJsonV2(
+          buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, []),
+        ) + '\n',
+        out,
+      );
+    } else {
+      emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+    }
     return;
   }
 
+  if (out.format === 'markdown') {
+    emitFormattedOutput(
+      renderCliMarkdown(
+        buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, []),
+      ),
+      out,
+    );
+    return;
+  }
+
+  // Human
   console.log(`Found ${pc.bold(matches.length)} relationship(s) involving '${target}':\n`);
 
   for (const match of matches.slice(0, 10)) {
@@ -144,35 +211,44 @@ export async function explainCommand(target: string, options: any) {
     console.log(pc.dim(`\n... and ${matches.length - 10} more edges. Use --json to see all.`));
   }
 
-  // Single final next-action line.
-  console.log('');
-  console.log('Next: run `arch-engine check` to verify whether this explanation affects the policy verdict.');
+  if (!out.quiet) {
+    console.log('');
+    console.log('Next: run `arch-engine check` to verify whether this explanation affects the policy verdict.');
+  }
 }
 
 // ─── Regression Context Explainer ───────────────────────
 
-/**
- * Explain the current regression context by reading the
- * stability-score.json artifact and surfacing its regression
- * intelligence fields.
- *
- * Supports: policy-layer traceability (Week 6 hook)
- */
-async function explainRegression(cwd: string, options: any): Promise<void> {
+async function explainRegression(cwd: string, _options: any, out: CliOutputOptions): Promise<void> {
   const artifactPath = path.join(cwd, '.arch-engine', 'stability-score.json');
 
   if (!fs.existsSync(artifactPath)) {
-    if (options.json) {
-      // Phase 6 additive: surface this as a structured ARCH_ENGINE_NO_BASELINE
-      // diagnostic. Existing `error` key preserved for backward compatibility.
-      const diagnostic = buildDiagnostic({
-        code: 'ARCH_ENGINE_NO_BASELINE',
-        message: 'No stability-score.json artifact found. Run arch-engine check first.',
-      });
-      console.log(JSON.stringify({
+    const diagnostic = buildDiagnostic({
+      code: 'ARCH_ENGINE_NO_BASELINE',
+      message: 'No stability-score.json artifact found. Run arch-engine check first.',
+    });
+    if (out.format === 'json') {
+      const v1 = {
         error: 'No stability-score.json artifact found. Run arch-engine check first.',
         diagnostics: [diagnosticToJson(diagnostic)],
-      }, null, 2));
+      };
+      if (out.jsonSchema === 'v2') {
+        emitFormattedOutput(
+          renderCliJsonV2(
+            buildExplainV2EnvelopeInput(out, 'regression', 'regression', { target: 'regression', mode: 'regression', regression: { detected: false, baselineFound: false } }, [diagnostic]),
+          ) + '\n',
+          out,
+        );
+      } else {
+        emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+      }
+    } else if (out.format === 'markdown') {
+      emitFormattedOutput(
+        renderCliMarkdown(
+          buildExplainV2EnvelopeInput(out, 'regression', 'regression', { target: 'regression', mode: 'regression', regression: { detected: false, baselineFound: false } }, [diagnostic]),
+        ),
+        out,
+      );
     } else {
       console.log(pc.yellow('No stability-score.json found.'));
       console.log(pc.dim('Run `arch-engine check` to generate the artifact first.'));
@@ -189,7 +265,6 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     return;
   }
 
-  // Extract regression context fields
   const context = {
     regressionSeverity: artifact.regressionSeverity ?? null,
     regressionConfidence: artifact.regressionConfidence ?? null,
@@ -205,9 +280,6 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     stabilityScore: artifact.stabilityScore,
   };
 
-  // Phase 6 (v1.0.3): structured diagnostics array. Surfaces
-  // ARCH_ENGINE_NO_BASELINE when regression has no baseline to compare
-  // against (e.g., first run after check). Severity: INFO, exit 0.
   const diagnostics: CliDiagnostic[] = [];
   const regForDiag = context.regression as Record<string, unknown> | null;
   if (regForDiag?.baselineFound === false) {
@@ -220,20 +292,39 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     );
   }
 
-  if (options.json) {
-    console.log(JSON.stringify({
+  if (out.format === 'json') {
+    const v1 = {
       ...context,
-      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
-      // command's --json. Always present (empty when no diagnostics).
       diagnostics: diagnostics.map(diagnosticToJson),
-    }, null, 2));
+    };
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(
+        renderCliJsonV2(
+          buildExplainV2EnvelopeInput(out, 'regression', 'regression', { target: 'regression', mode: 'regression', ...context }, diagnostics),
+        ) + '\n',
+        out,
+      );
+    } else {
+      emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+    }
     return;
   }
 
-  // No literal command echo — see CLI Experience Specification §4 P12.
-  console.log(pc.dim('Regression context from stability-score.json\n'));
+  if (out.format === 'markdown') {
+    emitFormattedOutput(
+      renderCliMarkdown(
+        buildExplainV2EnvelopeInput(out, 'regression', 'regression', { target: 'regression', mode: 'regression', ...context }, diagnostics),
+      ),
+      out,
+    );
+    return;
+  }
 
-  // Status
+  // Human
+  if (!out.quiet) {
+    console.log(pc.dim('Regression context from stability-score.json\n'));
+  }
+
   const reg = context.regression as Record<string, unknown> | null;
   const detected = reg?.detected === true;
 
@@ -243,9 +334,9 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
       console.log(pc.dim('  (No baseline — first run)'));
     }
   } else {
-    const sev = context.regressionSeverity as string ?? 'unknown';
-    const conf = context.regressionConfidence as string ?? 'unknown';
-    const source = context.regressionConfidenceSource as string ?? 'unknown';
+    const sev = (context.regressionSeverity as string) ?? 'unknown';
+    const conf = (context.regressionConfidence as string) ?? 'unknown';
+    const source = (context.regressionConfidenceSource as string) ?? 'unknown';
     const sevColor = sev === 'critical' || sev === 'major' ? pc.red : sev === 'moderate' ? pc.yellow : pc.dim;
     console.log(sevColor(`⚠ Regression:`));
     console.log(`  Regression Severity: ${sev.toUpperCase()}`);
@@ -256,9 +347,8 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
 
   console.log('');
 
-  // Deltas
   const deltas = context.regressionDelta as Record<string, number> | null;
-  if (deltas) {
+  if (deltas && !out.quiet) {
     console.log(pc.bold('Numeric Deltas:'));
     for (const [key, value] of Object.entries(deltas)) {
       const arrow = value > 0 ? pc.green('↑') : value < 0 ? pc.red('↓') : pc.dim('→');
@@ -267,9 +357,8 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     console.log('');
   }
 
-  // Trends
   const trends = context.trendIndicators as Record<string, string> | null;
-  if (trends) {
+  if (trends && !out.quiet) {
     console.log(pc.bold('Trend Indicators:'));
     for (const [key, value] of Object.entries(trends)) {
       const arrow = value === 'up' ? pc.green('↑') : value === 'down' ? pc.red('↓') : pc.dim('→');
@@ -278,9 +367,8 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     console.log('');
   }
 
-  // Baseline lineage
   const baseline = context.comparisonBaseline as Record<string, unknown> | null;
-  if (baseline) {
+  if (baseline && !out.quiet) {
     console.log(pc.bold('Baseline Lineage:'));
     console.log(`  Repo Hash: ${baseline.baselineRepoHash ?? 'unknown'}`);
     console.log(`  Generated: ${baseline.baselineGeneratedAt ?? 'unknown'}`);
@@ -288,26 +376,38 @@ async function explainRegression(cwd: string, options: any): Promise<void> {
     console.log(`  Lineage Depth: ${baseline.lineageDepth ?? 'unknown'}`);
   }
 
-  // Single final next-action line.
-  console.log('');
-  console.log('Next: run `arch-engine check` to verify whether this regression affects the policy verdict.');
+  if (!out.quiet) {
+    console.log('');
+    console.log('Next: run `arch-engine check` to verify whether this regression affects the policy verdict.');
+  }
 }
 
-async function explainPolicy(cwd: string, options: any) {
+async function explainPolicy(cwd: string, options: any, out: CliOutputOptions) {
   const policyDoc = loadPolicyConfig(cwd);
 
   if (!policyDoc) {
-    if (options.json) {
-      // Phase 6 additive: structured ARCH_ENGINE_POLICY_NOT_FOUND
-      // diagnostic. Existing `error` key preserved verbatim.
-      const diagnostic = buildDiagnostic({
-        code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
-        message: 'No .archengine/policy.yml configuration found.',
-      });
-      console.log(JSON.stringify({
+    const diagnostic = buildDiagnostic({
+      code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+      message: 'No .archengine/policy.yml configuration found.',
+    });
+    if (out.format === 'json') {
+      const v1 = {
         error: 'No policy found',
         diagnostics: [diagnosticToJson(diagnostic)],
-      }, null, 2));
+      };
+      if (out.jsonSchema === 'v2') {
+        emitFormattedOutput(
+          renderCliJsonV2(buildExplainV2EnvelopeInput(out, 'policy', 'policy', { target: 'policy', mode: 'policy' }, [diagnostic])) + '\n',
+          out,
+        );
+      } else {
+        emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+      }
+    } else if (out.format === 'markdown') {
+      emitFormattedOutput(
+        renderCliMarkdown(buildExplainV2EnvelopeInput(out, 'policy', 'policy', { target: 'policy', mode: 'policy' }, [diagnostic])),
+        out,
+      );
     } else {
       console.log(pc.yellow('No .archengine/policy.yml configuration found.'));
     }
@@ -316,7 +416,7 @@ async function explainPolicy(cwd: string, options: any) {
 
   const discovery = discoverEnvironment(cwd);
   const bridge = await executeRunnerBridge(cwd, discovery);
-  
+
   const edges: EvaluatorEdge[] = [];
   for (const [src, targets] of Object.entries(bridge.adjacencyMap)) {
     for (const t of targets) edges.push({ source: src, target: t });
@@ -324,7 +424,7 @@ async function explainPolicy(cwd: string, options: any) {
 
   const composedPolicy = liftToComposedPolicy(policyDoc.config, policyDoc.hash);
   const evalResult = evaluatePolicy(edges, composedPolicy, 'EXPLAIN', policyDoc.hash);
-  
+
   let targetRuleId = (options._ && options._.length > 0) ? options._[0] : null;
 
   let violations = evalResult.violations;
@@ -332,29 +432,69 @@ async function explainPolicy(cwd: string, options: any) {
     violations = violations.filter((v: PolicyViolation) => v.ruleId === targetRuleId || v.ruleSource === targetRuleId);
   }
 
-  if (options.json) {
-    console.log(JSON.stringify({
-      explainSchemaVersion: 1,
-      policyHash: evalResult.policyHash,
-      policyMode: evalResult.policyMode,
-      policyVersion: evalResult.policyVersion,
-      matchedEdges: evalResult.matchedEdges,
-      violations,
-      // Phase 6 additive — JSON v1.0.3 ships `diagnostics: []` on every
-      // command's --json. Empty here because explain is informational and
-      // the `violations` array is the authoritative signal for this path.
-      diagnostics: [],
-    }, null, 2));
+  const v1 = {
+    explainSchemaVersion: 1,
+    policyHash: evalResult.policyHash,
+    policyMode: evalResult.policyMode,
+    policyVersion: evalResult.policyVersion,
+    matchedEdges: evalResult.matchedEdges,
+    violations,
+    diagnostics: [],
+  };
+
+  if (out.format === 'json') {
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(
+        renderCliJsonV2(
+          buildExplainV2EnvelopeInput(out, 'policy', 'policy', {
+            target: 'policy',
+            mode: 'policy',
+            explainSchemaVersion: 1,
+            policyHash: evalResult.policyHash,
+            policyMode: evalResult.policyMode,
+            policyVersion: evalResult.policyVersion,
+            matchedEdges: evalResult.matchedEdges,
+            violations,
+          }, []),
+        ) + '\n',
+        out,
+      );
+    } else {
+      emitFormattedOutput(JSON.stringify(v1, null, 2) + '\n', out);
+    }
     return;
   }
 
-  // No literal command echo — see CLI Experience Specification §4 P12.
-  console.log(`Policy: hash ${evalResult.policyHash} | mode ${evalResult.policyMode}\n`);
+  if (out.format === 'markdown') {
+    emitFormattedOutput(
+      renderCliMarkdown(
+        buildExplainV2EnvelopeInput(out, 'policy', 'policy', {
+          target: 'policy',
+          mode: 'policy',
+          explainSchemaVersion: 1,
+          policyHash: evalResult.policyHash,
+          policyMode: evalResult.policyMode,
+          policyVersion: evalResult.policyVersion,
+          matchedEdges: evalResult.matchedEdges,
+          violations,
+        }, []),
+      ),
+      out,
+    );
+    return;
+  }
+
+  // Human
+  if (!out.quiet) {
+    console.log(`Policy: hash ${evalResult.policyHash} | mode ${evalResult.policyMode}\n`);
+  }
 
   if (violations.length === 0) {
     console.log(pc.green(`✔ No policy violations ${targetRuleId ? `for rule '${targetRuleId}' ` : ''}detected.`));
-    console.log('');
-    console.log('Next: run `arch-engine check` to confirm the verdict in CI mode.');
+    if (!out.quiet) {
+      console.log('');
+      console.log('Next: run `arch-engine check` to confirm the verdict in CI mode.');
+    }
     return;
   }
 
@@ -366,10 +506,8 @@ async function explainPolicy(cwd: string, options: any) {
     console.log(`  ${pc.bold('Rule:')}     ${v.ruleId || v.ruleSource}`);
     console.log(`  ${pc.bold('Severity:')} ${v.severity}`);
 
-    // Source Chain Rendering
     if (v.originPolicyChain && v.originPolicyChain.length > 0) {
       console.log(`\n  ${pc.bold('Violation Source Chain:')}`);
-      // Render from bottom to top (most local -> root)
       const reversedChain = [...v.originPolicyChain].reverse();
       console.log(`  ${pc.cyan(reversedChain[0])}`);
       for (let i = 1; i < reversedChain.length; i++) {
@@ -382,6 +520,52 @@ async function explainPolicy(cwd: string, options: any) {
     console.log('');
   }
 
-  console.log('Next: run `arch-engine check` to confirm whether these violations block CI.');
+  if (!out.quiet) {
+    console.log('Next: run `arch-engine check` to confirm whether these violations block CI.');
+  }
 }
 
+// ─── v1.1.0 v2 envelope helpers ────────────────────────────────
+
+function buildExplainV2EnvelopeInput(
+  out: CliOutputOptions,
+  target: string,
+  mode: string,
+  data: Record<string, unknown>,
+  diagnostics: CliDiagnostic[],
+): V2RenderInput {
+  const status = deriveStatusForExit(0, diagnostics, 0);
+  const matches = Array.isArray(data.matches) ? (data.matches as unknown[]).length : undefined;
+  const summary = buildSummary(
+    `Explain ${mode}: ${target}`,
+    status,
+    {
+      matches,
+      warnings: diagnostics.filter((d) => d.severity === 'WARNING').length,
+      diagnostics: diagnostics.length,
+    },
+  );
+
+  const nextActions: string[] = [];
+  if (mode === 'unmatched') {
+    nextActions.push('Run `arch-engine inspect` to list every node and edge.');
+  } else if (mode === 'regression') {
+    nextActions.push('Run `arch-engine check` to verify whether this regression affects the policy verdict.');
+  } else if (mode === 'policy') {
+    nextActions.push('Run `arch-engine check` to confirm the verdict in CI mode.');
+  } else {
+    nextActions.push('Run `arch-engine check` to verify whether this explanation affects the policy verdict.');
+  }
+
+  return {
+    command: 'explain',
+    exitCode: 0,
+    status,
+    summary,
+    data,
+    diagnostics,
+    artifacts: [],
+    nextActions,
+    includeAbsolutePath: out.verbose,
+  };
+}

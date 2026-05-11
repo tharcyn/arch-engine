@@ -12,14 +12,37 @@ import {
   emitDiagnosticHuman,
   exitCodeForDiagnostic,
 } from './format-error.js';
+import {
+  parseAndValidateCliOptions,
+  attachOutputOptions,
+} from './cli-options.js';
+import { installHumanCaptureIfNeeded } from './output-writer.js';
 
 export async function run() {
   const cli = cac('arch-engine');
 
   // ─── Global Options ────────────────────────────────────────
 
-  cli.option('--json', 'Output results as JSON');
-  cli.option('--no-color', 'Disable colorized output');
+  cli.option('--json', 'Output results as JSON (alias for `--format json`).');
+  cli.option('--no-color', 'Disable colorized output.');
+  // Phase 4 (v1.1.0) — new flag surface. Each is documented at the
+  // root help level here and elaborated in `--format`/`--json-schema`
+  // help below.
+  cli.option(
+    '--json-schema <version>',
+    'JSON schema version when output is JSON: `v1` (default) or `v2`.',
+  );
+  cli.option(
+    '--format <format>',
+    'Output format: `human` (default), `json`, or `markdown`.',
+  );
+  cli.option(
+    '--output <path>',
+    'Write the formatted output to <path> instead of stdout.',
+  );
+  cli.option('--ci', 'Deterministic CI-friendly output (forces no-color).');
+  cli.option('--verbose', 'Include extra diagnostic detail.');
+  cli.option('--quiet', 'Suppress non-essential human output.');
 
   // ─── The Progressive Trust Ladder ──────────────────────────
   //
@@ -33,10 +56,15 @@ export async function run() {
     .command('doctor', 'Check workspace readiness and adapter signal.')
     .example('  $ arch-engine doctor')
     .example('  $ arch-engine doctor --json')
+    .example('  $ arch-engine doctor --json --json-schema=v2')
+    .example('  $ arch-engine doctor --format markdown')
     .example('')
     .example('  Next: review the topology with `arch-engine inspect`.')
     .example('  Docs: ' + DOCS_URL + '/getting-started')
     .action(async (options) => {
+      const outputOptions = parseAndValidateCliOptions(options);
+      attachOutputOptions(options, outputOptions);
+      installHumanCaptureIfNeeded(outputOptions);
       const { doctorCommand } = await import('./commands/doctor.js');
       await doctorCommand(options);
     });
@@ -46,10 +74,14 @@ export async function run() {
     .command('inspect', 'Summarize the extracted topology. Does not enforce policy.')
     .example('  $ arch-engine inspect')
     .example('  $ arch-engine inspect --json')
+    .example('  $ arch-engine inspect --json --json-schema=v2')
     .example('')
     .example('  Inspect is read-only — it never blocks CI.')
     .example('  Docs: ' + DOCS_URL + '/cli/inspect')
     .action(async (options) => {
+      const outputOptions = parseAndValidateCliOptions(options);
+      attachOutputOptions(options, outputOptions);
+      installHumanCaptureIfNeeded(outputOptions);
       const { inspectCommand } = await import('./commands/inspect.js');
       await inspectCommand(options);
     });
@@ -58,11 +90,15 @@ export async function run() {
   cli
     .command('analyze', 'Score architecture signal and risk. Informational; never blocks CI.')
     .example('  $ arch-engine analyze')
-    .example('  $ arch-engine analyze --json')
+    .example('  $ arch-engine analyze --json --json-schema=v2')
+    .example('  $ arch-engine analyze --format markdown')
     .example('')
     .example('  Without a policy file, analyze is informational only.')
     .example('  Docs: ' + DOCS_URL + '/cli/analyze')
     .action(async (options) => {
+      const outputOptions = parseAndValidateCliOptions(options);
+      attachOutputOptions(options, outputOptions);
+      installHumanCaptureIfNeeded(outputOptions);
       const { analyzeCommand } = await import('./commands/analyze.js');
       await analyzeCommand(options);
     });
@@ -73,7 +109,9 @@ export async function run() {
     .option('--min-coverage <percentage>', 'Require a minimum topology coverage percentage (0.0-1.0)')
     .option('--sync', 'Emit SaaS synchronization session locally')
     .example('  $ arch-engine check')
-    .example('  $ arch-engine check --json')
+    .example('  $ arch-engine check --ci')
+    .example('  $ arch-engine check --json --json-schema=v2')
+    .example('  $ arch-engine check --format markdown --output arch-engine-report.md')
     .example('  $ arch-engine check --min-coverage 0.80')
     .example('')
     .example('  Exit codes:')
@@ -86,6 +124,9 @@ export async function run() {
     .example('  Without a policy file, check runs informationally and exits 0.')
     .example('  Docs: ' + DOCS_URL + '/cli/check')
     .action(async (options) => {
+      const outputOptions = parseAndValidateCliOptions(options);
+      attachOutputOptions(options, outputOptions);
+      installHumanCaptureIfNeeded(outputOptions);
       const { checkCommand } = await import('./commands/check.js');
       await checkCommand(options);
     });
@@ -96,6 +137,7 @@ export async function run() {
     .example('  $ arch-engine explain regression')
     .example('  $ arch-engine explain policy')
     .example('  $ arch-engine explain shared')
+    .example('  $ arch-engine explain regression --json --json-schema=v2')
     .example('')
     .example('  Supported targets:')
     .example(
@@ -107,6 +149,9 @@ export async function run() {
     .example('')
     .example('  Docs: ' + DOCS_URL + '/cli/explain')
     .action(async (target, options) => {
+      const outputOptions = parseAndValidateCliOptions(options);
+      attachOutputOptions(options, outputOptions);
+      installHumanCaptureIfNeeded(outputOptions);
       const { explainCommand } = await import('./commands/explain.js');
       await explainCommand(target, options);
     });

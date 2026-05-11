@@ -13,14 +13,24 @@ import {
   formatWarnings,
   formatWarningHeader,
 } from '../renderers.js';
+import {
+  buildSummary,
+  deriveStatusForExit,
+  renderCliJsonV2,
+  type V2RenderInput,
+} from '../render-v2.js';
+import { renderCliMarkdown } from '../render-markdown.js';
+import { emitFormattedOutput } from '../output-writer.js';
+import type { CliOutputOptions } from '../cli-options.js';
 
 export async function inspectCommand(options: any) {
   const cwd = process.cwd();
+  const out: CliOutputOptions = options.outputOptions;
 
   // Auto-init silently
   autoInitializeArchitectureContext(cwd);
 
-  if (!options.json) {
+  if (out.format === 'human' && !out.quiet && !out.json) {
     // No literal command echo — see CLI Experience Specification §4 P12.
     console.log(pc.dim('Summarizing canonical topology...\n'));
   }
@@ -70,11 +80,23 @@ export async function inspectCommand(options: any) {
     diagnostics: diagnostics.map(diagnosticToJson),
   };
 
-  if (options.json) {
-    console.log(JSON.stringify(data, null, 2));
+  // ── v1.1.0: format-aware emission ──────────────────────────
+  if (out.format === 'json') {
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(buildInspectV2(out, data, diagnostics) + '\n', out);
+      return;
+    }
+    emitFormattedOutput(JSON.stringify(data, null, 2) + '\n', out);
     return;
   }
 
+  if (out.format === 'markdown') {
+    const v2 = buildInspectV2EnvelopeInput(out, data, diagnostics);
+    emitFormattedOutput(renderCliMarkdown(v2), out);
+    return;
+  }
+
+  // Human mode (preserves v1.0.3 byte-identical when --quiet/--verbose are off)
   console.log(`Nodes detected:       ${pc.bold(data.nodes)}`);
   console.log(`Edges:                ${pc.bold(data.edges)}`);
   console.log(`Crossings observed:   ${pc.bold(data.crossings)}`);
@@ -84,12 +106,14 @@ export async function inspectCommand(options: any) {
   console.log(`Extraction mode:      ${pc.bold(data.extractionMode)}`);
   console.log(`Workspace type:       ${pc.bold(data.workspaceType)}`);
 
-  // Domain Distribution
-  console.log(`\n${pc.bold('Domain Distribution:')}`);
-  for (const [domain, count] of Object.entries(data.domainDistribution as Record<string, number>)) {
-    if (count > 0) {
-      const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
-      console.log(`  ${icon} ${domain}: ${pc.bold(count)}`);
+  // Domain Distribution (suppress under --quiet)
+  if (!out.quiet) {
+    console.log(`\n${pc.bold('Domain Distribution:')}`);
+    for (const [domain, count] of Object.entries(data.domainDistribution as Record<string, number>)) {
+      if (count > 0) {
+        const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
+        console.log(`  ${icon} ${domain}: ${pc.bold(count)}`);
+      }
     }
   }
 
@@ -105,7 +129,7 @@ export async function inspectCommand(options: any) {
   }
 
   // Warnings
-  if (data.warnings.length > 0) {
+  if (data.warnings.length > 0 && !out.quiet) {
     console.log(`\n${formatWarningHeader(data.warnings.length)}`);
     for (const line of formatWarnings(data.warnings)) {
       console.log(line);
@@ -113,17 +137,78 @@ export async function inspectCommand(options: any) {
   }
 
   // Adapters
-  console.log(`\n${pc.bold('Adapters active:')}`);
-  for (const adapter of data.adaptersActive) {
-    console.log(`  ${pc.green('●')} ${adapter}`);
+  if (!out.quiet) {
+    console.log(`\n${pc.bold('Adapters active:')}`);
+    for (const adapter of data.adaptersActive) {
+      console.log(`  ${pc.green('●')} ${adapter}`);
+    }
   }
 
   // Single final next-action line.
   const policyPresence = detectPolicyFile(cwd);
-  console.log('');
-  if (!policyPresence.configured) {
-    console.log('Next: run `arch-engine analyze` to score architecture signal, or add `arch-policy.yml` and run `arch-engine check`.');
-  } else {
-    console.log('Next: run `arch-engine check` to evaluate your policy against this topology.');
+  if (!out.quiet) {
+    console.log('');
+    if (!policyPresence.configured) {
+      console.log('Next: run `arch-engine analyze` to score architecture signal, or add `arch-policy.yml` and run `arch-engine check`.');
+    } else {
+      console.log('Next: run `arch-engine check` to evaluate your policy against this topology.');
+    }
   }
+}
+
+// ─── v2 envelope helpers ──────────────────────────────────────
+
+function buildInspectV2EnvelopeInput(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+): V2RenderInput {
+  const status = deriveStatusForExit(0, diagnostics, 0);
+  const summary = buildSummary(
+    `Topology: ${v1.nodes} node${v1.nodes === 1 ? '' : 's'}, ${v1.edges} edge${v1.edges === 1 ? '' : 's'}.`,
+    status,
+    {
+      warnings: diagnostics.filter((d) => d.severity === 'WARNING').length,
+      diagnostics: diagnostics.length,
+    },
+  );
+
+  const data = {
+    topology: {
+      nodes: v1.nodes,
+      edges: v1.edges,
+      crossings: v1.crossings,
+      coverage: v1.coverage,
+      connectivity: v1.connectivity,
+      topologyConfidence: v1.confidence,
+      topologyConfidenceLabel: v1.topologyConfidenceLabel,
+      extractionMode: v1.extractionMode,
+      workspaceType: v1.workspaceType,
+    },
+    domains: v1.domainDistribution,
+    warnings: v1.warnings,
+    adaptersActive: v1.adaptersActive,
+  };
+
+  return {
+    command: 'inspect',
+    exitCode: 0,
+    status,
+    summary,
+    data,
+    diagnostics,
+    artifacts: [],
+    nextActions: [
+      'Run `arch-engine analyze` to score architecture signal, or add `arch-policy.yml` and run `arch-engine check`.',
+    ],
+    includeAbsolutePath: out.verbose,
+  };
+}
+
+function buildInspectV2(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+): string {
+  return renderCliJsonV2(buildInspectV2EnvelopeInput(out, v1, diagnostics));
 }

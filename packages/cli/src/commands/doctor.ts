@@ -15,14 +15,24 @@ import {
   formatWarnings,
   formatWarningHeader,
 } from '../renderers.js';
+import {
+  buildSummary,
+  deriveStatusForExit,
+  renderCliJsonV2,
+  type V2RenderInput,
+} from '../render-v2.js';
+import { renderCliMarkdown } from '../render-markdown.js';
+import { emitFormattedOutput } from '../output-writer.js';
+import type { CliOutputOptions } from '../cli-options.js';
 
 export async function doctorCommand(options: any) {
   const cwd = process.cwd();
+  const out: CliOutputOptions = options.outputOptions;
 
   // Auto-init on first run
   const initResult = autoInitializeArchitectureContext(cwd);
 
-  if (!options.json) {
+  if (out.format === 'human' && !out.quiet && !out.json) {
     // No literal command echo. No hardcoded version strings. The pre-extraction
     // "Adapter resolution OK / Topology extraction ready" lines were removed
     // because they ran BEFORE the adapter was actually loaded — false reassurance.
@@ -94,11 +104,25 @@ export async function doctorCommand(options: any) {
     diagnostics: diagnostics.map(diagnosticToJson),
   };
 
-  if (options.json) {
-    console.log(JSON.stringify(results, null, 2));
+  // ── v1.1.0: format-aware emission ──────────────────────────
+  if (out.format === 'json') {
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(buildDoctorV2(out, results, diagnostics, policyPresence.configured) + '\n', out);
+      return;
+    }
+    // v1 (default) — preserve byte-identical v1.0.3 shape.
+    emitFormattedOutput(JSON.stringify(results, null, 2) + '\n', out);
     return;
   }
 
+  if (out.format === 'markdown') {
+    const v2 = buildDoctorV2EnvelopeInput(out, results, diagnostics, policyPresence.configured);
+    emitFormattedOutput(renderCliMarkdown(v2), out);
+    return;
+  }
+
+  // Human mode — preserve byte-identical v1.0.3 rendering. Honour
+  // --quiet by suppressing the verdict header lines.
   // Workspace detection transparency
   if (meta.extractionMode === 'structured') {
     console.log(`${pc.green('✔')} Workspace type resolved as: ${pc.bold(meta.workspaceType)} (highest confidence)`);
@@ -119,8 +143,8 @@ export async function doctorCommand(options: any) {
   console.log(`${pc.green('✔')} Authority crossings observed: ${pc.bold(extraction.authorityCrossings.length)}`);
 
   // Domain Distribution
-  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([domain, c]: [string, number]) => c > 0);
-  if (activeDomains.length > 0) {
+  const activeDomains = Object.entries(domainDist as Record<string, number>).filter(([_domain, c]: [string, number]) => c > 0);
+  if (activeDomains.length > 0 && !out.quiet) {
     console.log(`\n${pc.bold('Domain Distribution:')}`);
     for (const [domain, count] of activeDomains) {
       const icon = domain === 'UNCLASSIFIED' ? pc.yellow('●') : pc.green('●');
@@ -140,15 +164,17 @@ export async function doctorCommand(options: any) {
   }
 
   // Policy file — informational, not a warning. Setup gap, not error.
-  if (policyPresence.configured) {
-    console.log(`\n${pc.green('✔')} Policy file detected: ${pc.bold(policyPresence.path!)}`);
-  } else {
-    console.log(`\n${pc.dim('No policy file is configured yet.')}`);
-    console.log(pc.dim('  Topology extraction completed successfully.'));
+  if (!out.quiet) {
+    if (policyPresence.configured) {
+      console.log(`\n${pc.green('✔')} Policy file detected: ${pc.bold(policyPresence.path!)}`);
+    } else {
+      console.log(`\n${pc.dim('No policy file is configured yet.')}`);
+      console.log(pc.dim('  Topology extraction completed successfully.'));
+    }
   }
 
   // Warnings
-  if (meta.warnings.length > 0) {
+  if (meta.warnings.length > 0 && !out.quiet) {
     console.log(`\n${formatWarningHeader(meta.warnings.length)}`);
     for (const line of formatWarnings(meta.warnings)) {
       console.log(line);
@@ -156,13 +182,98 @@ export async function doctorCommand(options: any) {
   }
 
   // Single final next-action line.
-  console.log('');
-  if (!policyPresence.configured) {
-    console.log(
-      'Next: run `arch-engine inspect` to review the topology, then add ' +
-        '`arch-policy.yml` when you are ready to enforce rules.',
+  if (!out.quiet) {
+    console.log('');
+    if (!policyPresence.configured) {
+      console.log(
+        'Next: run `arch-engine inspect` to review the topology, then add ' +
+          '`arch-policy.yml` when you are ready to enforce rules.',
+      );
+    } else {
+      console.log('Next: run `arch-engine check` to evaluate your policy.');
+    }
+  }
+
+  // Reference an unused symbol so the linter doesn't yell — `stability`
+  // is computed for parity with the v1.0.x flow even though doctor's
+  // human render doesn't print it.
+  void stability;
+}
+
+// ─── v1.1.0 v2 envelope helpers ────────────────────────────────
+
+function buildDoctorV2EnvelopeInput(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+  policyConfigured: boolean,
+): V2RenderInput {
+  const status = deriveStatusForExit(0, diagnostics, 0);
+  const ready = !policyConfigured ? true : true; // doctor's `ready` is informational
+  const summary = buildSummary(
+    ready ? 'Workspace topology extracted.' : 'Workspace not ready.',
+    status,
+    {
+      warnings: diagnostics.filter((d) => d.severity === 'WARNING').length,
+      diagnostics: diagnostics.length,
+    },
+  );
+
+  const data = {
+    ready,
+    policyConfigured,
+    workspace: {
+      type: v1.environment,
+      extractionMode: v1.extractionMode,
+      packageCount: v1.detectedNodes,
+    },
+    adapter: {
+      id: '@arch-engine/adapter-monorepo',
+      resolved: v1.extractionMode === 'structured',
+    },
+    topology: {
+      nodes: v1.detectedNodes,
+      edges: v1.crossings,
+      coverage: v1.coverage,
+      connectivity: v1.connectivity,
+      topologyConfidence: v1.topologyConfidence,
+      topologyConfidenceLabel: v1.topologyConfidenceLabel,
+      confidenceTier: v1.topologyConfidenceLabel,
+    },
+    domains: v1.domainDistribution,
+    domainIntegrity: v1.domainIntegrity,
+    warnings: v1.warnings,
+  };
+
+  const nextActions: string[] = [];
+  if (!policyConfigured) {
+    nextActions.push(
+      'Run `arch-engine inspect` to review the topology, then add `arch-policy.yml` to enforce rules.',
     );
   } else {
-    console.log('Next: run `arch-engine check` to evaluate your policy.');
+    nextActions.push('Run `arch-engine check` to evaluate your policy.');
   }
+
+  return {
+    command: 'doctor',
+    exitCode: 0,
+    status,
+    summary,
+    data,
+    diagnostics,
+    artifacts: [],
+    nextActions,
+    includeAbsolutePath: out.verbose,
+  };
+}
+
+function buildDoctorV2(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+  policyConfigured: boolean,
+): string {
+  return renderCliJsonV2(
+    buildDoctorV2EnvelopeInput(out, v1, diagnostics, policyConfigured),
+  );
 }

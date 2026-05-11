@@ -4,6 +4,105 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-05-11
+
+Minor release. Adds six new CLI flags and an opt-in JSON v2 output
+envelope. All v1.0.x defaults are preserved exactly: JSON v1 remains
+the default for `--json`, the five-command surface is unchanged, no
+existing JSON keys were removed or renamed, no AGP dependency was
+added. Consumers of `@arch-engine/*@1.0.3` can upgrade with no code
+changes; opt-in to v1.1.0 features by passing the new flags.
+
+### Added
+
+- Added `--json-schema=v1|v2` for opt-in JSON v2 output. Default
+  remains `v1`. `v2` requires `--json` or `--format json`; otherwise
+  exits 2 with `ARCH_ENGINE_INVALID_CONFIG`.
+- Added `--ci` for deterministic CI-friendly output. Forces
+  `NO_COLOR=1` ahead of `picocolors` (via `bin.ts` pre-import gate
+  with dynamic import). Does NOT imply `--json`. Composes with every
+  other flag.
+- Added `--format human|json|markdown`. `human` is the default;
+  `json` aliases `--json`; `markdown` is new in v1.1.0 and ships
+  for all five commands.
+- Added `--output <path>`. Writes the formatted output to a file
+  instead of stdout. mkdir-p the parent directory; UTF-8; LF line
+  endings; ANSI-stripped when writing to file; overwrite on every
+  run. Trailing slash exits 2.
+- Added `--verbose`. Adds detail to human/markdown output and
+  includes `artifacts[].absolutePath` in JSON v2. Never leaks
+  secrets.
+- Added `--quiet`. Suppresses non-essential human stdout (header
+  metrics, distribution sections, "Next:" hints). Verdict and
+  ERROR/INTERNAL diagnostics still print. No effect on JSON or
+  markdown content. Wins over `--verbose` for human output.
+- Added the JSON v2 envelope (`schemaVersion: "arch-engine.cli.v2"`)
+  with 11 alphabetised top-level keys: `archEngineVersion`,
+  `artifacts`, `command`, `data`, `diagnostics`, `emittedAt`,
+  `exitCode`, `nextActions`, `schemaVersion`, `status`, `summary`.
+  Status enum: `passed | blocked | warning | error | internal_error
+  | not_enforced`.
+- Added markdown output for `check`, `analyze`, `doctor`, `inspect`,
+  and `explain`. Deterministic ordering, no timestamps, no absolute
+  paths, capped at 50 violations / 25 diagnostics / 250 KB total.
+  Suitable for PR-comment posting.
+- Added deterministic ordering rules in JSON v2: top-level keys
+  alphabetised; `data.*` keys alphabetised recursively;
+  `diagnostics[]` sorted by `(severity desc, code asc, message
+  asc)`; `data.violations[]` (check) sorted by `id` ascending;
+  `artifacts[]` sorted by `(kind, relativePath)`.
+- Added path-safety policy: all paths in `data.*` are
+  repo-relative POSIX; `artifacts[].absolutePath` omitted by
+  default and surfaced only under `--verbose`.
+- Added 71 new Phase F tests across four files
+  (`cli-experience-phase-f-{flags,json-v2,markdown-output,ci}.test.ts`)
+  covering vocabulary, envelope shape, field invariants, JSON v1
+  backward-compat, demo-drift blocked verdict, path-leakage policy,
+  diagnostic ordering, markdown rendering, output writer, ANSI
+  stripping, LF normalisation, CI determinism, and the full flag
+  interaction matrix.
+- Added implementation audit at
+  `audits/ARCH_ENGINE_JSON_V2_CI_FLAGS_IMPLEMENTATION_AUDIT.md`
+  and design spec at `docs/cli/json-v2-ci-flags-spec.md`.
+
+### Changed
+
+- CLI output can now be routed to markdown or a file without
+  changing the existing command surface.
+- `--ci` forces no-color deterministic output but does not imply
+  `--json`.
+- The structured error renderer from v1.0.3 now honours the JSON
+  conflict-error mode: validation failures under `--json` (or
+  `--format json`) emit a `{ diagnostics: [...] }` envelope to
+  stdout instead of the human Title/Problem/Fix/Exit/Docs template
+  on stderr.
+- JSON v1 remains the default for `--json`. `--json-schema=v1` is
+  explicitly accepted as a no-op alias of the default for forward
+  compatibility.
+
+### Compatibility
+
+- Existing five commands (`doctor`, `inspect`, `analyze`, `check`,
+  `explain`) are unchanged.
+- Existing JSON v1 output remains the default for `--json`.
+- JSON v2 is opt-in only via `--json-schema=v2`.
+- No existing JSON v1 keys removed or renamed. The Phase A
+  (`policyConfigured`, `headlineKind`), Phase B
+  (`supportedSpecialTargets`), and Phase 7
+  (`diagnostics`, `violations`, `artifactRelativePath`) additive
+  fields are preserved verbatim.
+- No new public exports from `@arch-engine/cli` or any other
+  workspace. The four new internal modules (`cli-options.ts`,
+  `output-writer.ts`, `render-v2.ts`, `render-markdown.ts`) are
+  bundled into the CLI's ESM output but not exposed as importable
+  entry points.
+- No AGP dependency. `@arch-engine/agp-emitter` and the
+  `@arch-governance/*` packages remain outside the v1.x runtime
+  bundle.
+- All previous freeze snapshots accepted with no snapshot updates.
+- Phase A / B / C / D-Lite / E test suites all still green with
+  zero changes.
+
 ## [1.0.3] — 2026-05-07
 
 Patch release. The frozen v1.0.x public API surface is preserved exactly;

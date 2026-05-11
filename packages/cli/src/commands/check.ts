@@ -1,5 +1,4 @@
 import pc from 'picocolors';
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { discoverEnvironment } from '../autodiscovery.js';
@@ -25,21 +24,35 @@ import {
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthorityCrossing, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
+import {
+  buildSummary,
+  deriveStatusForExit,
+  normalizeArtifactPath,
+  renderCliJsonV2,
+  type V2Artifact,
+  type V2ExitCode,
+  type V2RenderInput,
+  type V2Status,
+} from '../render-v2.js';
+import { renderCliMarkdown } from '../render-markdown.js';
+import { emitFormattedOutput } from '../output-writer.js';
+import type { CliOutputOptions } from '../cli-options.js';
 
 export async function checkCommand(options: any) {
   const cwd = process.cwd();
+  const out: CliOutputOptions = options.outputOptions;
 
   // Auto-init silently
   autoInitializeArchitectureContext(cwd);
 
-  if (!options.json) {
+  if (out.format === 'human' && !out.quiet && !out.json) {
     // No literal command echo — see CLI Experience Specification §4 P12.
     console.log(pc.dim('Executing policy pipeline...\n'));
   }
 
   const discovery = discoverEnvironment(cwd);
 
-  if (discovery.isFallback && !options.json) {
+  if (discovery.isFallback && out.format === 'human' && !out.quiet) {
     console.log(pc.dim(`No arch-engine.yml found. Using workspace autodetection mode (${discovery.detectedType}).`));
   }
 
@@ -48,13 +61,6 @@ export async function checkCommand(options: any) {
   try {
     bridge = await executeRunnerBridge(cwd, discovery);
   } catch (error) {
-    // Phase 8 (v1.0.3): structurised fatal path. Maps generic
-    // adapter/runner-bridge failures to ARCH_ENGINE_ADAPTER_NOT_FOUND
-    // (severity ERROR, exit 3). Exit code is preserved verbatim — only
-    // the rendering becomes structured. JSON mode now emits a minimal
-    // `{ diagnostics: [...] }` envelope instead of silent exit, closing a
-    // pre-existing JSON contract hole additively (no existing keys are
-    // altered because there were none).
     const diagnostic = buildDiagnostic({
       code: 'ARCH_ENGINE_ADAPTER_NOT_FOUND',
       title: 'Topology extraction failed.',
@@ -65,7 +71,7 @@ export async function checkCommand(options: any) {
         'Run `arch-engine doctor` to inspect adapter detection. If `@arch-engine/adapter-monorepo` ' +
         'is not installed, install it with `npm install --save-dev @arch-engine/adapter-monorepo`.',
     });
-    if (options.json) {
+    if (out.format === 'json') {
       emitDiagnosticJson(diagnostic);
     } else {
       emitDiagnosticHuman(diagnostic, error);
@@ -79,7 +85,7 @@ export async function checkCommand(options: any) {
   const confidenceLabel = classifyConfidence(meta.topologyConfidence);
   const crossingCount = engineResult.stabilityIndex.authority_crossings.total_crossings;
 
-  // Single source of truth for policy presence (matches doctor + analyze).
+  // Single source of truth for policy presence
   const policyPresence = detectPolicyFile(cwd);
   const policyExists = policyPresence.configured;
   const headline = deriveAnalysisHeadline({ score, meta, policyConfigured: policyExists });
@@ -120,7 +126,6 @@ export async function checkCommand(options: any) {
       policyRuleHits: policyEval.policyRuleHits
     };
   } else {
-    // Artifact requires policyDetected for stateless offline federation
     (artifact as any).policyEvaluation = {
       violations: 0,
       policyDetected: policyExists
@@ -131,19 +136,108 @@ export async function checkCommand(options: any) {
 
   // Coverage gating
   const minCoverage = options.minCoverage ? parseFloat(options.minCoverage) : 0;
+  const coverageBelowMin = minCoverage > 0 && meta.coverage < minCoverage;
 
-  if (!options.json) {
-    // Workspace detection transparency. The "Stability Score" line that
-    // previously printed "CRITICAL" before "No blocking violations" was
-    // removed — see CLI Experience Specification §5.4 for the contradiction
-    // it produced. The numeric score remains visible only when the headline
-    // grades it (i.e., a policy file is configured AND signal is sufficient).
+  // Compute violations + diagnostics in advance (used by every output mode)
+  const violationsJson = buildViolationsJson(policyEval);
+  const isEnforcing = !!policyEval && policyEval.policyMode === 'enforce';
+  const blockerCount = engineResult.stabilityIndex.authority_crossings.blocker_crossings;
+  const diagnostics: CliDiagnostic[] = [];
+  if (!policyExists) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
+        message:
+          'No policy file is configured yet — nothing was enforced. ' +
+          'Run with a policy file at .archengine/policy.yml to evaluate architecture rules.',
+      }),
+    );
+  }
+  const floorCheck = checkQualityFloor(meta);
+  if (floorCheck.belowFloor) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
+        message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
+      }),
+    );
+  }
+  if (violationsJson.length > 0 && isEnforcing) {
+    diagnostics.push(
+      buildDiagnostic({
+        code: 'ARCH_ENGINE_BLOCKING_VIOLATION',
+        title: `Blocked: ${violationsJson.length} architecture violation${violationsJson.length === 1 ? '' : 's'}.`,
+        message:
+          `Detected ${violationsJson.length} blocking architecture ` +
+          `violation${violationsJson.length === 1 ? '' : 's'} in enforce mode. ` +
+          'Each violation appears in the `violations[]` array below.',
+        details: { count: violationsJson.length },
+      }),
+    );
+  }
+
+  // Determine final exit code (used by both v2 envelope and exit semantics)
+  const blocking = (isEnforcing && violationsJson.length > 0) || blockerCount > 0;
+  const finalExit: V2ExitCode = coverageBelowMin ? 3 : blocking ? 1 : 0;
+
+  // Common v1 payload (preserve byte-identical default)
+  const v1Json = {
+    score,
+    classification: stability.tier,
+    stabilityTier: stability.tier,
+    topologyConfidenceLabel: confidenceLabel,
+    coverage: meta.coverage,
+    connectivity: meta.connectivity,
+    extractionMode: meta.extractionMode,
+    topologyConfidence: meta.topologyConfidence,
+    authorityCrossings: crossingCount,
+    blockerCrossings: blockerCount,
+    warnings: meta.warnings,
+    executionMetrics,
+    artifactPath,
+    policyConfigured: policyExists,
+    headlineKind: headline.kind,
+    diagnostics: diagnostics.map(diagnosticToJson),
+    violations: violationsJson,
+    artifactRelativePath: toRepoRelative(cwd, artifactPath),
+  };
+
+  // ── v1.1.0: format-aware emission ──────────────────────────
+  if (out.format === 'json') {
+    if (out.jsonSchema === 'v2') {
+      emitFormattedOutput(
+        renderCliJsonV2(
+          buildCheckV2EnvelopeInput(
+            out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount,
+          ),
+        ) + '\n',
+        out,
+      );
+    } else {
+      // v1 default — preserve byte-identical v1.0.3 shape.
+      emitFormattedOutput(JSON.stringify(v1Json, null, 2) + '\n', out);
+    }
+    process.exit(finalExit);
+  }
+
+  if (out.format === 'markdown') {
+    emitFormattedOutput(
+      renderCliMarkdown(
+        buildCheckV2EnvelopeInput(
+          out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount,
+        ),
+      ),
+      out,
+    );
+    process.exit(finalExit);
+  }
+
+  // ── Human Mode (existing behavior preserved) ──────────────
+
+  if (!out.quiet) {
     console.log(`  Workspace:            ${pc.bold(meta.workspaceType)} (${meta.extractionMode})`);
     console.log(`  Confidence:           ${pc.bold(confidenceDescription(meta))}`);
     if (headline.kind === 'tier') {
-      // Single, calibrated stability line (Phase C unified the previous
-      // "Stability Score: CRITICAL (0.47)" + headline duplication into
-      // one line).
       console.log(`  Stability:            ${stability.color(pc.bold(`${stability.tier} (${score.toFixed(2)} / 1.00)`))}`);
     }
     console.log(`  Coverage:             ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
@@ -166,73 +260,11 @@ export async function checkCommand(options: any) {
         console.log(line);
       }
     }
-  } else {
-    // Backward-compatible JSON shape. Existing keys preserved verbatim.
-    // Phase A additive: `policyConfigured`, `headlineKind`.
-    // Phase 6 (v1.0.3) additive: `diagnostics: []`.
-    // Phase 7 (v1.0.3) additive: `violations: []`, `artifactRelativePath`.
-    const diagnostics: CliDiagnostic[] = [];
-    if (!policyExists) {
-      diagnostics.push(
-        buildDiagnostic({
-          code: 'ARCH_ENGINE_POLICY_NOT_FOUND',
-          message:
-            'No policy file is configured yet — nothing was enforced. ' +
-            'Run with a policy file at .archengine/policy.yml to evaluate architecture rules.',
-        }),
-      );
-    }
-    const floorCheck = checkQualityFloor(meta);
-    if (floorCheck.belowFloor) {
-      diagnostics.push(
-        buildDiagnostic({
-          code: 'ARCH_ENGINE_TOPOLOGY_LOW_SIGNAL',
-          message: floorCheck.message ?? 'Topology coverage is too low for confident evaluation.',
-        }),
-      );
-    }
-    const violationsJson = buildViolationsJson(policyEval);
-    if (violationsJson.length > 0 && policyEval && policyEval.policyMode === 'enforce') {
-      diagnostics.push(
-        buildDiagnostic({
-          code: 'ARCH_ENGINE_BLOCKING_VIOLATION',
-          title: `Blocked: ${violationsJson.length} architecture violation${violationsJson.length === 1 ? '' : 's'}.`,
-          message:
-            `Detected ${violationsJson.length} blocking architecture ` +
-            `violation${violationsJson.length === 1 ? '' : 's'} in enforce mode. ` +
-            'Each violation appears in the `violations[]` array below.',
-          details: { count: violationsJson.length },
-        }),
-      );
-    }
-
-    console.log(JSON.stringify({
-      score,
-      classification: stability.tier,
-      stabilityTier: stability.tier,
-      topologyConfidenceLabel: confidenceLabel,
-      coverage: meta.coverage,
-      connectivity: meta.connectivity,
-      extractionMode: meta.extractionMode,
-      topologyConfidence: meta.topologyConfidence,
-      authorityCrossings: crossingCount,
-      blockerCrossings: engineResult.stabilityIndex.authority_crossings.blocker_crossings,
-      warnings: meta.warnings,
-      executionMetrics,
-      artifactPath,
-      policyConfigured: policyExists,
-      headlineKind: headline.kind,
-      // Phase 6 additive
-      diagnostics: diagnostics.map(diagnosticToJson),
-      // Phase 7 additive: violation surface + repo-relative artifact path
-      violations: violationsJson,
-      artifactRelativePath: toRepoRelative(cwd, artifactPath),
-    }, null, 2));
   }
 
   // Exit code 3: Coverage threshold not met
-  if (minCoverage > 0 && meta.coverage < minCoverage) {
-    if (!options.json) {
+  if (coverageBelowMin) {
+    if (!out.quiet) {
       console.error(pc.red(`\n✖ Topology coverage (${meta.coverage.toFixed(2)}) is below the required threshold of ${minCoverage}.`));
       console.error('');
       console.error(`Fix: lower --min-coverage, or improve adapter coverage (see https://arch-engine.dev/adapters).`);
@@ -241,22 +273,19 @@ export async function checkCommand(options: any) {
     process.exit(3);
   }
 
-  // Exit code 5: Policy violations in ENFORCE mode
+  // Exit code 1: Policy violations in ENFORCE mode
   if (policyEval && policyEval.violations.length > 0) {
-    const isEnforcing = policyEval.policyMode === 'enforce';
-    if (!options.json) {
-      const verdict = isEnforcing
+    const isEnforcingHere = policyEval.policyMode === 'enforce';
+    if (!out.quiet) {
+      const verdict = isEnforcingHere
         ? pc.red(pc.bold(`Blocked: ${policyEval.violations.length} architecture violation${policyEval.violations.length === 1 ? '' : 's'}.`))
         : pc.yellow(pc.bold(`${policyEval.violations.length} policy warning${policyEval.violations.length === 1 ? '' : 's'} (advisory mode).`));
       console.log('');
       console.log(verdict);
       console.log('');
-      // Per-violation block. Show rule id and severity so the user can
-      // act on exactly the rule they need to. Five-violation cap kept
-      // from v1.0.1 — the artifact JSON has the full list.
       for (const v of policyEval.violations.slice(0, 5)) {
-        const ciNote = isEnforcing && v.severity === 'error' ? pc.dim('(blocks CI)') : pc.dim('(advisory)');
-        const arrow = isEnforcing ? pc.red('✗') : pc.yellow('⚠');
+        const ciNote = isEnforcingHere && v.severity === 'error' ? pc.dim('(blocks CI)') : pc.dim('(advisory)');
+        const arrow = isEnforcingHere ? pc.red('✗') : pc.yellow('⚠');
         console.log(`  ${arrow} ${pc.bold(v.from)} → ${pc.bold(v.to)}   ${ciNote}`);
         if (v.ruleId) {
           console.log(`    Rule:     ${v.ruleId}`);
@@ -267,27 +296,21 @@ export async function checkCommand(options: any) {
         console.log(pc.dim(`    ... and ${policyEval.violations.length - 5} more (see ${artifactPath}).`));
       }
     }
-    if (isEnforcing) {
-      if (!options.json) {
+    if (isEnforcingHere) {
+      // The verdict line MUST always print under --ci even when --quiet is set,
+      // so the CI log includes the machine-quotable Exit line.
+      if (!out.quiet || out.ci) {
         console.log('');
         console.log(`Fix: remove or re-route the offending edge(s) above, or update your policy to allow them.`);
         console.log(`Exit 1: blocking architecture violations.`);
       }
-      // Phase D-Lite: blocking architecture violations exit with code 1
-      // (was 5 in v1.0.1 — see audit
-      // ARCH_ENGINE_CLI_EXPERIENCE_EXIT_CODE_REPAIR_AUDIT.md). Code 5 is
-      // now reserved for internal invariant failures.
       process.exit(1);
     }
   }
 
-  // BLOCKER authority-tier crossings (internal heuristic-detected
-  // architecture violations). These are blocking violations from the
-  // user's perspective and now exit with the same code as enforce-mode
-  // policy violations: 1.
-  const blockerCount = engineResult.stabilityIndex.authority_crossings.blocker_crossings;
+  // BLOCKER authority-tier crossings → exit 1
   if (blockerCount > 0) {
-    if (!options.json) {
+    if (!out.quiet) {
       console.error(pc.red(`\n✖ Detected ${blockerCount} blocking authority-tier violation(s).`));
       const blockers = engineResult.stabilityIndex.authority_crossings.entries
         .filter((c: RankedAuthorityCrossing) => c.recommended_severity === 'BLOCKER');
@@ -298,18 +321,11 @@ export async function checkCommand(options: any) {
       console.error(`Fix: review the authority-tier crossings above. Each must be either resolved or explicitly allowed.`);
       console.error(`Exit 1: blocking architecture violations.`);
     }
-    // Phase D-Lite: was exit 2 in v1.0.1; migrated to 1 to align with
-    // the "blocking architecture violations" semantic. Code 2 is now
-    // reserved for invalid input or configuration.
     process.exit(1);
   }
 
-  // Happy path. The verdict line MUST be consistent with the rest of the
-  // output — never "CRITICAL" + "no blocking violations" together. We
-  // distinguish two no-block scenarios:
-  //   1. policy is configured AND was evaluated cleanly → "Pass."
-  //   2. no policy is configured → "No policy to evaluate against."
-  if (!options.json) {
+  // Happy path
+  if (!out.quiet) {
     if (policyExists) {
       console.log(pc.green(`\n✔ Pass. No blocking architecture violations.`));
     } else {
@@ -329,14 +345,6 @@ export async function checkCommand(options: any) {
 
 // ─── Phase 7 (v1.0.3) helpers ────────────────────────────
 
-/**
- * Convert the policy-evaluator's violation list into the
- * `violations[]` JSON shape per spec §10.4.
- *
- * Each violation gets a stable hash-based id (no timestamps,
- * no random) so re-running the same input yields byte-identical
- * IDs.
- */
 function buildViolationsJson(
   policyEval: { violations: PolicyViolation[]; policyMode: string } | null,
 ): Array<{
@@ -368,22 +376,118 @@ function buildViolationsJson(
   });
 }
 
-/**
- * Convert an absolute artifact path to a repo-relative form. If
- * the artifact lives outside the cwd (e.g. running on a tempdir
- * fixture), we still emit a relative form using `…/<file>` so
- * machine consumers don't have to special-case absolute paths.
- *
- * Path separators are normalised to POSIX forward slashes per
- * spec §12.1.
- */
 function toRepoRelative(cwd: string, absPath: string): string {
   const rel = path.relative(cwd, absPath);
-  // If `rel` starts with `..` the artifact is outside the cwd.
-  // Surface it as `…/<basename>` to avoid leaking `../../tmp/...`
-  // chains in CI logs.
   if (rel.startsWith('..')) {
     return `…/${path.basename(absPath)}`;
   }
   return rel.split(path.sep).join('/');
+}
+
+// ─── v1.1.0 v2 envelope helpers ────────────────────────────────
+
+function buildCheckV2EnvelopeInput(
+  out: CliOutputOptions,
+  v1: any,
+  diagnostics: CliDiagnostic[],
+  violationsJson: ReturnType<typeof buildViolationsJson>,
+  artifactPath: string,
+  finalExit: V2ExitCode,
+  policyEval: { policyMode: string } | null,
+  headlineKind: string,
+  cwd: string,
+  blockerCount: number,
+): V2RenderInput {
+  // Determine status. For check, exit 1 → blocked; exit 0 + no policy → not_enforced;
+  // exit 0 + policy + no violations → passed; exit 3 → error.
+  const status: V2Status =
+    finalExit === 1
+      ? 'blocked'
+      : finalExit === 3
+        ? 'error'
+        : !v1.policyConfigured
+          ? 'not_enforced'
+          : 'passed';
+
+  const headline: string =
+    status === 'blocked'
+      ? `Blocked: ${violationsJson.length || blockerCount} architecture violation${(violationsJson.length || blockerCount) === 1 ? '' : 's'}.`
+      : status === 'not_enforced'
+        ? 'No policy configured — nothing was enforced.'
+        : status === 'error'
+          ? 'Coverage below required threshold.'
+          : `Pass — no blocking architecture violations.`;
+
+  const summary = buildSummary(headline, status, {
+    score: v1.score,
+    violations: violationsJson.length,
+    warnings: diagnostics.filter((d) => d.severity === 'WARNING').length,
+    diagnostics: diagnostics.length,
+  });
+
+  const data: Record<string, unknown> = {
+    verdict: status,
+    stability: {
+      score: v1.score,
+      tier: v1.stabilityTier,
+      headlineKind,
+      policyConfigured: v1.policyConfigured,
+    },
+    topology: {
+      coverage: v1.coverage,
+      connectivity: v1.connectivity,
+      topologyConfidence: v1.topologyConfidence,
+      topologyConfidenceLabel: v1.topologyConfidenceLabel,
+      extractionMode: v1.extractionMode,
+      authorityCrossings: v1.authorityCrossings,
+      blockerCrossings: v1.blockerCrossings,
+    },
+    violations: [...violationsJson].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
+    policyConfigured: v1.policyConfigured,
+    policyMode: policyEval?.policyMode ?? 'enforce',
+    executionMetrics: v1.executionMetrics,
+    warnings: v1.warnings,
+  };
+
+  const artifacts: V2Artifact[] = [
+    {
+      kind: 'stability-score',
+      relativePath: normalizeArtifactPath(cwd, artifactPath),
+      ...(out.verbose ? { absolutePath: artifactPath } : {}),
+    },
+  ];
+
+  const nextActions: string[] = [];
+  if (status === 'blocked') {
+    nextActions.push(
+      'Remove or re-route the offending edge(s) above, or update your policy to allow them.',
+    );
+  } else if (status === 'not_enforced') {
+    nextActions.push(
+      'Add `arch-policy.yml` to enforce boundaries. No blocking rules were evaluated.',
+    );
+  } else if (status === 'passed') {
+    nextActions.push('Continue iterating; re-run `arch-engine check` on each PR.');
+  } else if (status === 'error') {
+    nextActions.push(
+      'Lower --min-coverage, or improve adapter coverage. See https://arch-engine.dev/adapters.',
+    );
+  }
+
+  // Status derivation cross-check: violations count drives blocked status,
+  // but avoid divergence with deriveStatusForExit by trusting the manual
+  // mapping above (check has the most nuanced flow).
+  void deriveStatusForExit;
+
+  return {
+    command: 'check',
+    exitCode: finalExit,
+    status,
+    summary,
+    data,
+    diagnostics,
+    artifacts,
+    nextActions,
+    includeAbsolutePath: out.verbose,
+  };
 }

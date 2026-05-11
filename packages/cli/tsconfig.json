@@ -18,6 +18,10 @@
     "src/policy-presence.ts",
     "src/help-text.ts",
     "src/error-codes.ts",
-    "src/format-error.ts"
+    "src/format-error.ts",
+    "src/cli-options.ts",
+    "src/output-writer.ts",
+    "src/render-v2.ts",
+    "src/render-markdown.ts"
   ]
 }
