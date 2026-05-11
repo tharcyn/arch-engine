@@ -1,0 +1,188 @@
+# ═══════════════════════════════════════════════════════════
+#  Arch-Engine — Pull-Request Comment (sticky markdown report)
+# ═══════════════════════════════════════════════════════════
+#
+#  Generates the markdown architecture report and posts (or
+#  updates) a single sticky comment on the pull request. The
+#  comment is keyed by an HTML marker so each run replaces the
+#  previous one instead of stacking duplicates.
+#
+#  ─── Security posture ─────────────────────────────────────
+#
+#  This workflow uses `on: pull_request`, NOT
+#  `on: pull_request_target`.
+#
+#  The distinction matters:
+#
+#    - `pull_request`        runs in the PR-fork context with a
+#                            READ-ONLY GITHUB_TOKEN by default.
+#                            Cannot post comments on PRs opened
+#                            from forks. Fully safe for untrusted
+#                            code.
+#    - `pull_request_target` runs in the base-repo context with
+#                            REPO-LEVEL WRITE access. NEVER use
+#                            this with untrusted code (the PR's
+#                            code can read your secrets). This
+#                            workflow does NOT use it.
+#
+#  Trade-off:
+#
+#    Forking is a first-class GitHub workflow. To preserve safety,
+#    this workflow ACCEPTS that PRs from forks will not get a
+#    posted comment. The artifact-only workflow in
+#    `arch-engine-pr-report.yml` works the same on every PR
+#    regardless of origin — recommended as the universal default,
+#    with this comment workflow added on top for internal PRs.
+#
+#  Permissions are scoped to the minimum needed:
+#
+#    contents: read         — to check out the repository.
+#    pull-requests: write   — to post and update PR comments.
+#
+#  ─── How to use ───────────────────────────────────────────
+#
+#  1. Copy this file to `.github/workflows/arch-engine-pr-comment.yml`
+#     in your own repository.
+#  2. (Optional) Add a `.archengine/policy.yml` file declaring
+#     the architecture rules you want enforced.
+#  3. Open a pull request from a branch on the SAME repository
+#     (not a fork) to see the sticky comment appear.
+#
+#  ─── CI gating ────────────────────────────────────────────
+#
+#  The job still fails when Arch-Engine detects a blocking
+#  architecture violation. The comment is posted FIRST so PR
+#  reviewers always see the breakdown even when the check is red.
+#
+#  Set this workflow as a required status check in your branch
+#  protection settings to block merges on violations.
+
+name: Arch-Engine PR Comment
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  arch-engine-comment:
+    name: Generate and post architecture report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Arch-Engine
+        run: |
+          npm install --no-save \
+            @arch-engine/cli@^1.1.0 \
+            @arch-engine/adapter-monorepo@^1.1.0
+
+      - name: Run Arch-Engine check
+        id: arch_engine
+        continue-on-error: true
+        run: |
+          npx arch-engine check --ci \
+            --format markdown \
+            --output arch-engine-report.md
+
+      # ── Always upload the report, pass or fail ──
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-engine-report
+          path: arch-engine-report.md
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── Post or update the sticky PR comment ──
+      #
+      # `actions/github-script` is a thin wrapper around the GitHub
+      # REST/GraphQL APIs. It ships with the runner — no extra
+      # dependencies. We look for an existing comment marked with
+      # `<!-- arch-engine-report -->` and update it in place; if
+      # none exists, we create a new one.
+      - name: Post or update PR comment
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'arch-engine-report.md';
+
+            const MARKER = '<!-- arch-engine-report -->';
+            const archEngineVersion = '1.1.0';
+
+            let report = '';
+            if (fs.existsSync(path)) {
+              report = fs.readFileSync(path, 'utf8');
+            } else {
+              report = '> Arch-Engine did not produce a report. See the run log for details.';
+            }
+
+            // Comment body: sticky marker + report + footer.
+            const body = [
+              MARKER,
+              '',
+              '## Arch-Engine architecture check',
+              '',
+              report.trim(),
+              '',
+              '---',
+              '',
+              `_Posted by [arch-engine@${archEngineVersion}](https://github.com/tharcyn/arch-engine) — `,
+              `[workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})._`,
+            ].join('\n');
+
+            const prNumber = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+
+            // Search for the existing sticky comment.
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: prNumber, per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body,
+              });
+              core.notice(`Updated existing Arch-Engine comment (id=${existing.id}).`);
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNumber, body,
+              });
+              core.notice('Posted new Arch-Engine comment.');
+            }
+
+      # ── Note for forks: no comment will appear ──
+      #
+      # On `pull_request` from a fork, `GITHUB_TOKEN` is read-only
+      # so the post step above is skipped (the condition guards it).
+      # Surface that fact in the run log so reviewers know to look
+      # at the artifact instead.
+      - name: Fork PR notice (no comment posted)
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::notice::Skipped PR comment posting because this PR is from a fork."
+          echo "::notice::Download the 'arch-engine-report' artifact for the markdown report."
+
+      # ── Re-surface the check exit code ──
+      - name: Fail job on blocking violation
+        if: steps.arch_engine.outcome == 'failure'
+        run: |
+          echo "::error::Arch-Engine reported a blocking architecture violation."
+          echo "See the PR comment (or the 'arch-engine-report' artifact for fork PRs) for details."
+          exit 1

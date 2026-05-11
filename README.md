@@ -203,11 +203,31 @@ illustrating an architecture-drift scenario. See
 | Example | Demonstrates |
 | --- | --- |
 | [demo-drift](examples/demo-drift/) | Tiny topology fixture for first-run CLI walkthrough |
+| [GitHub Actions templates](examples/github-actions/) | PR markdown report + optional sticky-comment workflow templates (v1.1.0) |
 | [Reference Policy Pack](examples/reference-policy-pack/) | Canonical topology specimen, authority-tier enforcement |
 | [Multi-Policy Composition](examples/multi-policy-composition/) | Severity escalation, provenance chains, composition hash stability |
 | [Federation Overlay](examples/federation-overlay/) | Cross-registry composition, mirror fallback, closure hash parity |
 | [Signed Policy Pack](examples/signed-policy-pack/) | Cryptographic authority enforcement, unsigned rejection |
 | [Snapshot Replay Certification](examples/snapshot-replay-certification/) | Structural hash reproducibility, execution identity portability |
+
+---
+
+## GitHub Actions / PR reports
+
+Generate a deterministic markdown architecture report on every pull
+request — either as a downloadable artifact (safe on every PR, fork
+or internal) or as a sticky PR comment that updates in place.
+
+```bash
+npx arch-engine check --ci --format markdown --output arch-engine-report.md
+```
+
+Copy a starter template from
+[`examples/github-actions/`](examples/github-actions/) into
+`.github/workflows/` and you have a CI-gated architecture check that
+posts the report on every PR. See the
+[examples/github-actions/README](examples/github-actions/README.md)
+for permissions, fork limitations, and troubleshooting.
 
 ---
 

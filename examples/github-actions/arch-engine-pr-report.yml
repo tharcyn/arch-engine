@@ -1,0 +1,122 @@
+# ═══════════════════════════════════════════════════════════
+#  Arch-Engine — Pull-Request Architecture Report (artifact-only)
+# ═══════════════════════════════════════════════════════════
+#
+#  This workflow generates a deterministic markdown architecture
+#  report on every pull request and uploads it as a build artifact.
+#  It does NOT post comments — for that, see
+#  `arch-engine-pr-comment.yml` in the same directory.
+#
+#  Safe by default:
+#
+#  - Triggers on `pull_request` (NEVER `pull_request_target` — that
+#    would expose secrets to fork PRs).
+#  - Least-privilege permissions: `contents: read` only.
+#  - No npm publish, no git tag, no commenting, no PR-data writes.
+#  - Runs the same on fork PRs as on internal PRs.
+#
+#  How to use:
+#
+#  1. Copy this file to `.github/workflows/arch-engine-pr-report.yml`
+#     in your own repository.
+#  2. (Optional) Add a `.archengine/policy.yml` file declaring the
+#     architecture rules you want enforced. Without one, the report
+#     will still generate but reads "Not enforced".
+#  3. Open a pull request. The job appears under "Actions" and the
+#     report is downloadable from the run page.
+#
+#  CI gating:
+#
+#  - The job FAILS (non-zero exit) when Arch-Engine detects a
+#    blocking architecture violation. The artifact is uploaded
+#    BEFORE the failure surfaces, so you can always inspect the
+#    report on the run page.
+#  - Set this workflow as a required status check in your branch
+#    protection settings to block merges on architecture
+#    violations.
+#
+#  Customisation:
+#
+#  - Pin `@arch-engine/cli` to a specific version in the install
+#    step below (currently `^1.1.0`) if you want reproducibility
+#    across runs.
+#  - Switch the report filename, retention, or invocation flags
+#    to taste.
+
+name: Arch-Engine PR Report
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  arch-engine-report:
+    name: Generate architecture report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── Install Arch-Engine alongside the consumer's deps ──
+      #
+      # `--no-save` keeps the consumer's package.json untouched.
+      # If your repo already declares `@arch-engine/cli` and
+      # `@arch-engine/adapter-monorepo`, replace this step with
+      # `npm ci`.
+      - name: Install Arch-Engine
+        run: |
+          npm install --no-save \
+            @arch-engine/cli@^1.1.0 \
+            @arch-engine/adapter-monorepo@^1.1.0
+
+      # ── Generate the markdown report ──
+      #
+      # `--ci` forces deterministic no-color output.
+      # `--format markdown` produces a PR-comment-ready document.
+      # `--output` writes it to disk for artifact upload.
+      #
+      # `continue-on-error: true` lets the upload step run even
+      # when the check exits 1 (blocking violation). The job
+      # itself still fails — see the "Fail job on blocking
+      # violation" step below.
+      - name: Run Arch-Engine check
+        id: arch_engine
+        continue-on-error: true
+        run: |
+          npx arch-engine check --ci \
+            --format markdown \
+            --output arch-engine-report.md
+
+      # ── Always upload the report, pass or fail ──
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-engine-report
+          path: arch-engine-report.md
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── Re-surface the check exit code ──
+      #
+      # The upload step above always succeeds; this step fails the
+      # job when Arch-Engine reported a blocking violation so the
+      # PR's "Checks" tab turns red and required-status-check
+      # branch protection can block the merge.
+      - name: Fail job on blocking violation
+        if: steps.arch_engine.outcome == 'failure'
+        run: |
+          echo "::error::Arch-Engine reported a blocking architecture violation."
+          echo "Download the 'arch-engine-report' artifact for details."
+          exit 1
