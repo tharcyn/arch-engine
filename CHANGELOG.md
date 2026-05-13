@@ -4,6 +4,137 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-05-13
+
+Minor release. Lights up runtime **adapter selection** and ships the
+first additive workspace adapter — `@arch-engine/adapter-pnpm@0.1.0`
+— for pnpm-managed repositories. Adds a new JSON v2 `data.adapter`
+metadata block on every topology-extracting command, surfaces the
+chosen adapter on `doctor`'s human output, and grows the
+`ARCH_ENGINE_*` vocabulary by six adapter-related codes. All v1.2.0
+defaults are preserved exactly: JSON v1 remains the default for
+`--json`, the five-command surface is unchanged, no existing JSON
+keys were removed or renamed, no AGP dependency was added.
+Consumers of `@arch-engine/*@1.2.0` can upgrade with no code
+changes; opt-in to richer pnpm extraction by installing
+`@arch-engine/adapter-pnpm`.
+
+### Added
+
+- Added `@arch-engine/adapter-pnpm@0.1.0` — a new public adapter
+  package handling pnpm workspaces declared via `pnpm-workspace.yaml`.
+  Pure-fs read, dependency-free at runtime, deterministic glob
+  expansion, exclusion-glob support, and protocol awareness for
+  `workspace:*`, `workspace:^`, `workspace:~`, `workspace:<version>`
+  on all four dependency kinds (`dependencies`, `devDependencies`,
+  `peerDependencies`, `optionalDependencies`). Never executes
+  `pnpm`, never reads `node_modules/` or `.pnpm-store/`, never opens
+  network sockets, never mutates the user's repository.
+- Added an internal `ArchitectureAdapter` contract at
+  `packages/cli/src/adapters/adapter-contract.ts` and a deterministic
+  adapter registry at `packages/cli/src/adapters/adapter-registry.ts`.
+  Both are internal — not exported from any public package index.
+  The registry implements spec §7 selection: probe every adapter,
+  sort by `(confidence DESC, declaredPrecedence ASC, adapterName ASC)`,
+  classify status as `RESOLVED` / `CONFLICT` / `LOW_CONFIDENCE` / `NONE`.
+- Added runtime adapter selection in `packages/cli/src/runner-bridge.ts`.
+  The bridge lazily loads both adapters, builds the registry (pnpm at
+  precedence 2, monorepo at precedence 4), sets a cache hint so the
+  monorepo adapter declines `pnpm-workspace.yaml` when pnpm is
+  registered, runs `selectArchitectureAdapter`, and dispatches to the
+  chosen adapter. CONFLICT throws `BridgeAdapterConflictError` and
+  commands exit 3.
+- Added `data.adapter` JSON v2 metadata block per spec §12.2 on
+  `doctor`, `inspect`, `analyze`, `check`, and `explain` (matched,
+  unmatched, and `policy` modes). Carries
+  `{ name, version, packageManager, workspaceKind, confidence,
+    reasons[], warnings[], alsoDetected[], metadata{} }`. Adapter
+  identity does NOT affect `graphSurfaceHash`.
+- Added `doctor` human verdict-header line:
+  `✔ Adapter: <name> (<HIGH|MEDIUM|LOW> confidence)`. Slots between
+  "Workspace type resolved as" and "Packages detected"; survives
+  `--quiet`; uses yellow `⚠` for LOW.
+- Added six new `ARCH_ENGINE_*` error codes (vocabulary grows
+  additively from 16 to 22):
+  - `ARCH_ENGINE_ADAPTER_CONFLICT` (ERROR, exit 3)
+  - `ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE` (WARNING, exit 0)
+  - `ARCH_ENGINE_WORKSPACE_GLOBS_INVALID` (ERROR, exit 3)
+  - `ARCH_ENGINE_WORKSPACE_PACKAGE_UNNAMED` (ERROR, exit 3)
+  - `ARCH_ENGINE_LOCKFILE_UNSUPPORTED` (WARNING, exit 0)
+  - `ARCH_ENGINE_PNP_RESOLUTION_DEFERRED` (WARNING, exit 0)
+- Added 59 new adapter-focused tests under
+  `packages/cli/tests/adapters/` and `packages/adapter-pnpm/tests/`
+  covering: adapter contract structural shape, registry selection
+  branches, monorepo-adapter Pass 1 compatibility, pnpm adapter
+  package behaviour (26 unit tests), CLI selection wiring, JSON v2
+  `data.adapter` presence across commands, `doctor` human Adapter
+  line, `explain` regression-mode honest omission, `graphSurfaceHash`
+  intersection parity with documented root-asymmetry pin.
+- Added six pnpm fixture directories under
+  `packages/cli/tests/fixtures/adapters/`: `pnpm-basic`,
+  `pnpm-workspace-protocol`, `pnpm-nested`, `pnpm-excluded-glob`,
+  `pnpm-empty-globs`, `pnpm-unnamed-package`.
+- Added "pnpm workspace support (preview)" subsection to root
+  `README.md` and a "Works with pnpm workspaces (v1.3.0+)" subsection
+  to `examples/github-actions/README.md` with opt-in install snippet.
+- Added implementation audits at
+  `audits/ARCH_ENGINE_ADAPTER_CONTRACT_PASS_1_IMPLEMENTATION_AUDIT.md`,
+  `audits/ARCH_ENGINE_ADAPTER_PASS_2_PNPM_IMPLEMENTATION_AUDIT.md`,
+  and
+  `audits/ARCH_ENGINE_ADAPTER_PASS_2B_RELEASE_SURFACE_COMPLETION_AUDIT.md`.
+
+### Changed
+
+- CLI topology extraction now goes through deterministic adapter
+  selection at runtime. `pnpm-workspace.yaml` resolves through
+  `@arch-engine/adapter-pnpm` when installed; falls back to
+  `@arch-engine/adapter-monorepo`'s line-based pnpm parser otherwise
+  with `ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE` advisory.
+- `@arch-engine/adapter-monorepo` internally refactored to implement
+  the structural `ArchitectureAdapter` shape. The public free
+  function `runMonorepoExtraction(cwd)` and singletons
+  `monorepoAdapter` / `createMonorepoAdapter()` are byte-identical
+  to v1.2.0. New singleton `monorepoArchitectureAdapter` exposed for
+  the registry; NOT part of the v1.x stability contract.
+- `doctor` v2 envelope's pre-existing `data.adapter = {id, resolved}`
+  shape is replaced by the canonical spec-§12.2 shape (additive new
+  fields; no test depended on the old keys; verified by grep).
+- The CLI's `ARCH_ENGINE_*` error-code vocabulary grows from 16 to
+  22. The v1.0.3 / v1.2.0 codes are preserved verbatim and in the
+  same order; v1.3.0 only appends.
+
+### Compatibility
+
+- JSON v1 output remains the default for `--json` and is
+  byte-identical to v1.2.0.
+- JSON v2 changes are strictly additive: `data.adapter` is a new
+  sibling under `data.*`; no existing key removed or retyped.
+- The five-command surface (`doctor`, `inspect`, `analyze`,
+  `check`, `explain <target>`) is unchanged.
+- No new CLI commands.
+- No new CLI flags.
+- `runMonorepoExtraction(cwd)` and `classifyAuthorityDomain(route)`
+  on `@arch-engine/adapter-monorepo` remain byte-identical to
+  v1.2.0.
+- `@arch-engine/adapter-pnpm` is published independently at
+  `0.1.0`. It is an optional peer dependency of `@arch-engine/cli`
+  and is loaded lazily — the CLI works without it (falls back to
+  the monorepo adapter's pnpm-workspace handling).
+- `graphSurfaceHash` is canonical-only; adapter identity does not
+  affect the hash. Cross-adapter parity holds on the intersection
+  of glob-matched packages; a single root-inclusion asymmetry between
+  the monorepo and pnpm adapters is documented and pinned by test.
+- `explain regression` mode intentionally does NOT emit
+  `data.adapter` — it reads a saved artifact and never runs adapter
+  selection. The renderer's `adapterSummary?` parameter makes the
+  absence intentional, not accidental.
+- No AGP dependency. `@arch-engine/agp-emitter` and the
+  `@arch-governance/*` packages remain outside the v1.x runtime
+  bundle.
+- All previous freeze snapshots accepted with no snapshot updates.
+- Phase A / B / C / D-Lite / E / F / G suites all still green;
+  no test loosened in this release.
+
 ## [1.2.0] — 2026-05-11
 
 Minor release. Adds cross-run **architecture drift detection** via
