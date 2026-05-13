@@ -1,0 +1,70 @@
+{
+  "archEngineVersion": "1.4.0",
+  "artifacts": [],
+  "command": "check",
+  "data": {
+    "adapter": {
+      "alsoDetected": [],
+      "confidence": "HIGH",
+      "metadata": {},
+      "name": "@arch-engine/adapter-monorepo",
+      "packageManager": "npm",
+      "reasons": ["package.json#workspaces is an array"],
+      "version": "1.3.1",
+      "warnings": [],
+      "workspaceKind": "package-json-workspaces"
+    },
+    "drift": {
+      "baseline": {
+        "archEngineVersion": "1.4.0",
+        "command": "check",
+        "graphSurfaceHash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+        "path": ".arch-engine/stability-score.json",
+        "schemaVersion": "arch-engine.cli.v2"
+      },
+      "signal": {
+        "confidenceDelta": null,
+        "connectivityDelta": null,
+        "coverageDelta": null,
+        "graphSurfaceHashChanged": true,
+        "scoreDelta": -0.02,
+        "violationsDelta": 0
+      },
+      "summary": { "addedEdges": 1, "newViolations": 0, "removedEdges": 0, "resolvedViolations": 0 },
+      "topology": {
+        "addedEdges": [
+          { "from": "@example/web", "id": "e_84657835", "to": "@example/shared", "type": "workspace_dependency" }
+        ],
+        "addedNodes": [],
+        "changedEdges": [],
+        "changedNodes": [],
+        "removedEdges": [],
+        "removedNodes": []
+      },
+      "violations": { "new": [], "persisted": [], "resolved": [], "severityChanged": [] }
+    },
+    "topology": {
+      "canonical": {
+        "edges": [
+          { "from": "@example/web", "id": "e_84657835", "to": "@example/shared", "type": "workspace_dependency" }
+        ],
+        "graphSurfaceHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "graphSurfaceVersion": "1.0.0",
+        "nodes": [
+          { "id": "@example/shared", "type": "package" },
+          { "id": "@example/web", "type": "package" }
+        ]
+      }
+    }
+  },
+  "diagnostics": [],
+  "emittedAt": "2026-05-13T12:04:00Z",
+  "exitCode": 0,
+  "schemaVersion": "arch-engine.cli.v2",
+  "status": "passed",
+  "summary": {
+    "drift": { "addedEdges": 1, "newViolations": 0, "removedEdges": 0, "resolvedViolations": 0 },
+    "headline": "Workspace topology extracted (drift: +1 edge).",
+    "verdict": "passed"
+  }
+}

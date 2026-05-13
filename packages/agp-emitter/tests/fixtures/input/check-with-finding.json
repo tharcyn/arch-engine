@@ -1,0 +1,57 @@
+{
+  "archEngineVersion": "1.4.0",
+  "artifacts": [],
+  "command": "check",
+  "data": {
+    "adapter": {
+      "alsoDetected": [],
+      "confidence": "HIGH",
+      "metadata": {},
+      "name": "@arch-engine/adapter-monorepo",
+      "packageManager": "npm",
+      "reasons": ["package.json#workspaces is an array"],
+      "version": "1.3.1",
+      "warnings": [],
+      "workspaceKind": "package-json-workspaces"
+    },
+    "topology": {
+      "canonical": {
+        "edges": [
+          { "from": "@example/web", "id": "e_deadbeef", "to": "@example/db", "type": "workspace_dependency" }
+        ],
+        "graphSurfaceHash": "sha256:ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100",
+        "graphSurfaceVersion": "1.0.0",
+        "nodes": [
+          { "id": "@example/db", "type": "package" },
+          { "id": "@example/web", "type": "package" }
+        ]
+      }
+    },
+    "violations": [
+      {
+        "category": "rest-contract",
+        "ciBlocking": true,
+        "code": "ARCH_ENGINE_BLOCKING_VIOLATION",
+        "edge": { "from": "@example/web", "to": "@example/db", "type": "workspace_dependency" },
+        "id": "v_a1b2c3d4",
+        "message": "Cross-domain call from @example/web to @example/db violates rest-contract policy.",
+        "ruleId": "rest.contract.no-cross-domain-call",
+        "severity": "BLOCKING"
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "ciBlocking": true,
+      "code": "ARCH_ENGINE_BLOCKING_VIOLATION",
+      "message": "Blocked: blocking architecture violation(s).",
+      "severity": "BLOCKING",
+      "title": "Blocked: blocking architecture violation(s)."
+    }
+  ],
+  "emittedAt": "2026-05-13T12:03:00Z",
+  "exitCode": 1,
+  "schemaVersion": "arch-engine.cli.v2",
+  "status": "blocked",
+  "summary": { "headline": "Architecture violation blocking CI.", "verdict": "blocked", "violations": 1 }
+}

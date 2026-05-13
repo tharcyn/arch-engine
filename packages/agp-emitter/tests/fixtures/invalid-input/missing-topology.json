@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "arch-engine.cli.v2",
+  "archEngineVersion": "1.4.0",
+  "command": "inspect",
+  "status": "passed",
+  "exitCode": 0,
+  "data": {},
+  "diagnostics": []
+}

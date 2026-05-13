@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "arch-engine.cli.v2",
+  "archEngineVersion": "1.4.0",
+  "command": "doctor",
+  "status": "passed",
+  "exitCode": 0,
+  "data": {
+    "topology": { "canonical": { "graphSurfaceVersion": "1.0.0", "graphSurfaceHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "nodes": [], "edges": [] } }
+  }
+}

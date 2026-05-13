@@ -1,0 +1,71 @@
+{
+  "archEngineVersion": "1.4.0",
+  "artifacts": [],
+  "command": "inspect",
+  "data": {
+    "adapter": {
+      "alsoDetected": [],
+      "confidence": "HIGH",
+      "metadata": {
+        "edges": {
+          "e_03555127": { "kind": "dependency", "protocol": "workspace" }
+        },
+        "yarnPnp": {
+          "excludedGlobs": [],
+          "matchedGlobs": ["apps/api", "packages/shared"],
+          "nodeLinker": "pnp",
+          "nodeLinkerSource": "yarnrc",
+          "packageManagerVersion": "4.0.2",
+          "pnpFilePresent": true,
+          "pnpLoaderPresent": false,
+          "rawGlobs": ["apps/*", "packages/*"],
+          "workspacesObjectForm": false,
+          "workspacesPresent": true,
+          "yarnrcPresent": true
+        }
+      },
+      "name": "@arch-engine/adapter-yarn-pnp",
+      "packageManager": "yarn",
+      "reasons": [
+        ".pnp.cjs present",
+        ".yarnrc.yml present",
+        ".yarnrc.yml#nodeLinker is pnp",
+        "package.json#packageManager identifies yarn",
+        "package.json#workspaces is set"
+      ],
+      "version": "0.1.0",
+      "warnings": [],
+      "workspaceKind": "yarn-pnp"
+    },
+    "topology": {
+      "canonical": {
+        "edges": [
+          { "from": "@yarn-pnp-basic/api", "id": "e_03555127", "to": "@yarn-pnp-basic/shared", "type": "workspace_dependency" }
+        ],
+        "graphSurfaceHash": "sha256:6db912e8d7ea2c71966e15c8361372604b7da1d3bb002b908711f4b1c9184f8c",
+        "graphSurfaceVersion": "1.0.0",
+        "nodes": [
+          { "id": "@yarn-pnp-basic/api", "type": "package" },
+          { "id": "@yarn-pnp-basic/shared", "type": "package" }
+        ]
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "ciBlocking": false,
+      "code": "ARCH_ENGINE_PNP_RESOLUTION_DEFERRED",
+      "details": { "pnpFilePresent": true, "pnpLoaderPresent": false },
+      "docsHint": "adapters",
+      "fix": "The v0.1.0 Yarn PnP adapter does not execute `.pnp.cjs`.",
+      "message": "Detected Yarn PnP file (.pnp.cjs).",
+      "severity": "WARNING",
+      "title": "Yarn PnP resolution is deferred."
+    }
+  ],
+  "emittedAt": "2026-05-13T12:02:00Z",
+  "exitCode": 0,
+  "schemaVersion": "arch-engine.cli.v2",
+  "status": "warning",
+  "summary": { "headline": "yarn-pnp workspace extracted.", "verdict": "warning" }
+}

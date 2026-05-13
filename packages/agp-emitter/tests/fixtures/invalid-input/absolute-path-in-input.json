@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "arch-engine.cli.v2",
+  "archEngineVersion": "1.4.0",
+  "command": "inspect",
+  "status": "passed",
+  "exitCode": 0,
+  "diagnostics": [],
+  "data": {
+    "adapter": {
+      "alsoDetected": [],
+      "confidence": "HIGH",
+      "metadata": {
+        "yarnPnp": {
+          "excludedGlobs": [],
+          "matchedGlobs": ["/Users/example/repo/packages/api"],
+          "nodeLinker": "pnp",
+          "nodeLinkerSource": "yarnrc",
+          "packageManagerVersion": "4.0.2",
+          "pnpFilePresent": true,
+          "pnpLoaderPresent": false,
+          "rawGlobs": ["packages/*"],
+          "workspacesObjectForm": false,
+          "workspacesPresent": true,
+          "yarnrcPresent": true
+        }
+      },
+      "name": "@arch-engine/adapter-yarn-pnp",
+      "packageManager": "yarn",
+      "reasons": [".pnp.cjs present"],
+      "version": "0.1.0",
+      "warnings": [],
+      "workspaceKind": "yarn-pnp"
+    },
+    "topology": {
+      "canonical": {
+        "edges": [],
+        "graphSurfaceHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "graphSurfaceVersion": "1.0.0",
+        "nodes": [{ "id": "@example/api", "type": "package" }]
+      }
+    }
+  }
+}

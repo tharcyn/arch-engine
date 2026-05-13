@@ -1,0 +1,53 @@
+{
+  "archEngineVersion": "1.4.0",
+  "artifacts": [],
+  "command": "inspect",
+  "data": {
+    "adapter": {
+      "alsoDetected": [],
+      "confidence": "HIGH",
+      "metadata": {
+        "edges": {
+          "e_03555127": { "kind": "dependency", "protocol": "workspace" }
+        },
+        "pnpm": {
+          "catalogsDetected": false,
+          "excludedGlobs": [],
+          "lockfilePresent": true,
+          "matchedGlobs": ["apps/api", "apps/web", "packages/shared"],
+          "packageManagerVersion": "9.0.0",
+          "workspaceFile": "pnpm-workspace.yaml"
+        }
+      },
+      "name": "@arch-engine/adapter-pnpm",
+      "packageManager": "pnpm",
+      "reasons": [
+        "pnpm-workspace.yaml present",
+        "pnpm-lock.yaml present",
+        "package.json#packageManager starts with pnpm@"
+      ],
+      "version": "0.1.1",
+      "warnings": [],
+      "workspaceKind": "pnpm-workspace"
+    },
+    "topology": {
+      "canonical": {
+        "edges": [
+          { "from": "@pnpm-basic/api", "id": "e_03555127", "to": "@pnpm-basic/shared", "type": "workspace_dependency" }
+        ],
+        "graphSurfaceHash": "sha256:5bc54d9800000000000000000000000000000000000000000000000000000000",
+        "graphSurfaceVersion": "1.0.0",
+        "nodes": [
+          { "id": "@pnpm-basic/api", "type": "package" },
+          { "id": "@pnpm-basic/shared", "type": "package" }
+        ]
+      }
+    }
+  },
+  "diagnostics": [],
+  "emittedAt": "2026-05-13T12:01:00Z",
+  "exitCode": 0,
+  "schemaVersion": "arch-engine.cli.v2",
+  "status": "passed",
+  "summary": { "headline": "pnpm workspace extracted.", "verdict": "passed" }
+}
