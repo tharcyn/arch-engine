@@ -48,7 +48,9 @@ import * as crypto from 'node:crypto';
 import {
   readYarnRootManifest,
   readYarnrc,
+  resolveNodeLinker,
   type YarnRootManifest,
+  type YarnPnpNodeLinkerSource,
 } from './yarn-workspaces.js';
 import { expandWorkspaceGlobs, type GlobExpansion } from './globs.js';
 import {
@@ -189,7 +191,23 @@ export interface YarnPnpExtractionResult {
         pnpFilePresent: boolean;
         pnpLoaderPresent: boolean;
         yarnrcPresent: boolean;
+        /**
+         * Surfaced node-linker value. Either:
+         *   - the value parsed from `.yarnrc.yml#nodeLinker`, or
+         *   - `"pnp"` when a `.pnp.cjs` / `.pnp.loader.mjs` is
+         *     present and `.yarnrc.yml` did not declare nodeLinker
+         *     (matches Yarn Berry's documented default), or
+         *   - `null` when neither signal is present.
+         * Pair with `nodeLinkerSource` to distinguish the cases.
+         */
         nodeLinker: 'pnp' | 'node-modules' | 'pnpm' | 'unknown' | null;
+        /**
+         * Provenance tag for `nodeLinker`. Added in v0.1.1 trust
+         * polish so JSON v2 consumers can distinguish explicit-yarnrc,
+         * inferred-from-PnP-file, and absent cases without ambiguity.
+         * Always present.
+         */
+        nodeLinkerSource: YarnPnpNodeLinkerSource;
         workspacesPresent: boolean;
         workspacesObjectForm: boolean;
         rawGlobs: string[];
@@ -210,6 +228,12 @@ interface InternalYarnPnpState {
   readonly pnpLoaderPresent: boolean;
   readonly yarnrcPresent: boolean;
   readonly nodeLinker: 'pnp' | 'node-modules' | 'pnpm' | 'unknown' | null;
+  /**
+   * Provenance of `nodeLinker`. Resolved by `resolveNodeLinker()`
+   * from the explicit yarnrc value plus the PnP file signals so the
+   * adapter never has to compute it twice.
+   */
+  readonly nodeLinkerSource: YarnPnpNodeLinkerSource;
   readonly manifest: YarnRootManifest | null;
   readonly globExpansion: GlobExpansion | null;
 }
@@ -223,7 +247,19 @@ function probeWorkspace(cwd: string): InternalYarnPnpState {
   const pnpLoaderPresent = fs.existsSync(pnpLoaderAbs);
   const yarnrcPresent = fs.existsSync(yarnrcAbs);
   const yarnrc = yarnrcPresent ? readYarnrc(cwd) : null;
-  const nodeLinker = yarnrc?.nodeLinker ?? null;
+
+  // v0.1.1 trust polish: surface `nodeLinker` deterministically.
+  // When `.yarnrc.yml#nodeLinker` is absent but a PnP file exists,
+  // Yarn Berry's documented default is `pnp` — the adapter now
+  // reports that explicitly with `nodeLinkerSource: "inferred_from_pnp_file"`
+  // rather than the previous (technically literal but confusing)
+  // `null`. Pure metadata-only change; selection/extraction/hash
+  // unaffected.
+  const resolved = resolveNodeLinker(
+    yarnrc?.nodeLinker ?? null,
+    pnpFilePresent,
+    pnpLoaderPresent,
+  );
 
   // No PnP signals at all → don't bother reading the manifest. The
   // adapter is opting out.
@@ -232,7 +268,8 @@ function probeWorkspace(cwd: string): InternalYarnPnpState {
       pnpFilePresent: false,
       pnpLoaderPresent: false,
       yarnrcPresent,
-      nodeLinker,
+      nodeLinker: resolved.nodeLinker,
+      nodeLinkerSource: resolved.nodeLinkerSource,
       manifest: null,
       globExpansion: null,
     };
@@ -248,7 +285,8 @@ function probeWorkspace(cwd: string): InternalYarnPnpState {
     pnpFilePresent,
     pnpLoaderPresent,
     yarnrcPresent,
-    nodeLinker,
+    nodeLinker: resolved.nodeLinker,
+    nodeLinkerSource: resolved.nodeLinkerSource,
     manifest,
     globExpansion,
   };
@@ -378,6 +416,7 @@ export class YarnPnpArchitectureAdapter {
           pnpLoaderPresent: state.pnpLoaderPresent,
           yarnrcPresent: state.yarnrcPresent,
           nodeLinker: state.nodeLinker,
+          nodeLinkerSource: state.nodeLinkerSource,
           workspacesPresent: state.manifest.workspacesPresent,
           workspacesObjectForm: state.manifest.workspacesObjectForm,
           rawGlobs: [...state.manifest.globs],
@@ -505,6 +544,7 @@ export function runYarnPnpExtraction(
             pnpLoaderPresent: state.pnpLoaderPresent,
             yarnrcPresent: state.yarnrcPresent,
             nodeLinker: state.nodeLinker,
+            nodeLinkerSource: state.nodeLinkerSource,
             workspacesPresent: state.manifest?.workspacesPresent ?? false,
             workspacesObjectForm:
               state.manifest?.workspacesObjectForm ?? false,
@@ -635,6 +675,7 @@ export function runYarnPnpExtraction(
           pnpLoaderPresent: state.pnpLoaderPresent,
           yarnrcPresent: state.yarnrcPresent,
           nodeLinker: state.nodeLinker,
+          nodeLinkerSource: state.nodeLinkerSource,
           workspacesPresent: state.manifest.workspacesPresent,
           workspacesObjectForm: state.manifest.workspacesObjectForm,
           rawGlobs: [...state.manifest.globs],
@@ -833,6 +874,7 @@ function emptyTopology(
         pnpLoaderPresent: state.pnpLoaderPresent,
         yarnrcPresent: state.yarnrcPresent,
         nodeLinker: state.nodeLinker,
+        nodeLinkerSource: state.nodeLinkerSource,
         workspacesPresent: state.manifest?.workspacesPresent ?? false,
         workspacesObjectForm: state.manifest?.workspacesObjectForm ?? false,
         rawGlobs: state.manifest ? [...state.manifest.globs] : [],
@@ -890,8 +932,10 @@ export {
   normaliseManifest,
   deriveYarnVersion,
   readYarnrc,
+  resolveNodeLinker,
   type YarnRootManifest,
   type YarnrcReadResult,
+  type YarnPnpNodeLinkerSource,
 } from './yarn-workspaces.js';
 export { expandWorkspaceGlobs, type GlobExpansion } from './globs.js';
 export {

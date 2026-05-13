@@ -16,3 +16,15 @@ site/.vercel/
 
 # Local Claude workspace metadata
 .claude/
+
+# Generated CLI runtime artifacts that the CLI auto-init step
+# writes into adapter test fixtures whenever a command runs there
+# (e.g. `arch-engine check` invoked from a fixture cwd by the
+# subprocess-driven tests under `packages/cli/tests/adapters/`).
+# These files are NOT fixture source — they are runtime side-effects
+# and must never be committed. Intentional `session.json` /
+# `stability-score.json` fixtures that pre-existed under
+# `packages/cli/tests/fixtures/adapters/pnpm-basic/.arch-engine/`
+# are already tracked and remain visible to git because tracked
+# paths win over this ignore rule.
+packages/cli/tests/fixtures/**/.arch-engine/

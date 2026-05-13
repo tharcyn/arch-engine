@@ -202,6 +202,64 @@ export function readYarnrc(cwd: string): YarnrcReadResult | null {
   return { nodeLinker: null };
 }
 
+/**
+ * Provenance tag for the `nodeLinker` value surfaced in JSON v2
+ * `data.adapter.metadata.yarnPnp`. Distinguishes the three sources
+ * the v0.1.1+ adapter recognises:
+ *
+ *   - `"yarnrc"`                 — value parsed verbatim from a
+ *                                  top-level `nodeLinker:` key in
+ *                                  `.yarnrc.yml`.
+ *   - `"inferred_from_pnp_file"` — `.yarnrc.yml` did not declare
+ *                                  `nodeLinker`, but a `.pnp.cjs` or
+ *                                  `.pnp.loader.mjs` is present at
+ *                                  the repository root. Yarn Berry's
+ *                                  documented default in that
+ *                                  situation is `pnp`, so the adapter
+ *                                  reports `nodeLinker: "pnp"` with
+ *                                  this provenance tag rather than
+ *                                  the previous misleading `null`.
+ *   - `"absent"`                 — no explicit value AND no PnP file
+ *                                  signal. The adapter leaves
+ *                                  `nodeLinker: null` and tags the
+ *                                  absence so consumers can
+ *                                  distinguish it from the
+ *                                  inferred-PnP case.
+ *
+ * Added in v0.1.1 trust-polish to address P3-1 from the
+ * `audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md`
+ * findings. JSON v2 metadata-only field; does not affect adapter
+ * selection, graph extraction, `graphSurfaceHash`, or JSON v1.
+ */
+export type YarnPnpNodeLinkerSource =
+  | 'yarnrc'
+  | 'inferred_from_pnp_file'
+  | 'absent';
+
+/**
+ * Resolve the surfaced `(nodeLinker, nodeLinkerSource)` pair from
+ * the explicit value (if any) parsed from `.yarnrc.yml` plus the
+ * boolean PnP-file signals collected by the adapter's probe step.
+ *
+ * Pure function: no I/O, no side effects.
+ */
+export function resolveNodeLinker(
+  yarnrcValue: 'pnp' | 'node-modules' | 'pnpm' | 'unknown' | null,
+  pnpFilePresent: boolean,
+  pnpLoaderPresent: boolean,
+): {
+  readonly nodeLinker: 'pnp' | 'node-modules' | 'pnpm' | 'unknown' | null;
+  readonly nodeLinkerSource: YarnPnpNodeLinkerSource;
+} {
+  if (yarnrcValue !== null) {
+    return { nodeLinker: yarnrcValue, nodeLinkerSource: 'yarnrc' };
+  }
+  if (pnpFilePresent || pnpLoaderPresent) {
+    return { nodeLinker: 'pnp', nodeLinkerSource: 'inferred_from_pnp_file' };
+  }
+  return { nodeLinker: null, nodeLinkerSource: 'absent' };
+}
+
 function stripYamlComment(line: string): string {
   let inSingle = false;
   let inDouble = false;

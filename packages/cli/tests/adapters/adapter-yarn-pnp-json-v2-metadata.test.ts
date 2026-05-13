@@ -88,7 +88,37 @@ describe('JSON v2 data.adapter — yarn-pnp fixture (Pass 3)', () => {
     expect(md.pnpLoaderPresent).toBe(false);
     expect(md.yarnrcPresent).toBe(true);
     expect(md.nodeLinker).toBe('pnp');
+    // v0.1.1 trust polish: surfaced through JSON v2 unchanged.
+    expect(md.nodeLinkerSource).toBe('yarnrc');
     expect(md.workspacesPresent).toBe(true);
+  });
+
+  test('nodeLinkerSource is "inferred_from_pnp_file" when .yarnrc.yml is absent (v0.1.1)', () => {
+    // The protocol fixture has a `.pnp.cjs` but no `.yarnrc.yml`.
+    // Yarn Berry's documented default in that situation is `pnp`,
+    // so the adapter reports `nodeLinker: "pnp"` with provenance
+    // `"inferred_from_pnp_file"` rather than the misleading `null`
+    // that v0.1.0 surfaced.
+    const json = runJson(['inspect', '--json', '--json-schema=v2'], F.protocol);
+    const md = json.data.adapter.metadata.yarnPnp;
+    expect(md.yarnrcPresent).toBe(false);
+    expect(md.pnpFilePresent).toBe(true);
+    expect(md.nodeLinker).toBe('pnp');
+    expect(md.nodeLinkerSource).toBe('inferred_from_pnp_file');
+  });
+
+  test('nodeLinkerSource is always present in JSON v2 yarnPnp metadata', () => {
+    // Cross-fixture invariant: the provenance field is never
+    // undefined / missing, so v2 consumers can treat it as a
+    // deterministic enum.
+    for (const fix of [F.basic, F.protocol, F.objectForm]) {
+      const json = runJson(['inspect', '--json', '--json-schema=v2'], fix);
+      const md = json.data.adapter.metadata.yarnPnp;
+      expect('nodeLinkerSource' in md).toBe(true);
+      expect(['yarnrc', 'inferred_from_pnp_file', 'absent']).toContain(
+        md.nodeLinkerSource,
+      );
+    }
   });
 
   test('packageManagerVersion is the bare yarn version', () => {
