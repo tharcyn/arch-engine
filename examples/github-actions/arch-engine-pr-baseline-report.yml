@@ -1,0 +1,210 @@
+# ═══════════════════════════════════════════════════════════
+#  Arch-Engine — PR Architecture Drift Report (artifact-only)
+# ═══════════════════════════════════════════════════════════
+#
+#  Demonstrates the full v1.2.0 product loop:
+#
+#    1. Produce / restore a baseline JSON v2 report from the PR's
+#       base branch.
+#    2. Run `arch-engine check --ci --baseline ... --format
+#       markdown --output arch-engine-report.md` on the PR.
+#    3. Upload the drift-aware markdown report AND the baseline
+#       JSON as build artifacts (so PR reviewers can inspect both).
+#    4. Preserve the Arch-Engine exit code: the job fails when
+#       Arch-Engine reports a blocking violation, but only after
+#       the artifacts have been uploaded.
+#
+#  This file does NOT post a PR comment. For the sticky-comment
+#  variant, see `arch-engine-pr-baseline-comment.yml`. The two
+#  templates share the same baseline + report generation; the
+#  comment workflow layers PR-comment posting on top.
+#
+#  ─── Security posture ─────────────────────────────────────
+#
+#  Triggers on `pull_request`, NEVER `pull_request_target`.
+#
+#  Least-privilege permissions:
+#
+#    contents: read    — checkout the PR and resolve the base SHA.
+#
+#  No secrets required. Default GITHUB_TOKEN is sufficient.
+#
+#  ─── How the baseline is produced ─────────────────────────
+#
+#  This template uses the simplest viable strategy:
+#
+#    A. Try to restore a baseline from `actions/cache` keyed by
+#       the PR's base SHA (so the cache automatically invalidates
+#       when `main` advances).
+#
+#    B. On cache miss, the workflow runs `arch-engine check` on
+#       a detached git worktree at the base SHA to generate a
+#       fresh baseline, then caches it for the next PR.
+#
+#    C. The baseline JSON is uploaded alongside the report as an
+#       artifact so reviewers can diff it manually if needed.
+#
+#  Production teams may want a stronger guarantee — for example,
+#  a dedicated workflow that runs on every push to `main` and
+#  uploads the baseline as a long-lived artifact, or a tracked
+#  branch like `arch-engine-baselines/main.json`. Document any
+#  such convention in your own repository.
+#
+#  ─── CI gating ────────────────────────────────────────────
+#
+#  Per the v1.2.0 baseline-comparison contract, drift alone NEVER
+#  fails CI. The exit code is computed strictly from the PR's
+#  current state:
+#
+#    exit 0 — current run has no blocking violations
+#             (drift surfaced as INFO diagnostic if present)
+#    exit 1 — current run has blocking architecture violations
+#    exit 2 — baseline file invalid (missing, wrong schema, etc.)
+#    exit 3 — adapter / extraction failure
+#    exit 5 — internal invariant failure
+#
+#  Make this workflow a required status check in branch protection
+#  to block merges on architectural regressions.
+
+name: Arch-Engine PR Baseline Report
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  arch-engine-baseline-report:
+    name: Generate baseline + drift report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          # `fetch-depth: 0` gives the workflow access to the PR's
+          # base SHA so we can build a worktree there for baseline
+          # generation.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── Install Arch-Engine into the PR checkout ──
+      #
+      # `--no-save` keeps the consumer's package.json untouched.
+      # If your repo already declares `@arch-engine/cli` and
+      # `@arch-engine/adapter-monorepo`, replace this step with
+      # `npm ci`.
+      - name: Install Arch-Engine
+        run: |
+          npm install --no-save \
+            @arch-engine/cli@^1.2.0 \
+            @arch-engine/adapter-monorepo@^1.2.0
+
+      # ── Try to restore the baseline from cache ──
+      #
+      # The cache key includes the PR's base SHA so each push to
+      # `main` produces a fresh baseline. The restore-keys fallback
+      # allows partial reuse across base SHAs while still
+      # preferring an exact match.
+      - name: Restore baseline cache
+        id: baseline-cache
+        uses: actions/cache@v4
+        with:
+          path: arch-engine-baseline.json
+          key: arch-engine-baseline-v1-${{ github.event.pull_request.base.sha }}
+          restore-keys: |
+            arch-engine-baseline-v1-
+
+      # ── Fallback: generate the baseline from the base ref ──
+      #
+      # On cache miss, we run `arch-engine check` at the PR's base
+      # SHA via a detached git worktree. The Arch-Engine binary
+      # comes from the PR-checkout install (above) so we don't
+      # double-install.
+      #
+      # `|| true` ensures we still write a baseline file even if
+      # the base ref had blocking violations — the JSON v2
+      # envelope is written before `process.exit` regardless of
+      # the verdict.
+      - name: Generate baseline from base ref (cache miss only)
+        if: steps.baseline-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          echo "::notice::No baseline cache hit; generating baseline at base SHA ${BASE_SHA}"
+          # Create a detached worktree at the PR's base SHA so we
+          # can run Arch-Engine against the unmodified base tree.
+          git worktree add -f --detach ../arch-engine-baseline-source "$BASE_SHA"
+          (
+            cd ../arch-engine-baseline-source
+            # Reuse the arch-engine install from the PR checkout.
+            node "$GITHUB_WORKSPACE/node_modules/@arch-engine/cli/dist/bin.js" check --ci \
+              --json --json-schema=v2 \
+              --output arch-engine-baseline.json || true
+          )
+          if [ ! -f ../arch-engine-baseline-source/arch-engine-baseline.json ]; then
+            echo "::warning::Baseline generation produced no file. The PR check will still run, but drift detection requires a baseline."
+          else
+            cp ../arch-engine-baseline-source/arch-engine-baseline.json ./arch-engine-baseline.json
+            echo "::notice::Baseline generated and copied to ./arch-engine-baseline.json"
+          fi
+          # Tidy up the worktree.
+          git worktree remove -f ../arch-engine-baseline-source || true
+
+      # ── Run Arch-Engine check against the baseline ──
+      #
+      # `set +e` lets us capture the exit code without aborting the
+      # job. Artifacts are uploaded next; the exit code is
+      # re-surfaced as a job failure in the final step.
+      - name: Run Arch-Engine check
+        id: arch_engine
+        run: |
+          set +e
+          if [ -f arch-engine-baseline.json ]; then
+            npx arch-engine check --ci \
+              --baseline arch-engine-baseline.json \
+              --format markdown \
+              --output arch-engine-report.md
+          else
+            echo "::warning::No baseline available; running check without --baseline."
+            npx arch-engine check --ci \
+              --format markdown \
+              --output arch-engine-report.md
+          fi
+          ARCH_ENGINE_EXIT=$?
+          set -e
+          echo "exit_code=${ARCH_ENGINE_EXIT}" >> "$GITHUB_OUTPUT"
+          echo "::notice::Arch-Engine exited with code ${ARCH_ENGINE_EXIT}"
+
+      # ── Always upload artifacts, pass or fail ──
+      #
+      # Both the markdown report AND the baseline JSON are uploaded
+      # so reviewers can inspect either side of the drift comparison.
+      - name: Upload baseline + report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-engine-baseline-report
+          path: |
+            arch-engine-report.md
+            arch-engine-baseline.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── Re-surface the Arch-Engine exit code ──
+      #
+      # By gating on the captured exit code, the artifact step above
+      # ALWAYS runs (the `set +e` pattern), and only this step fails
+      # the job when Arch-Engine reported a non-zero exit.
+      - name: Fail job on Arch-Engine non-zero exit
+        if: steps.arch_engine.outputs.exit_code != '0'
+        run: |
+          echo "::error::Arch-Engine exited with code ${{ steps.arch_engine.outputs.exit_code }}."
+          echo "Download the 'arch-engine-baseline-report' artifact for the drift-aware markdown report and the baseline JSON used."
+          exit ${{ steps.arch_engine.outputs.exit_code }}

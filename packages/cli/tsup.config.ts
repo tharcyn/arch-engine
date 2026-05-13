@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   minify: false,
   dts: false,
-  external: ['@arch-engine/adapter-monorepo'],
+  external: ['@arch-engine/adapter-monorepo', '@arch-engine/adapter-pnpm'],
 });

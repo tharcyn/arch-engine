@@ -1,0 +1,29 @@
+{
+  "snapshotVersion": "1.0",
+  "schemaVersion": "1.0.0",
+  "engineVersion": "1.0.0-rc.3",
+  "timestamp": "2026-05-13T03:42:22.829Z",
+  "repoHash": "e98f6b1",
+  "workspaceType": "yarn-npm",
+  "extractionMode": "structured",
+  "coverage": 1,
+  "connectivity": 1,
+  "topologyConfidence": 1,
+  "stabilityScore": 0.475,
+  "stabilityTier": "CRITICAL",
+  "topologyConfidenceLabel": "HIGH",
+  "detectedNodes": 13,
+  "connectedNodes": 13,
+  "expectedNodes": 13,
+  "authorityCrossings": 0,
+  "warnings": [],
+  "executionMetrics": {
+    "extractionMs": 1,
+    "pipelineMs": 4,
+    "totalMs": 7
+  },
+  "policyEvaluation": {
+    "violations": 0,
+    "policyDetected": false
+  }
+}

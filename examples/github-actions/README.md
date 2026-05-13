@@ -1,16 +1,44 @@
 # Arch-Engine — GitHub Actions templates
 
-Two ready-to-copy workflow templates that turn the v1.1.0 `--format
-markdown --output <path>` plumbing into a visible CI surface:
+Four ready-to-copy workflow templates. The first pair (v1.1.0
+markdown PR report) covers the basic "post a current-state
+architecture report on every PR" use case. The second pair
+(v1.2.0 baseline comparison) covers the richer "compare this PR
+against the base branch and surface what changed" use case.
+
+### v1.1.0 — Current-state PR report
 
 | Template | What it does | Permissions | Works on fork PRs? |
 | --- | --- | --- | --- |
 | [`arch-engine-pr-report.yml`](./arch-engine-pr-report.yml) | Generates the markdown report and uploads it as a build artifact. | `contents: read` | ✅ Yes |
 | [`arch-engine-pr-comment.yml`](./arch-engine-pr-comment.yml) | Same, plus posts/updates a sticky PR comment with the report. | `contents: read`, `pull-requests: write` | ⚠️ Posts comment on internal PRs only; uploads artifact on every PR |
 
-Both fail the job (non-zero exit) when Arch-Engine detects a
-blocking architecture violation, so you can make either one a
-required status check in branch protection.
+### v1.2.0 — Baseline / drift report
+
+| Template | What it does | Permissions | Works on fork PRs? |
+| --- | --- | --- | --- |
+| [`arch-engine-pr-baseline-report.yml`](./arch-engine-pr-baseline-report.yml) | Restores/generates a baseline from the PR's base SHA, runs `check --baseline`, uploads the drift-aware markdown report + baseline JSON. | `contents: read` | ✅ Yes |
+| [`arch-engine-pr-baseline-comment.yml`](./arch-engine-pr-baseline-comment.yml) | Same, plus posts/updates a sticky PR comment with the **architecture drift** report. | `contents: read`, `pull-requests: write` | ⚠️ Posts comment on internal PRs only; uploads artifacts on every PR |
+
+All four templates fail the job (non-zero exit) when Arch-Engine
+detects a blocking architecture violation, so you can make any of
+them a required status check in branch protection.
+
+**Which pair should I pick?**
+
+- Use the **v1.1.0 pair** if you just want to surface the current
+  architectural state of each PR (no comparison).
+- Use the **v1.2.0 pair** if you want to surface **what changed**
+  in this PR vs. the base branch — added edges, new policy
+  violations, score deltas, etc. The richer report is the natural
+  upgrade once your team has policy in place.
+
+You can ship one pair side-by-side with the other; they use
+distinct artifact names (`arch-engine-report` vs.
+`arch-engine-baseline-report`) and distinct sticky-comment markers
+(`<!-- arch-engine-report -->` vs.
+`<!-- arch-engine-baseline-report -->`), so they will not
+collide.
 
 ## Recommended setup
 
@@ -34,13 +62,21 @@ between them.
 1. **Copy a template into your repo.**
 
    ```bash
-   # Artifact-only — recommended starter.
+   # v1.1.0: artifact-only current-state report — recommended starter.
    curl -fsSL https://raw.githubusercontent.com/tharcyn/arch-engine/main/examples/github-actions/arch-engine-pr-report.yml \
      -o .github/workflows/arch-engine-pr-report.yml
 
-   # Optional: add the comment workflow on top.
+   # v1.1.0: optional comment workflow on top.
    curl -fsSL https://raw.githubusercontent.com/tharcyn/arch-engine/main/examples/github-actions/arch-engine-pr-comment.yml \
      -o .github/workflows/arch-engine-pr-comment.yml
+
+   # v1.2.0: artifact-only baseline / drift report.
+   curl -fsSL https://raw.githubusercontent.com/tharcyn/arch-engine/main/examples/github-actions/arch-engine-pr-baseline-report.yml \
+     -o .github/workflows/arch-engine-pr-baseline-report.yml
+
+   # v1.2.0: optional baseline comment workflow.
+   curl -fsSL https://raw.githubusercontent.com/tharcyn/arch-engine/main/examples/github-actions/arch-engine-pr-baseline-comment.yml \
+     -o .github/workflows/arch-engine-pr-baseline-comment.yml
    ```
 
 2. **(Optional) Add a policy file** at `.archengine/policy.yml`
@@ -55,22 +91,35 @@ between them.
 
 4. **(Optional) Gate merges on the check.** In your repository
    settings → Branches → branch protection rule → "Require status
-   checks to pass before merging", select the
-   `Arch-Engine PR Report` (or `Arch-Engine PR Comment`) job.
+   checks to pass before merging", select the appropriate
+   workflow job name.
 
-## What the canonical command runs
+## What the canonical commands run
 
-Both templates invoke this single line in CI:
+The **v1.1.0 templates** invoke a single line in CI:
 
 ```bash
 npx arch-engine check --ci --format markdown --output arch-engine-report.md
 ```
 
+The **v1.2.0 baseline templates** invoke the baseline-aware
+variant:
+
+```bash
+npx arch-engine check --ci --baseline arch-engine-baseline.json \
+  --format markdown --output arch-engine-report.md
+```
+
 - `--ci` — deterministic, no-color output. Forces `NO_COLOR=1`
   ahead of color initialisation.
+- `--baseline arch-engine-baseline.json` (v1.2.0) — compare the
+  current PR against a prior JSON v2 envelope. Must be a JSON v2
+  report produced by `check`, `analyze`, or `inspect`. See
+  [`docs/cli/baseline-comparison-spec.md`](../../docs/cli/baseline-comparison-spec.md).
 - `--format markdown` — emits the [v1.1.0 markdown
   shape](../../docs/cli/json-v2-ci-flags-spec.md) tuned for PR
-  comments.
+  comments. v1.2.0 additionally renders a `## Architecture Drift`
+  section.
 - `--output arch-engine-report.md` — writes UTF-8 LF, ANSI-stripped,
   with `mkdir -p` of the parent directory and overwrite on every
   run.
@@ -82,11 +131,39 @@ Exit codes are unchanged from `check` in any other mode:
 | `0` | No blocking architecture violations. |
 | `1` | Blocking architecture violations found. |
 | `2` | Invalid input or configuration. |
-| `3` | Adapter/workspace failure. |
+| `3` | Adapter/workspace failure (includes adapter selection conflicts in v1.3.0+). |
 | `5` | Internal invariant failure. |
 
 The workflow `continue-on-error: true` step pattern preserves the
 exit code while letting the artifact upload run first.
+
+### Works with pnpm workspaces (v1.3.0+)
+
+These templates are **package-manager agnostic**. The CLI invocations
+above do not change for pnpm-managed repositories. To pick up the
+richer pnpm workspace handling shipped by `@arch-engine/adapter-pnpm@0.1.0`
+(`pnpm-workspace.yaml`, glob expansion, `workspace:*` protocols,
+exclusion globs), install it alongside the CLI in your workflow:
+
+```yaml
+      - name: Install Arch-Engine
+        run: npm install --no-save @arch-engine/cli @arch-engine/adapter-monorepo @arch-engine/adapter-pnpm
+
+      # …existing arch-engine step unchanged…
+```
+
+When the adapter is present, `arch-engine doctor` reports the
+selected adapter on a single line:
+
+```
+✔ Adapter: @arch-engine/adapter-pnpm (HIGH confidence)
+```
+
+and JSON v2 output (`--json --json-schema=v2`) carries a
+`data.adapter` block with the chosen adapter's identity, confidence,
+and metadata. JSON v1 default output is unaffected. If your CI
+installs dependencies with `pnpm install` already, leave that step
+where it is — Arch-Engine never invokes the package manager itself.
 
 ## Sample output
 
@@ -128,6 +205,133 @@ _Exit 1 — blocking architecture violations._
 The report is deterministic across runs (modulo wall-clock metric
 values), capped at 50 violations / 25 diagnostics / 250 KB total,
 and contains no absolute paths.
+
+## Baseline comparison workflows (v1.2.0)
+
+The baseline workflows
+([`arch-engine-pr-baseline-report.yml`](./arch-engine-pr-baseline-report.yml),
+[`arch-engine-pr-baseline-comment.yml`](./arch-engine-pr-baseline-comment.yml))
+extend the v1.1.0 templates with cross-run **architecture drift
+detection**. Each PR is compared against a baseline produced from
+the PR's base branch SHA, and the report surfaces what changed:
+
+- new violating edges (policy-blocking drift)
+- added / removed workspace dependency edges (topology drift)
+- score / coverage / connectivity deltas (signal drift)
+
+### How the baseline is produced
+
+Both baseline templates use the same two-step strategy:
+
+1. **Restore from cache** — `actions/cache@v4` keyed by
+   `arch-engine-baseline-v1-${{ github.event.pull_request.base.sha }}`.
+   When the cache hits, the prior run's baseline is reused
+   instantly.
+2. **Generate fresh on cache miss** — the workflow creates a
+   detached `git worktree` at the PR's base SHA and runs
+   `arch-engine check --ci --json --json-schema=v2 --output
+   arch-engine-baseline.json` there, then caches the result for
+   the next PR.
+
+The baseline JSON is uploaded alongside the markdown report so
+reviewers can inspect either side of the drift comparison.
+
+### Stronger production strategies
+
+The cache-keyed baseline is the simplest viable demo. Production
+teams may prefer one of the following:
+
+- **Dedicated baseline workflow on `main`.** A separate workflow
+  runs on every push to `main`, generates the baseline, and
+  uploads it as a long-lived artifact (or to S3 / GCS). The PR
+  workflow downloads that artifact instead of generating one.
+  Stronger reproducibility; requires CI orchestration.
+- **Baseline branch.** A bot-tracked branch (e.g.
+  `arch-engine-baselines/main`) holds the latest `arch-engine-baseline.json`.
+  The PR workflow fetches that branch with read-only credentials.
+  Stronger auditability; requires write access on the main-tracking
+  workflow.
+
+This demo deliberately keeps the baseline-acquisition logic
+self-contained so any consumer repo can copy-paste it without
+additional infrastructure.
+
+### Fork PR behaviour for baseline workflows
+
+Same as the v1.1.0 templates:
+
+- **Artifact-only baseline workflow** works identically on fork
+  PRs (no comment to post).
+- **Sticky-comment baseline workflow** uploads the artifact on
+  fork PRs but skips the comment-posting step with a `::notice::`
+  log line.
+
+### Baseline workflow exit codes
+
+Per the v1.2.0 baseline-comparison contract, **drift alone never
+fails CI**. The exit code is computed strictly from the PR's
+current state:
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Current run has no blocking violations. Drift, if any, is reported as an INFO diagnostic (`ARCH_ENGINE_DRIFT_DETECTED`). |
+| `1` | Current run has blocking architecture violations. Whether they are "new" (vs. baseline) is reported in the drift block, but doesn't affect the gate. |
+| `2` | Baseline file invalid (missing, wrong schema, wrong command, etc.). Structured diagnostic emitted via `ARCH_ENGINE_BASELINE_*`. |
+| `3` | Adapter / extraction failure. |
+| `5` | Internal invariant failure. |
+
+The workflow uses a `set +e` capture pattern so artifacts are
+ALWAYS uploaded before the exit code is re-surfaced as a job
+failure.
+
+### Sample baseline-drift output
+
+When a PR adds a new violating edge, the markdown report includes
+the v1.2.0 drift section:
+
+```markdown
+# Arch-Engine `check`
+
+**Verdict:** Blocked _(drift: +1 violation, +1 edge)_
+
+| Metric | Value |
+| --- | --- |
+| Stability | CRITICAL (0.47 / 1.00) |
+| Coverage | 100% |
+| Policy | configured (enforce mode) |
+
+## Violations (1)
+
+| Rule | From | To | Severity | CI-blocking |
+| --- | --- | --- | --- | --- |
+| `frontend-must-not-touch-payment-gateway` | `@your-org/frontend` | `@your-org/payments` | error | yes |
+
+## Architecture Drift
+
+Compared against `arch-engine-baseline.json` (arch-engine@1.2.0).
+
+| Type | Count |
+| --- | ---: |
+| New blocking violations | 1 |
+| Added edges | 1 |
+
+### New violating edges
+
+| Rule | From | To | Severity | CI-blocking |
+| --- | --- | --- | --- | --- |
+| `frontend-must-not-touch-payment-gateway` | `@your-org/frontend` | `@your-org/payments` | error | yes |
+
+### Added edges
+
+| From | To | Type |
+| --- | --- | --- |
+| `@your-org/frontend` | `@your-org/payments` | `workspace_dependency` |
+
+...
+```
+
+For the full v1.2.0 contract, see
+[`docs/cli/baseline-comparison-spec.md`](../../docs/cli/baseline-comparison-spec.md).
 
 ## Security posture
 
@@ -232,6 +436,43 @@ workflow files in your repo emit the same marker, they'll fight
 over the same sticky slot. Use distinct markers per workflow if
 you intentionally want multiple Arch-Engine comments (e.g. one
 per fixture).
+
+### Baseline workflow fails with exit 2 and a `ARCH_ENGINE_BASELINE_*` diagnostic
+
+The PR's baseline file is structurally invalid. Most common
+causes:
+
+- **`ARCH_ENGINE_BASELINE_NOT_FOUND`** — `arch-engine-baseline.json`
+  is missing. The cache miss + fallback path failed to produce one,
+  or the fallback was skipped because the workflow couldn't access
+  the base SHA. Verify `actions/checkout@v4` has `fetch-depth: 0`.
+- **`ARCH_ENGINE_BASELINE_INVALID`** — the file exists but isn't a
+  v1.2.0+ JSON v2 envelope with `data.topology.canonical`. Most
+  likely an older v1.1.0 baseline. Re-generate with `arch-engine
+  check --ci --json --json-schema=v2 --output baseline.json` using
+  `@arch-engine/cli@^1.2.0`.
+- **`ARCH_ENGINE_BASELINE_COMMAND_MISMATCH`** — the baseline file
+  was produced by `doctor` or `explain` (which don't emit the
+  canonical topology). The baseline must come from `check`,
+  `analyze`, or `inspect`.
+
+The workflow re-surfaces the diagnostic in the run log; the
+baseline JSON is also uploaded as an artifact so you can inspect
+it locally.
+
+### Baseline cache misses on every run
+
+The cache key includes the PR's `base.sha`, so each new commit to
+`main` invalidates every PR's cached baseline. This is correct
+behaviour — it ensures PRs always compare against the current
+state of `main`. The fallback step regenerates the baseline in
+~10–30 seconds.
+
+If your `main` advances rarely and you want to reuse caches more
+aggressively, change the key to use `${{ github.base_ref }}`
+instead of `${{ github.event.pull_request.base.sha }}`. Trade-off:
+PRs against an older snapshot of `main` will use a stale baseline
+until the cache expires (7 days by default).
 
 ### Pinning versions for reproducibility
 

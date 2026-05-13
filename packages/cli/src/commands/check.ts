@@ -3,7 +3,11 @@ import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { discoverEnvironment } from '../autodiscovery.js';
-import { executeRunnerBridge } from '../runner-bridge.js';
+import {
+  executeRunnerBridge,
+  BridgeAdapterConflictError,
+  type BridgeAdapterSummary,
+} from '../runner-bridge.js';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
 import {
@@ -27,6 +31,7 @@ import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type RankedAuthor
 import { liftToComposedPolicy } from '../policy-lift.js';
 import {
   buildSummary,
+  buildDataAdapterBlock,
   deriveStatusForExit,
   normalizeArtifactPath,
   readPackageVersion,
@@ -97,6 +102,17 @@ export async function checkCommand(options: any) {
   try {
     bridge = await executeRunnerBridge(cwd, discovery);
   } catch (error) {
+    // Adapter conflict → exit 3 with the ARCH_ENGINE_ADAPTER_CONFLICT
+    // diagnostic the bridge built.
+    if (error instanceof BridgeAdapterConflictError) {
+      const d = error.diagnostics[0]!;
+      if (out.format === 'json') {
+        emitDiagnosticJson(d);
+      } else {
+        emitDiagnosticHuman(d);
+      }
+      process.exit(3);
+    }
     const diagnostic = buildDiagnostic({
       code: 'ARCH_ENGINE_ADAPTER_NOT_FOUND',
       title: 'Topology extraction failed.',
@@ -203,6 +219,9 @@ export async function checkCommand(options: any) {
       }),
     );
   }
+  // Pass 2: surface adapter-level diagnostics.
+  for (const d of bridge.adapterDiagnostics) diagnostics.push(d);
+
   if (violationsJson.length > 0 && isEnforcing) {
     diagnostics.push(
       buildDiagnostic({
@@ -285,7 +304,7 @@ export async function checkCommand(options: any) {
       emitFormattedOutput(
         renderCliJsonV2(
           buildCheckV2EnvelopeInput(
-            out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount, canonicalTopology, drift, baseline,
+            out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount, canonicalTopology, drift, baseline, bridge.adapterSummary,
           ),
         ) + '\n',
         out,
@@ -301,7 +320,7 @@ export async function checkCommand(options: any) {
     emitFormattedOutput(
       renderCliMarkdown(
         buildCheckV2EnvelopeInput(
-          out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount, canonicalTopology, drift, baseline,
+          out, v1Json, diagnostics, violationsJson, artifactPath, finalExit, policyEval, headline.kind, cwd, blockerCount, canonicalTopology, drift, baseline, bridge.adapterSummary,
         ),
       ),
       out,
@@ -620,6 +639,7 @@ function buildCheckV2EnvelopeInput(
   canonicalTopology: CanonicalTopology,
   drift: DriftResult | null,
   baseline: BaselineReadResult | null,
+  adapterSummary: BridgeAdapterSummary,
 ): V2RenderInput {
   // Determine status. For check, exit 1 → blocked; exit 0 + no policy → not_enforced;
   // exit 0 + policy + no violations → passed; exit 3 → error.
@@ -653,6 +673,8 @@ function buildCheckV2EnvelopeInput(
   }
 
   const data: Record<string, unknown> = {
+    // Pass 2 — additive adapter identity block.
+    adapter: buildDataAdapterBlock(adapterSummary),
     verdict: status,
     stability: {
       score: v1.score,

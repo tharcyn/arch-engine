@@ -96,7 +96,8 @@ Arch-Engine ships as a constellation of focused packages. The **core runtime** i
 | [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types |
 | [@arch-engine/core](./packages/core) | Topology reasoning runtime |
 | [@arch-engine/cli](./packages/cli) | Command-line interface |
-| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | Workspace topology extraction (npm, yarn, pnpm) |
+| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | Workspace topology extraction (npm, yarn, single) |
+| [@arch-engine/adapter-pnpm](./packages/adapter-pnpm) | pnpm workspace extraction (`pnpm-workspace.yaml`, `workspace:*`, exclusion globs) — preview, additive in v1.3.0 |
 | [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | Authority boundary governance |
 | [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | REST contract parity governance |
 | [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | Journey lifecycle governance |
@@ -111,11 +112,31 @@ npm install @arch-engine/cli
 # Optional: workspace topology extraction
 npm install @arch-engine/adapter-monorepo
 
+# Optional: pnpm workspaces (preview, additive in v1.3.0)
+npm install @arch-engine/adapter-pnpm
+
 # Optional: governance packs
 npm install @arch-engine/governance-pack-authority
 npm install @arch-engine/governance-pack-rest-contract
 npm install @arch-engine/governance-pack-journey
 ```
+
+### pnpm workspace support (preview)
+
+When `@arch-engine/adapter-pnpm` is installed alongside the CLI,
+`pnpm-workspace.yaml` workspaces are detected at HIGH confidence and
+extracted with full glob expansion, exclusion-glob support, and
+`workspace:*` / `workspace:^` / `workspace:~` protocol awareness on
+`dependencies`, `devDependencies`, `peerDependencies`, and
+`optionalDependencies`. The adapter is pure-fs read: it never
+executes `pnpm`, reads `node_modules/`, opens network sockets, or
+mutates the user's repository.
+
+Existing GitHub Actions workflow templates work unchanged with
+pnpm repositories — Arch-Engine's CLI invocations are
+package-manager agnostic. If your CI installs dependencies with
+`pnpm install`, run that step before the Arch-Engine job as you
+normally would.
 
 ### Architecture layering
 
@@ -203,7 +224,7 @@ illustrating an architecture-drift scenario. See
 | Example | Demonstrates |
 | --- | --- |
 | [demo-drift](examples/demo-drift/) | Tiny topology fixture for first-run CLI walkthrough |
-| [GitHub Actions templates](examples/github-actions/) | PR markdown report + optional sticky-comment workflow templates (v1.1.0) |
+| [GitHub Actions templates](examples/github-actions/) | PR markdown report + optional sticky-comment templates (v1.1.0) and baseline / drift-report templates (v1.2.0) |
 | [Reference Policy Pack](examples/reference-policy-pack/) | Canonical topology specimen, authority-tier enforcement |
 | [Multi-Policy Composition](examples/multi-policy-composition/) | Severity escalation, provenance chains, composition hash stability |
 | [Federation Overlay](examples/federation-overlay/) | Cross-registry composition, mirror fallback, closure hash parity |
@@ -219,13 +240,26 @@ request — either as a downloadable artifact (safe on every PR, fork
 or internal) or as a sticky PR comment that updates in place.
 
 ```bash
+# v1.1.0 — current-state report on every PR
 npx arch-engine check --ci --format markdown --output arch-engine-report.md
+
+# v1.2.0 — baseline comparison: surface what *changed* in this PR
+npx arch-engine check --ci --baseline arch-engine-baseline.json \
+  --format markdown --output arch-engine-report.md
 ```
 
 Copy a starter template from
 [`examples/github-actions/`](examples/github-actions/) into
 `.github/workflows/` and you have a CI-gated architecture check that
-posts the report on every PR. See the
+posts the report on every PR. Four templates ship:
+
+- **v1.1.0:** `arch-engine-pr-report.yml` (artifact-only),
+  `arch-engine-pr-comment.yml` (sticky PR comment).
+- **v1.2.0:** `arch-engine-pr-baseline-report.yml` (drift artifact),
+  `arch-engine-pr-baseline-comment.yml` (drift sticky comment) —
+  surface what changed against the PR's base branch.
+
+See the
 [examples/github-actions/README](examples/github-actions/README.md)
 for permissions, fork limitations, and troubleshooting.
 

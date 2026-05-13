@@ -1,0 +1,7 @@
+{
+  "name": "@nested/pkg1",
+  "version": "0.0.0",
+  "dependencies": {
+    "@nested/pkg2": "workspace:*"
+  }
+}

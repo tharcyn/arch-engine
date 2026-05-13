@@ -1,0 +1,237 @@
+# ═══════════════════════════════════════════════════════════
+#  Arch-Engine — PR Architecture Drift Comment (sticky)
+# ═══════════════════════════════════════════════════════════
+#
+#  Generates a baseline + architecture drift markdown report and
+#  posts (or updates) a single sticky comment on the pull request.
+#  Same baseline + report generation as
+#  `arch-engine-pr-baseline-report.yml`; the comment-posting step
+#  is added on top.
+#
+#  ─── Security posture ─────────────────────────────────────
+#
+#  Triggers on `pull_request`, NEVER `pull_request_target`.
+#
+#  The distinction matters:
+#
+#    - `pull_request`        runs in the PR-fork context with a
+#                            READ-ONLY GITHUB_TOKEN by default.
+#                            Cannot post comments on PRs opened
+#                            from forks. Fully safe for untrusted
+#                            code.
+#    - `pull_request_target` runs in the base-repo context with
+#                            REPO-LEVEL WRITE access. NEVER use
+#                            this with untrusted code (the PR's
+#                            code can read your secrets). This
+#                            workflow does NOT use it.
+#
+#  Trade-off:
+#
+#    Forking is a first-class GitHub workflow. To preserve safety,
+#    this workflow ACCEPTS that PRs from forks will not get a
+#    posted comment. The artifact-only workflow in
+#    `arch-engine-pr-baseline-report.yml` works the same on every
+#    PR regardless of origin — recommended as the universal
+#    default, with this comment workflow added on top for
+#    internal PRs.
+#
+#  Least-privilege permissions:
+#
+#    contents: read         — checkout the PR and resolve the base SHA.
+#    pull-requests: write   — post and update the sticky PR comment.
+#
+#  No secrets required. Default GITHUB_TOKEN is sufficient.
+#
+#  ─── How to use ───────────────────────────────────────────
+#
+#  1. Copy this file to `.github/workflows/arch-engine-pr-baseline-comment.yml`
+#     in your own repository.
+#  2. (Optional) Add `.archengine/policy.yml` declaring the
+#     architecture rules you want enforced.
+#  3. Open a pull request from a branch on the SAME repository
+#     (not a fork) to see the sticky comment appear.
+#
+#  ─── CI gating ────────────────────────────────────────────
+#
+#  Per the v1.2.0 baseline-comparison contract, drift alone NEVER
+#  fails CI. The exit code is computed strictly from the PR's
+#  current state. The comment is posted BEFORE the exit code is
+#  re-surfaced, so reviewers always see the drift breakdown — even
+#  when the check is red.
+#
+#  Make this workflow a required status check in branch protection
+#  to block merges on architectural regressions.
+
+name: Arch-Engine PR Baseline Comment
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  arch-engine-baseline-comment:
+    name: Generate baseline + drift report + sticky PR comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Arch-Engine
+        run: |
+          npm install --no-save \
+            @arch-engine/cli@^1.2.0 \
+            @arch-engine/adapter-monorepo@^1.2.0
+
+      # ── Restore baseline cache ───────────────────────────────
+      - name: Restore baseline cache
+        id: baseline-cache
+        uses: actions/cache@v4
+        with:
+          path: arch-engine-baseline.json
+          key: arch-engine-baseline-v1-${{ github.event.pull_request.base.sha }}
+          restore-keys: |
+            arch-engine-baseline-v1-
+
+      # ── Fallback: generate the baseline from the base ref ──
+      - name: Generate baseline from base ref (cache miss only)
+        if: steps.baseline-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          echo "::notice::No baseline cache hit; generating baseline at base SHA ${BASE_SHA}"
+          git worktree add -f --detach ../arch-engine-baseline-source "$BASE_SHA"
+          (
+            cd ../arch-engine-baseline-source
+            node "$GITHUB_WORKSPACE/node_modules/@arch-engine/cli/dist/bin.js" check --ci \
+              --json --json-schema=v2 \
+              --output arch-engine-baseline.json || true
+          )
+          if [ ! -f ../arch-engine-baseline-source/arch-engine-baseline.json ]; then
+            echo "::warning::Baseline generation produced no file. The PR check will still run, but drift detection requires a baseline."
+          else
+            cp ../arch-engine-baseline-source/arch-engine-baseline.json ./arch-engine-baseline.json
+            echo "::notice::Baseline generated and copied to ./arch-engine-baseline.json"
+          fi
+          git worktree remove -f ../arch-engine-baseline-source || true
+
+      # ── Run Arch-Engine check against the baseline ──
+      - name: Run Arch-Engine check
+        id: arch_engine
+        run: |
+          set +e
+          if [ -f arch-engine-baseline.json ]; then
+            npx arch-engine check --ci \
+              --baseline arch-engine-baseline.json \
+              --format markdown \
+              --output arch-engine-report.md
+          else
+            echo "::warning::No baseline available; running check without --baseline."
+            npx arch-engine check --ci \
+              --format markdown \
+              --output arch-engine-report.md
+          fi
+          ARCH_ENGINE_EXIT=$?
+          set -e
+          echo "exit_code=${ARCH_ENGINE_EXIT}" >> "$GITHUB_OUTPUT"
+          echo "::notice::Arch-Engine exited with code ${ARCH_ENGINE_EXIT}"
+
+      # ── Always upload artifacts, pass or fail ──
+      - name: Upload baseline + report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-engine-baseline-report
+          path: |
+            arch-engine-report.md
+            arch-engine-baseline.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── Post or update the sticky PR comment ──
+      #
+      # `actions/github-script` ships with the runner — no extra
+      # dependencies. We look for an existing comment marked with
+      # `<!-- arch-engine-baseline-report -->` and update it in
+      # place; if none exists, we create a new one.
+      #
+      # GUARDED on fork PRs because `GITHUB_TOKEN` is read-only
+      # there. Fork PRs still get the artifact via the upload step
+      # above and the run-log notice below.
+      - name: Post or update PR baseline-drift comment
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = 'arch-engine-report.md';
+
+            const MARKER = '<!-- arch-engine-baseline-report -->';
+            const archEngineVersion = '1.2.0';
+
+            let report = '';
+            if (fs.existsSync(reportPath)) {
+              report = fs.readFileSync(reportPath, 'utf8');
+            } else {
+              report = '> Arch-Engine did not produce a report. See the run log for details.';
+            }
+
+            const body = [
+              MARKER,
+              '',
+              '## Arch-Engine architecture drift report',
+              '',
+              report.trim(),
+              '',
+              '---',
+              '',
+              `_Posted by [arch-engine@${archEngineVersion}](https://github.com/tharcyn/arch-engine) — `,
+              `[workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}). `,
+              `Baseline derived from PR base SHA \`${context.payload.pull_request.base.sha.slice(0,7)}\`._`,
+            ].join('\n');
+
+            const prNumber = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: prNumber, per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body,
+              });
+              core.notice(`Updated existing Arch-Engine baseline-drift comment (id=${existing.id}).`);
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNumber, body,
+              });
+              core.notice('Posted new Arch-Engine baseline-drift comment.');
+            }
+
+      # ── Note for forks: no comment will appear ──
+      - name: Fork PR notice (no comment posted)
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::notice::Skipped PR comment posting because this PR is from a fork."
+          echo "::notice::Download the 'arch-engine-baseline-report' artifact for the markdown report and the baseline JSON."
+
+      # ── Re-surface the Arch-Engine exit code ──
+      - name: Fail job on Arch-Engine non-zero exit
+        if: steps.arch_engine.outputs.exit_code != '0'
+        run: |
+          echo "::error::Arch-Engine exited with code ${{ steps.arch_engine.outputs.exit_code }}."
+          echo "See the PR comment (or the 'arch-engine-baseline-report' artifact for fork PRs) for details."
+          exit ${{ steps.arch_engine.outputs.exit_code }}

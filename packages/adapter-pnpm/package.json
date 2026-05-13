@@ -1,0 +1,49 @@
+{
+  "name": "@arch-engine/adapter-pnpm",
+  "version": "0.1.0",
+  "description": "Deterministic workspace topology extraction adapter for pnpm-managed monorepos.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
+    "directory": "packages/adapter-pnpm"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "keywords": [
+    "adapter",
+    "pnpm",
+    "monorepo",
+    "workspace",
+    "topology",
+    "extraction",
+    "arch-engine"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist -p tsconfig.json"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}

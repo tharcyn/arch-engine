@@ -47,10 +47,14 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@arch-engine/adapter-monorepo": "^1.2.0"
+    "@arch-engine/adapter-monorepo": "^1.2.0",
+    "@arch-engine/adapter-pnpm": "^0.1.0"
   },
   "peerDependenciesMeta": {
     "@arch-engine/adapter-monorepo": {
+      "optional": true
+    },
+    "@arch-engine/adapter-pnpm": {
       "optional": true
     }
   },

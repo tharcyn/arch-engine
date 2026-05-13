@@ -471,12 +471,28 @@ export class MonorepoArchitectureAdapter {
     let workspaceKind = 'unknown';
     let packageManager: MonorepoAdapterPackageManager = 'unknown';
 
+    // Pass 2: when the dedicated pnpm adapter is registered, decline
+    // pnpm-workspace.yaml so the pnpm adapter wins without surfacing
+    // ARCH_ENGINE_ADAPTER_CONFLICT. Bridge sets this cache hint per
+    // docs/adapters/multi-adapter-surface-spec.md §11.4.
+    const pnpmAdapterAvailable = context.cache.get('archengine:pnpmAdapterAvailable') === true;
+
     if (probe.workspaceType === 'pnpm') {
+      if (pnpmAdapterAvailable) {
+        return {
+          adapterName: this.adapterName,
+          detected: false,
+          confidence: 'NONE',
+          workspaceKind: 'pnpm-workspace',
+          packageManager: 'pnpm',
+          reasons: ['pnpm-workspace.yaml present; declining in favour of @arch-engine/adapter-pnpm'],
+          warnings: [],
+          diagnostics: [],
+        };
+      }
       detected = true;
-      // Pass 1: monorepo adapter still claims pnpm-workspace.yaml
-      // because the dedicated pnpm adapter does not yet exist. The
-      // spec §11.4 transition to "declined" happens in Pass 2 once
-      // @arch-engine/adapter-pnpm ships.
+      // Pass 1 fallback: monorepo still handles pnpm-workspace.yaml
+      // when @arch-engine/adapter-pnpm is not installed.
       confidence = 'HIGH';
       workspaceKind = 'pnpm-workspace';
       packageManager = 'pnpm';
@@ -573,10 +589,15 @@ export class MonorepoArchitectureAdapter {
   }
 }
 
-/** @internal Pass 1 factory; not part of v1.x freeze. */
+/**
+ * Pass 1 factory. NOT part of the v1.x stability contract.
+ */
 export function createMonorepoArchitectureAdapter(): MonorepoArchitectureAdapter {
   return new MonorepoArchitectureAdapter();
 }
 
-/** @internal Pass 1 singleton; not part of v1.x freeze. */
+/**
+ * Pre-built singleton. Consumers (the CLI's internal registry) read
+ * this directly. NOT part of the v1.x stability contract.
+ */
 export const monorepoArchitectureAdapter = createMonorepoArchitectureAdapter();

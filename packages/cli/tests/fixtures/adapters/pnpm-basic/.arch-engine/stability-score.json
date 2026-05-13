@@ -1,0 +1,29 @@
+{
+  "snapshotVersion": "1.0",
+  "schemaVersion": "1.0.0",
+  "engineVersion": "1.0.0-rc.3",
+  "timestamp": "2026-05-13T03:42:23.422Z",
+  "repoHash": "e98f6b1",
+  "workspaceType": "pnpm",
+  "extractionMode": "structured",
+  "coverage": 1,
+  "connectivity": 1,
+  "topologyConfidence": 1,
+  "stabilityScore": 0.475,
+  "stabilityTier": "CRITICAL",
+  "topologyConfidenceLabel": "HIGH",
+  "detectedNodes": 3,
+  "connectedNodes": 3,
+  "expectedNodes": 3,
+  "authorityCrossings": 0,
+  "warnings": [],
+  "executionMetrics": {
+    "extractionMs": 2,
+    "pipelineMs": 4,
+    "totalMs": 8
+  },
+  "policyEvaluation": {
+    "violations": 0,
+    "policyDetected": false
+  }
+}

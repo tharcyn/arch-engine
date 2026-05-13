@@ -71,6 +71,14 @@ export const ARCH_ENGINE_ERROR_CODES = [
   'ARCH_ENGINE_BASELINE_UNSUPPORTED_SCHEMA',
   'ARCH_ENGINE_BASELINE_COMMAND_MISMATCH',
   'ARCH_ENGINE_DRIFT_DETECTED',
+  // Adapter Pass 2 (v1.3-prep) — multi-adapter selection vocabulary, per
+  // docs/adapters/multi-adapter-surface-spec.md §13.
+  'ARCH_ENGINE_ADAPTER_CONFLICT',
+  'ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE',
+  'ARCH_ENGINE_WORKSPACE_GLOBS_INVALID',
+  'ARCH_ENGINE_WORKSPACE_PACKAGE_UNNAMED',
+  'ARCH_ENGINE_LOCKFILE_UNSUPPORTED',
+  'ARCH_ENGINE_PNP_RESOLUTION_DEFERRED',
 ] as const;
 
 export type ArchEngineErrorCode = typeof ARCH_ENGINE_ERROR_CODES[number];
@@ -245,6 +253,67 @@ const METADATA: Record<ArchEngineErrorCode, ArchEngineErrorMetadata> = {
       'Review the drift section; update policy or revert the change if it is unintentional.',
     ciBlocking: false,
     docsHint: 'cli/baseline',
+  },
+  // ── Adapter Pass 2 codes ───────────────────────────────────────
+  ARCH_ENGINE_ADAPTER_CONFLICT: {
+    code: 'ARCH_ENGINE_ADAPTER_CONFLICT',
+    severity: 'ERROR',
+    exitCode: 3,
+    title: 'Multiple workspace adapters matched this repository.',
+    defaultFix:
+      'Two or more workspace adapters reported HIGH confidence. Remove the conflicting declaration (e.g. delete `pnpm-workspace.yaml` or remove `package.json#workspaces`), or install only one of the conflicting adapters.',
+    ciBlocking: true,
+    docsHint: 'adapters',
+  },
+  ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE: {
+    code: 'ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE',
+    severity: 'WARNING',
+    exitCode: 0,
+    title: 'Workspace adapter selection used low-confidence fallback.',
+    defaultFix:
+      'No adapter reported HIGH or MEDIUM confidence. If the right adapter package is available, install it (e.g. `npm install --save-dev @arch-engine/adapter-pnpm`).',
+    ciBlocking: false,
+    docsHint: 'adapters',
+  },
+  ARCH_ENGINE_WORKSPACE_GLOBS_INVALID: {
+    code: 'ARCH_ENGINE_WORKSPACE_GLOBS_INVALID',
+    severity: 'ERROR',
+    exitCode: 3,
+    title: 'Workspace globs failed to parse.',
+    defaultFix:
+      'Open `pnpm-workspace.yaml` (or the equivalent workspace declaration) and ensure the `packages:` list uses the supported subset: quoted or unquoted glob strings under a `packages:` block.',
+    ciBlocking: true,
+    docsHint: 'adapters',
+  },
+  ARCH_ENGINE_WORKSPACE_PACKAGE_UNNAMED: {
+    code: 'ARCH_ENGINE_WORKSPACE_PACKAGE_UNNAMED',
+    severity: 'ERROR',
+    exitCode: 3,
+    title: 'Workspace package is missing a `name` field.',
+    defaultFix:
+      'Add a `"name": "<unique-id>"` field to the offending `package.json`. Unnamed packages cannot be represented as nodes in the architecture topology.',
+    ciBlocking: true,
+    docsHint: 'adapters',
+  },
+  ARCH_ENGINE_LOCKFILE_UNSUPPORTED: {
+    code: 'ARCH_ENGINE_LOCKFILE_UNSUPPORTED',
+    severity: 'WARNING',
+    exitCode: 0,
+    title: 'Lockfile feature is not yet supported.',
+    defaultFix:
+      'The current adapter version does not interpret this lockfile feature (e.g. pnpm catalogs). Topology extraction continues; affected dependency specifiers are treated as opaque strings.',
+    ciBlocking: false,
+    docsHint: 'adapters',
+  },
+  ARCH_ENGINE_PNP_RESOLUTION_DEFERRED: {
+    code: 'ARCH_ENGINE_PNP_RESOLUTION_DEFERRED',
+    severity: 'WARNING',
+    exitCode: 0,
+    title: 'Yarn PnP resolution is deferred.',
+    defaultFix:
+      'The v0.1.0 Yarn PnP adapter does not execute `.pnp.cjs`. Topology is derived from `package.json#workspaces` only.',
+    ciBlocking: false,
+    docsHint: 'adapters',
   },
 };
 

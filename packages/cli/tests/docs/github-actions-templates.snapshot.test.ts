@@ -268,3 +268,219 @@ describe('GitHub Actions templates — README references', () => {
     expect(md).toMatch(/Fork limitations/);
   });
 });
+
+// ═══════════════════════════════════════════════════════════
+//  v1.2.0 — Baseline / drift workflow templates
+// ═══════════════════════════════════════════════════════════
+//
+//  Pins the safety and behavioural contract of the two new
+//  baseline-aware templates added in the v1.2.0 GitHub Actions
+//  Baseline Workflow Demo pass:
+//
+//    - `arch-engine-pr-baseline-report.yml`  (artifact-only)
+//    - `arch-engine-pr-baseline-comment.yml` (sticky PR comment)
+//
+//  Same safety invariants as the v1.1.0 templates — they ship
+//  alongside, not as replacements.
+
+const BASELINE_REPORT_PATH = path.join(TEMPLATES_DIR, 'arch-engine-pr-baseline-report.yml');
+const BASELINE_COMMENT_PATH = path.join(TEMPLATES_DIR, 'arch-engine-pr-baseline-comment.yml');
+
+const CANONICAL_BASELINE_INVOCATION =
+  'npx arch-engine check --ci --baseline arch-engine-baseline.json';
+
+describe('Baseline workflow templates — files exist and parse', () => {
+  test('arch-engine-pr-baseline-report.yml exists and parses as YAML', () => {
+    expect(fs.existsSync(BASELINE_REPORT_PATH)).toBe(true);
+    const { parsed } = loadWorkflow(BASELINE_REPORT_PATH);
+    expect(typeof parsed).toBe('object');
+    expect(parsed.name).toMatch(/Arch-Engine.*Baseline/i);
+  });
+
+  test('arch-engine-pr-baseline-comment.yml exists and parses as YAML', () => {
+    expect(fs.existsSync(BASELINE_COMMENT_PATH)).toBe(true);
+    const { parsed } = loadWorkflow(BASELINE_COMMENT_PATH);
+    expect(typeof parsed).toBe('object');
+    expect(parsed.name).toMatch(/Arch-Engine.*Baseline/i);
+  });
+});
+
+describe('Baseline workflow templates — safety guards', () => {
+  test('baseline-report workflow does NOT use pull_request_target', () => {
+    const { raw } = loadWorkflow(BASELINE_REPORT_PATH);
+    const nonCommentLines = raw
+      .split('\n')
+      .filter((l) => !l.trimStart().startsWith('#'));
+    expect(nonCommentLines.join('\n')).not.toMatch(/pull_request_target/);
+  });
+
+  test('baseline-comment workflow does NOT use pull_request_target', () => {
+    const { raw } = loadWorkflow(BASELINE_COMMENT_PATH);
+    const nonCommentLines = raw
+      .split('\n')
+      .filter((l) => !l.trimStart().startsWith('#'));
+    expect(nonCommentLines.join('\n')).not.toMatch(/pull_request_target/);
+  });
+});
+
+describe('Baseline workflow templates — least-privilege permissions', () => {
+  test('baseline-report workflow declares only `contents: read`', () => {
+    const { parsed } = loadWorkflow(BASELINE_REPORT_PATH);
+    expect(parsed.permissions).toBeDefined();
+    expect(parsed.permissions!.contents).toBe('read');
+    for (const v of Object.values(parsed.permissions!)) {
+      expect(v).not.toBe('write');
+    }
+  });
+
+  test('baseline-comment workflow declares contents: read + pull-requests: write only', () => {
+    const { parsed } = loadWorkflow(BASELINE_COMMENT_PATH);
+    expect(parsed.permissions).toBeDefined();
+    expect(parsed.permissions!.contents).toBe('read');
+    expect(parsed.permissions!['pull-requests']).toBe('write');
+    const writeScopes = Object.entries(parsed.permissions!)
+      .filter(([, v]) => v === 'write')
+      .map(([k]) => k);
+    expect(writeScopes).toEqual(['pull-requests']);
+  });
+});
+
+describe('Baseline workflow templates — behaviour invariants', () => {
+  test('both baseline workflows install @arch-engine/cli @^1.2.0', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      expect(raw).toMatch(/@arch-engine\/cli@\^1\.2\.0/);
+      expect(raw).toMatch(/@arch-engine\/adapter-monorepo@\^1\.2\.0/);
+    }
+  });
+
+  test('both baseline workflows run the canonical v1.2.0 baseline command', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      expect(raw).toContain('--baseline arch-engine-baseline.json');
+      expect(raw).toMatch(/--ci/);
+      expect(raw).toMatch(/--format markdown/);
+      expect(raw).toMatch(/--output arch-engine-report\.md/);
+    }
+  });
+
+  test('both baseline workflows restore from actions/cache + git-worktree fallback', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      expect(raw).toMatch(/actions\/cache@v\d+/);
+      // Cache key keyed by PR base SHA so each `main` advance invalidates.
+      expect(raw).toMatch(/github\.event\.pull_request\.base\.sha/);
+      // git worktree fallback when the cache misses.
+      expect(raw).toMatch(/git worktree add/);
+    }
+  });
+
+  test('both baseline workflows always upload baseline + report artifacts', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      expect(raw).toMatch(/actions\/upload-artifact/);
+      expect(raw).toMatch(/if: always\(\)/);
+      expect(raw).toMatch(/name: arch-engine-baseline-report/);
+      // Both report.md and baseline.json paths in the artifact upload.
+      expect(raw).toContain('arch-engine-report.md');
+      expect(raw).toContain('arch-engine-baseline.json');
+    }
+  });
+
+  test('both baseline workflows preserve Arch-Engine exit code via captured shell exit', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      // `set +e` pattern to capture the exit code without aborting.
+      expect(raw).toMatch(/set \+e/);
+      // The captured exit code is re-surfaced as a job failure.
+      expect(raw).toMatch(/steps\.arch_engine\.outputs\.exit_code/);
+      expect(raw).toMatch(/exit \$\{\{ steps\.arch_engine\.outputs\.exit_code \}\}/);
+    }
+  });
+
+  test('baseline-comment workflow guards comment-posting on fork PRs', () => {
+    const { raw } = loadWorkflow(BASELINE_COMMENT_PATH);
+    expect(raw).toMatch(/head\.repo\.full_name == github\.repository/);
+    expect(raw).toMatch(/head\.repo\.full_name != github\.repository/);
+  });
+
+  test('baseline-comment workflow uses a distinct sticky marker', () => {
+    const { raw } = loadWorkflow(BASELINE_COMMENT_PATH);
+    expect(raw).toMatch(/<!-- arch-engine-baseline-report -->/);
+    // Must use both update and create paths.
+    expect(raw).toMatch(/updateComment/);
+    expect(raw).toMatch(/createComment/);
+  });
+
+  test('baseline-comment workflow uses actions/github-script (no extra repo deps)', () => {
+    const { raw } = loadWorkflow(BASELINE_COMMENT_PATH);
+    expect(raw).toMatch(/actions\/github-script@v\d+/);
+  });
+
+  test('baseline workflows trigger on pull_request (safe)', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      expect(raw).toMatch(/^on:\s*$/m);
+      expect(raw).toMatch(/pull_request:/);
+    }
+  });
+
+  test('baseline workflows do NOT require any secrets', () => {
+    for (const p of [BASELINE_REPORT_PATH, BASELINE_COMMENT_PATH]) {
+      const { raw } = loadWorkflow(p);
+      // Filter out any commented-out references.
+      const nonCommentLines = raw
+        .split('\n')
+        .filter((l) => !l.trimStart().startsWith('#'))
+        .join('\n');
+      // Only matches like `${{ secrets.GITHUB_TOKEN }}` would indicate a
+      // hard secret dependency; the default GITHUB_TOKEN doesn't need to
+      // be referenced explicitly.
+      expect(nonCommentLines).not.toMatch(/secrets\.[A-Z_]+/);
+    }
+  });
+});
+
+describe('Baseline workflow templates — README cross-references', () => {
+  test('templates README references both baseline workflow filenames', () => {
+    const md = fs.readFileSync(TEMPLATES_README, 'utf8');
+    expect(md).toMatch(/arch-engine-pr-baseline-report\.yml/);
+    expect(md).toMatch(/arch-engine-pr-baseline-comment\.yml/);
+  });
+
+  test('templates README documents the canonical baseline invocation', () => {
+    const md = fs.readFileSync(TEMPLATES_README, 'utf8');
+    expect(md).toContain(CANONICAL_BASELINE_INVOCATION);
+  });
+
+  test('templates README has a Baseline comparison workflows section', () => {
+    const md = fs.readFileSync(TEMPLATES_README, 'utf8');
+    expect(md).toMatch(/## Baseline comparison workflows/);
+    expect(md).toMatch(/v1\.2\.0/);
+  });
+
+  test('templates README explains that drift alone does NOT fail CI', () => {
+    const md = fs.readFileSync(TEMPLATES_README, 'utf8');
+    // The README soft-wraps inside markdown bold; collapse whitespace
+    // before matching.
+    const flat = md.replace(/\s+/g, ' ');
+    expect(flat).toMatch(/drift alone never fails CI/i);
+  });
+
+  test('templates README documents the v1.2.0 exit-code table', () => {
+    const md = fs.readFileSync(TEMPLATES_README, 'utf8');
+    expect(md).toMatch(/ARCH_ENGINE_DRIFT_DETECTED/);
+    expect(md).toMatch(/ARCH_ENGINE_BASELINE_/);
+  });
+
+  test('root README references the v1.2.0 baseline workflows', () => {
+    const md = fs.readFileSync(ROOT_README, 'utf8');
+    expect(md).toMatch(/arch-engine-pr-baseline-report\.yml/);
+    expect(md).toMatch(/arch-engine-pr-baseline-comment\.yml/);
+  });
+
+  test('root README documents the canonical baseline invocation', () => {
+    const md = fs.readFileSync(ROOT_README, 'utf8');
+    expect(md).toContain(CANONICAL_BASELINE_INVOCATION);
+  });
+});

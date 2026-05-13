@@ -325,3 +325,56 @@ export function readPackageVersion(): string {
 
 // Re-exports for convenient symmetry with format-error.ts ─────
 export { type CliDiagnostic, type ArchEngineErrorCode };
+
+// ─── data.adapter helper (Pass 2 — additive JSON v2 block) ──
+
+/**
+ * Shape consumed by `buildDataAdapterBlock`. Mirrors
+ * `BridgeAdapterSummary` from `runner-bridge.ts` but does not import
+ * from it so this file stays a pure renderer.
+ */
+export interface DataAdapterInput {
+  readonly name: string;
+  readonly version: string;
+  readonly packageManager: string;
+  readonly workspaceKind: string;
+  readonly confidence: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+  readonly reasons: ReadonlyArray<string>;
+  readonly warnings: ReadonlyArray<string>;
+  readonly alsoDetected: ReadonlyArray<{
+    readonly name: string;
+    readonly version: string;
+    readonly confidence: 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+    readonly reasons: ReadonlyArray<string>;
+  }>;
+  readonly metadata: Readonly<Record<string, unknown>>;
+}
+
+/**
+ * Build the `data.adapter` block per
+ * `docs/adapters/multi-adapter-surface-spec.md` §12.2.
+ *
+ * Pure: takes the bridge summary and returns a JSON-shaped object
+ * with stable key ordering (the v2 envelope's `sortKeysRecursive`
+ * picks up the rest).
+ */
+export function buildDataAdapterBlock(
+  input: DataAdapterInput,
+): Record<string, unknown> {
+  return {
+    name: input.name,
+    version: input.version,
+    packageManager: input.packageManager,
+    workspaceKind: input.workspaceKind,
+    confidence: input.confidence,
+    reasons: [...input.reasons],
+    warnings: [...input.warnings],
+    alsoDetected: input.alsoDetected.map((a) => ({
+      name: a.name,
+      version: a.version,
+      confidence: a.confidence,
+      reasons: [...a.reasons],
+    })),
+    metadata: input.metadata,
+  };
+}

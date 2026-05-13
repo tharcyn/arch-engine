@@ -2,13 +2,24 @@ import pc from 'picocolors';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { discoverEnvironment } from '../autodiscovery.js';
-import { executeRunnerBridge } from '../runner-bridge.js';
+import {
+  executeRunnerBridge,
+  BridgeAdapterConflictError,
+  type BridgeAdapterSummary,
+} from '../runner-bridge.js';
 import { loadPolicyConfig, evaluatePolicy, type EvaluatorEdge, type PolicyViolation } from '@arch-engine/core';
 import { liftToComposedPolicy } from '../policy-lift.js';
 import { SUPPORTED_EXPLAIN_TARGETS } from '../help-text.js';
-import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
+import {
+  buildDiagnostic,
+  diagnosticToJson,
+  emitDiagnosticHuman,
+  emitDiagnosticJson,
+  type CliDiagnostic,
+} from '../format-error.js';
 import {
   buildSummary,
+  buildDataAdapterBlock,
   deriveStatusForExit,
   renderCliJsonV2,
   type V2RenderInput,
@@ -38,10 +49,28 @@ export async function explainCommand(target: string, options: any) {
   }
 
   const discovery = discoverEnvironment(cwd);
-  const bridge = await executeRunnerBridge(cwd, discovery);
+  let bridge;
+  try {
+    bridge = await executeRunnerBridge(cwd, discovery);
+  } catch (err) {
+    if (err instanceof BridgeAdapterConflictError) {
+      const d = err.diagnostics[0]!;
+      if (out.format === 'json') {
+        emitDiagnosticJson(d);
+      } else {
+        emitDiagnosticHuman(d);
+      }
+      process.exit(3);
+    }
+    throw err;
+  }
 
   const { engineResult, extractionMetadata } = bridge;
   const canonicalIndex = engineResult.canonicalIndex;
+  // Pass 2B — explain JSON v2 carries the adapter identity sourced
+  // from the same runner-bridge selection every topology-extracting
+  // command uses.
+  const adapterSummary = bridge.adapterSummary;
 
   if (!canonicalIndex || canonicalIndex.total_edges === 0) {
     const diagnostic = buildDiagnostic({
@@ -58,7 +87,7 @@ export async function explainCommand(target: string, options: any) {
       };
       if (out.jsonSchema === 'v2') {
         emitFormattedOutput(
-          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])) + '\n',
+          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic], adapterSummary)) + '\n',
           out,
         );
       } else {
@@ -73,7 +102,7 @@ export async function explainCommand(target: string, options: any) {
         supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
       };
       emitFormattedOutput(
-        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])),
+        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic], adapterSummary)),
         out,
       );
     } else {
@@ -119,7 +148,7 @@ export async function explainCommand(target: string, options: any) {
       };
       if (out.jsonSchema === 'v2') {
         emitFormattedOutput(
-          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])) + '\n',
+          renderCliJsonV2(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic], adapterSummary)) + '\n',
           out,
         );
       } else {
@@ -134,7 +163,7 @@ export async function explainCommand(target: string, options: any) {
         supportedSpecialTargets: SUPPORTED_EXPLAIN_TARGETS.map((t) => t.keyword),
       };
       emitFormattedOutput(
-        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic])),
+        renderCliMarkdown(buildExplainV2EnvelopeInput(out, target, 'unmatched', v1, [diagnostic], adapterSummary)),
         out,
       );
     } else {
@@ -169,7 +198,7 @@ export async function explainCommand(target: string, options: any) {
     if (out.jsonSchema === 'v2') {
       emitFormattedOutput(
         renderCliJsonV2(
-          buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, []),
+          buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, [], adapterSummary),
         ) + '\n',
         out,
       );
@@ -182,7 +211,7 @@ export async function explainCommand(target: string, options: any) {
   if (out.format === 'markdown') {
     emitFormattedOutput(
       renderCliMarkdown(
-        buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, []),
+        buildExplainV2EnvelopeInput(out, target, 'matched', { target, mode: 'matched', matches, extractionMode: extractionMetadata.extractionMode }, [], adapterSummary),
       ),
       out,
     );
@@ -417,7 +446,22 @@ async function explainPolicy(cwd: string, options: any, out: CliOutputOptions) {
   }
 
   const discovery = discoverEnvironment(cwd);
-  const bridge = await executeRunnerBridge(cwd, discovery);
+  let bridge;
+  try {
+    bridge = await executeRunnerBridge(cwd, discovery);
+  } catch (err) {
+    if (err instanceof BridgeAdapterConflictError) {
+      const d = err.diagnostics[0]!;
+      if (out.format === 'json') {
+        emitDiagnosticJson(d);
+      } else {
+        emitDiagnosticHuman(d);
+      }
+      process.exit(3);
+    }
+    throw err;
+  }
+  const policyAdapterSummary = bridge.adapterSummary;
 
   const edges: EvaluatorEdge[] = [];
   for (const [src, targets] of Object.entries(bridge.adjacencyMap)) {
@@ -457,7 +501,7 @@ async function explainPolicy(cwd: string, options: any, out: CliOutputOptions) {
             policyVersion: evalResult.policyVersion,
             matchedEdges: evalResult.matchedEdges,
             violations,
-          }, []),
+          }, [], policyAdapterSummary),
         ) + '\n',
         out,
       );
@@ -479,7 +523,7 @@ async function explainPolicy(cwd: string, options: any, out: CliOutputOptions) {
           policyVersion: evalResult.policyVersion,
           matchedEdges: evalResult.matchedEdges,
           violations,
-        }, []),
+        }, [], policyAdapterSummary),
       ),
       out,
     );
@@ -535,6 +579,16 @@ function buildExplainV2EnvelopeInput(
   mode: string,
   data: Record<string, unknown>,
   diagnostics: CliDiagnostic[],
+  /**
+   * Pass 2B — optional adapter summary. Present whenever
+   * `executeRunnerBridge` ran (every explain path except the
+   * `regression` mode, which reads `.arch-engine/stability-score.json`
+   * and never invokes a workspace adapter for the current run).
+   *
+   * When absent, the renderer omits `data.adapter` so the envelope
+   * remains honest about not having selected an adapter.
+   */
+  adapterSummary?: BridgeAdapterSummary,
 ): V2RenderInput {
   const status = deriveStatusForExit(0, diagnostics, 0);
   const matches = Array.isArray(data.matches) ? (data.matches as unknown[]).length : undefined;
@@ -559,12 +613,17 @@ function buildExplainV2EnvelopeInput(
     nextActions.push('Run `arch-engine check` to verify whether this explanation affects the policy verdict.');
   }
 
+  // Pass 2B — additive data.adapter block when an adapter ran.
+  const enrichedData = adapterSummary
+    ? { adapter: buildDataAdapterBlock(adapterSummary), ...data }
+    : data;
+
   return {
     command: 'explain',
     exitCode: 0,
     status,
     summary,
-    data,
+    data: enrichedData,
     diagnostics,
     artifacts: [],
     nextActions,

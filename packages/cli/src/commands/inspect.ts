@@ -1,9 +1,21 @@
 import pc from 'picocolors';
-import { loadMonorepoAdapter } from '../runner-bridge.js';
+import {
+  executeRunnerBridge,
+  loadMonorepoAdapter,
+  BridgeAdapterConflictError,
+  type BridgeAdapterSummary,
+} from '../runner-bridge.js';
+import { discoverEnvironment } from '../autodiscovery.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
-import { buildDiagnostic, diagnosticToJson, type CliDiagnostic } from '../format-error.js';
+import {
+  buildDiagnostic,
+  diagnosticToJson,
+  emitDiagnosticHuman,
+  emitDiagnosticJson,
+  type CliDiagnostic,
+} from '../format-error.js';
 import {
   classifyConfidence,
   confidenceDescription,
@@ -15,6 +27,7 @@ import {
 } from '../renderers.js';
 import {
   buildSummary,
+  buildDataAdapterBlock,
   deriveStatusForExit,
   renderCliJsonV2,
   type V2RenderInput,
@@ -41,8 +54,27 @@ export async function inspectCommand(options: any) {
     console.log(pc.dim('Summarizing canonical topology...\n'));
   }
 
+  // Adapter resolution via runner-bridge (Pass 2). For inspect, the
+  // bridge result is the source of truth for both the legacy
+  // extraction shape AND the adapter selection summary.
+  const discovery = discoverEnvironment(cwd);
+  let bridge;
+  try {
+    bridge = await executeRunnerBridge(cwd, discovery);
+  } catch (err) {
+    if (err instanceof BridgeAdapterConflictError) {
+      const d = err.diagnostics[0]!;
+      if (out.format === 'json') {
+        emitDiagnosticJson(d);
+      } else {
+        emitDiagnosticHuman(d);
+      }
+      process.exit(3);
+    }
+    throw err;
+  }
   const adapter = await loadMonorepoAdapter();
-  const extraction = adapter.runMonorepoExtraction(cwd);
+  const extraction = bridge.extractionLegacy;
   const meta = extraction.metadata;
 
   // Domain distribution
@@ -72,6 +104,8 @@ export async function inspectCommand(options: any) {
       }),
     );
   }
+  // Pass 2: surface adapter-level diagnostics.
+  for (const d of bridge.adapterDiagnostics) diagnostics.push(d);
 
   const data = {
     nodes: meta.detectedNodes,
@@ -94,7 +128,7 @@ export async function inspectCommand(options: any) {
   // ── v1.1.0: format-aware emission ──────────────────────────
   if (out.format === 'json') {
     if (out.jsonSchema === 'v2') {
-      emitFormattedOutput(buildInspectV2(out, data, diagnostics, canonicalTopology) + '\n', out);
+      emitFormattedOutput(buildInspectV2(out, data, diagnostics, canonicalTopology, bridge.adapterSummary) + '\n', out);
       return;
     }
     emitFormattedOutput(JSON.stringify(data, null, 2) + '\n', out);
@@ -102,7 +136,7 @@ export async function inspectCommand(options: any) {
   }
 
   if (out.format === 'markdown') {
-    const v2 = buildInspectV2EnvelopeInput(out, data, diagnostics, canonicalTopology);
+    const v2 = buildInspectV2EnvelopeInput(out, data, diagnostics, canonicalTopology, bridge.adapterSummary);
     emitFormattedOutput(renderCliMarkdown(v2), out);
     return;
   }
@@ -174,6 +208,7 @@ function buildInspectV2EnvelopeInput(
   v1: any,
   diagnostics: CliDiagnostic[],
   canonicalTopology: CanonicalTopology,
+  adapterSummary: BridgeAdapterSummary,
 ): V2RenderInput {
   const status = deriveStatusForExit(0, diagnostics, 0);
   const summary = buildSummary(
@@ -186,6 +221,9 @@ function buildInspectV2EnvelopeInput(
   );
 
   const data = {
+    // Pass 2 — additive adapter identity block per
+    // docs/adapters/multi-adapter-surface-spec.md §12.2.
+    adapter: buildDataAdapterBlock(adapterSummary),
     topology: {
       nodes: v1.nodes,
       edges: v1.edges,
@@ -225,6 +263,7 @@ function buildInspectV2(
   v1: any,
   diagnostics: CliDiagnostic[],
   canonicalTopology: CanonicalTopology,
+  adapterSummary: BridgeAdapterSummary,
 ): string {
-  return renderCliJsonV2(buildInspectV2EnvelopeInput(out, v1, diagnostics, canonicalTopology));
+  return renderCliJsonV2(buildInspectV2EnvelopeInput(out, v1, diagnostics, canonicalTopology, adapterSummary));
 }

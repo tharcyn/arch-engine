@@ -1,0 +1,7 @@
+{
+  "name": "@pnpm-basic/api",
+  "version": "0.0.0",
+  "dependencies": {
+    "@pnpm-basic/shared": "^0.0.0"
+  }
+}

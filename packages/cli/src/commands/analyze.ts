@@ -2,7 +2,12 @@ import pc from 'picocolors';
 import Table from 'cli-table3';
 import { createRequire } from 'node:module';
 import { discoverEnvironment } from '../autodiscovery.js';
-import { executeRunnerBridge, loadMonorepoAdapter } from '../runner-bridge.js';
+import {
+  executeRunnerBridge,
+  loadMonorepoAdapter,
+  BridgeAdapterConflictError,
+  type BridgeAdapterSummary,
+} from '../runner-bridge.js';
 import { type RouteServiceEntry } from '@arch-engine/core';
 import { autoInitializeArchitectureContext } from '../auto-init.js';
 import { detectPolicyFile } from '../policy-presence.js';
@@ -21,6 +26,7 @@ import {
 import { createStabilityArtifact, writeStabilityArtifact } from '../snapshot.js';
 import {
   buildSummary,
+  buildDataAdapterBlock,
   deriveStatusForExit,
   normalizeArtifactPath,
   readPackageVersion,
@@ -84,7 +90,21 @@ export async function analyzeCommand(options: any) {
   }
 
   const discovery = discoverEnvironment(cwd);
-  const bridge = await executeRunnerBridge(cwd, discovery);
+  let bridge;
+  try {
+    bridge = await executeRunnerBridge(cwd, discovery);
+  } catch (err) {
+    if (err instanceof BridgeAdapterConflictError) {
+      const d = err.diagnostics[0]!;
+      if (out.format === 'json') {
+        emitDiagnosticJson(d);
+      } else {
+        emitDiagnosticHuman(d);
+      }
+      process.exit(3);
+    }
+    throw err;
+  }
 
   const { engineResult, extractionMetadata: meta, executionMetrics, adjacencyMap } = bridge;
 
@@ -99,9 +119,10 @@ export async function analyzeCommand(options: any) {
   const policyPresence = detectPolicyFile(cwd);
   const headline = deriveAnalysisHeadline({ score, meta, policyConfigured: policyPresence.configured });
 
-  // Domain distribution (adapter resolved lazily via runner-bridge)
+  // Domain distribution. Bridge supplies the legacy extraction shape;
+  // classifyAuthorityDomain stays imported from the monorepo package.
   const adapter = await loadMonorepoAdapter();
-  const extraction = adapter.runMonorepoExtraction(cwd);
+  const extraction = bridge.extractionLegacy;
   const fwdDomainPkgs = Object.entries(extraction.routeServiceMap.forward as Record<string, RouteServiceEntry>).map(
     ([route, entry]: [string, RouteServiceEntry]) => ({ authorityDomain: adapter.classifyAuthorityDomain(entry.backend_route) }),
   );
@@ -131,6 +152,8 @@ export async function analyzeCommand(options: any) {
       }),
     );
   }
+  // Pass 2: surface adapter-level diagnostics.
+  for (const d of bridge.adapterDiagnostics) diagnostics.push(d);
 
   // v1.2.0 — compute drift if --baseline was provided.
   let drift: DriftResult | null = null;
@@ -194,7 +217,7 @@ export async function analyzeCommand(options: any) {
   if (out.format === 'json') {
     if (out.jsonSchema === 'v2') {
       emitFormattedOutput(
-        renderCliJsonV2(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd, canonicalTopology, drift, baseline)) + '\n',
+        renderCliJsonV2(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd, canonicalTopology, drift, baseline, bridge.adapterSummary)) + '\n',
         out,
       );
       return;
@@ -205,7 +228,7 @@ export async function analyzeCommand(options: any) {
 
   if (out.format === 'markdown') {
     emitFormattedOutput(
-      renderCliMarkdown(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd, canonicalTopology, drift, baseline)),
+      renderCliMarkdown(buildAnalyzeV2EnvelopeInput(out, v1Json, diagnostics, artifactPath, headline.kind, cwd, canonicalTopology, drift, baseline, bridge.adapterSummary)),
       out,
     );
     return;
@@ -390,6 +413,7 @@ function buildAnalyzeV2EnvelopeInput(
   canonicalTopology: CanonicalTopology,
   drift: DriftResult | null,
   baseline: BaselineReadResult | null,
+  adapterSummary: BridgeAdapterSummary,
 ): V2RenderInput {
   const status = deriveStatusForExit(0, diagnostics, 0);
   const baseHeadline =
@@ -413,6 +437,8 @@ function buildAnalyzeV2EnvelopeInput(
   }
 
   const data: Record<string, unknown> = {
+    // Pass 2 — additive adapter identity block.
+    adapter: buildDataAdapterBlock(adapterSummary),
     stability: {
       score: v1.score,
       tier: v1.stabilityTier,

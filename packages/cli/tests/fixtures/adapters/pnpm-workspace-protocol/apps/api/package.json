@@ -1,0 +1,10 @@
+{
+  "name": "@proto/api",
+  "version": "0.0.0",
+  "dependencies": {
+    "@proto/lib": "workspace:*"
+  },
+  "devDependencies": {
+    "react": "catalog:"
+  }
+}
