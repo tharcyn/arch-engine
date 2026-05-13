@@ -1,0 +1,1 @@
+{"schemaVersion":"agp.record.v1","family":"node","kind":"package","id":"agp:node:package:b3:00000000000000000000000000000000000000000000000000000000000000c1","plane":"factual","payload":{"nodeId":"@example/web","type":"package","attributes":{"workspacePath":"apps/web","packageName":"@example/web"}}}

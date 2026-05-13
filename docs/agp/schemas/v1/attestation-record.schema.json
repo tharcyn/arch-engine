@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/attestation-record.schema.json",
+  "title": "AGP v1 — attestation record",
+  "description": "Trust-plane record referencing a signing envelope. MVP defines the boundary; emitting actual DSSE/Sigstore envelopes is deferred. AGP core remains attestation-ecosystem-independent.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "attestation" },
+    "kind":          { "$ref": "common.schema.json#/$defs/AttestationKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "trust" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject"],
+      "properties": {
+        "subject": {
+          "description": "MUST reference the bundle's snapshotDigest verbatim.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["digest"],
+          "properties": {
+            "digest": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sha256"],
+              "properties": {
+                "sha256": {
+                  "description": "Hex-only (no `sha256:` prefix; standard in-toto subject convention).",
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            }
+          }
+        },
+        "predicateType": {
+          "description": "Predicate type URI. Locked at the AGP snapshot predicate for snapshot attestations.",
+          "type": "string",
+          "format": "uri"
+        },
+        "envelopeRef": {
+          "description": "Optional repo-relative POSIX path to the DSSE envelope file (e.g. attestations/snapshot.dsse.json).",
+          "$ref": "common.schema.json#/$defs/PosixRelativePath"
+        },
+        "envelopeSha256": {
+          "description": "Optional SHA-256 over the on-disk DSSE envelope bytes.",
+          "$ref": "common.schema.json#/$defs/Sha256Digest"
+        },
+        "signer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "identity": { "type": "string" },
+            "issuer":   { "type": "string" }
+          }
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["unverified", "verified", "verification_failed"]
+        }
+      }
+    }
+  }
+}

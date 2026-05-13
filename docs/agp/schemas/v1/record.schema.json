@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/record.schema.json",
+  "title": "AGP v1 — Record Envelope (Base)",
+  "description": "Base envelope for every record that appears in records.ndjson. Family-specific payload shapes live in the per-family schemas; this base validates the envelope itself and dispatches the payload by (family, kind) via a oneOf. Note: JSON Schema cannot recompute payloadHash; verifier MUST re-check that id == 'agp:' + family + ':' + kind + ':' + payloadHash and that payloadHash == b3(JCS(payload)).",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "family", "kind", "id", "plane", "payloadHash", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "$ref": "common.schema.json#/$defs/RecordFamily" },
+    "kind":          { "$ref": "common.schema.json#/$defs/RecordKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "$ref": "common.schema.json#/$defs/Plane" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload":       { "type": "object" }
+  },
+
+  "allOf": [
+    {
+      "description": "Plane invariant: family → plane bijection. The verifier enforces this at the snapshot level too.",
+      "oneOf": [
+        { "properties": { "family": { "const": "node" },             "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "edge" },             "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "adapter_evidence" }, "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "diagnostic" },       "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "drift" },            "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "policy_finding" },   "plane": { "const": "factual" } } },
+        { "properties": { "family": { "const": "provenance" },       "plane": { "const": "trust" } } },
+        { "properties": { "family": { "const": "observation" },      "plane": { "const": "evidence" } } },
+        { "properties": { "family": { "const": "attestation" },      "plane": { "const": "trust" } } }
+      ]
+    },
+    {
+      "description": "Family-specific payload dispatch. Each family's payload schema lives in its own file.",
+      "oneOf": [
+        {
+          "properties": { "family": { "const": "node" } },
+          "$ref": "node-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "edge" } },
+          "$ref": "edge-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "adapter_evidence" } },
+          "$ref": "adapter-evidence-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "diagnostic" } },
+          "$ref": "diagnostic-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "drift" } },
+          "$ref": "drift-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "policy_finding" } },
+          "$ref": "policy-finding-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "provenance" } },
+          "$ref": "provenance-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "observation" } },
+          "$ref": "observation-record.schema.json"
+        },
+        {
+          "properties": { "family": { "const": "attestation" } },
+          "$ref": "attestation-record.schema.json"
+        }
+      ]
+    }
+  ]
+}

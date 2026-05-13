@@ -1,0 +1,1 @@
+{"schemaVersion":"agp.record.v2","family":"node","kind":"package","id":"agp:node:package:b3:00000000000000000000000000000000000000000000000000000000000000c1","plane":"factual","payloadHash":"b3:00000000000000000000000000000000000000000000000000000000000000c1","payload":{"nodeId":"@example/web","type":"package"}}

@@ -1,0 +1,17 @@
+{
+  "environment": "yarn-npm",
+  "extractionMode": "structured",
+  "topologyConfidence": 1.0,
+  "topologyConfidenceLabel": "HIGH",
+  "confidenceDescription": "HIGH (Structured yarn-npm workspace extraction)",
+  "detectedNodes": 2,
+  "expectedNodes": 2,
+  "connectedNodes": 2,
+  "coverage": 1.0,
+  "connectivity": 1.0,
+  "crossings": 0,
+  "warnings": [],
+  "autoInitialized": false,
+  "hasPolicyFile": false,
+  "diagnostics": []
+}

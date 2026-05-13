@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/drift-record.schema.json",
+  "title": "AGP v1 — drift record",
+  "description": "Factual delta against a baseline. One record per individual change (node/edge added/removed/changed, violation new/resolved/persisted, severity changed) plus one signal_delta record.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "drift" },
+    "kind":          { "$ref": "common.schema.json#/$defs/DriftKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "factual" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline", "current"],
+      "properties": {
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["snapshotDigest"],
+          "properties": {
+            "snapshotDigest":   { "$ref": "common.schema.json#/$defs/Sha256Digest" },
+            "graphSurfaceHash": { "$ref": "common.schema.json#/$defs/GraphSurfaceHash" }
+          }
+        },
+        "current": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["snapshotDigest"],
+          "properties": {
+            "snapshotDigest":   { "$ref": "common.schema.json#/$defs/Sha256Digest" },
+            "graphSurfaceHash": { "$ref": "common.schema.json#/$defs/GraphSurfaceHash" }
+          }
+        },
+        "node":     { "$ref": "#/$defs/NodeRef" },
+        "edge":     { "$ref": "#/$defs/EdgeRef" },
+        "violation":{ "$ref": "#/$defs/ViolationRef" },
+        "severityChange": { "$ref": "#/$defs/SeverityChange" },
+        "deltas":   { "$ref": "#/$defs/SignalDeltas" }
+      }
+    }
+  },
+
+  "$defs": {
+    "NodeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "EdgeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type"],
+      "properties": {
+        "from": { "type": "string" },
+        "to":   { "type": "string" },
+        "type": { "type": "string", "enum": ["workspace_dependency"] }
+      }
+    },
+    "ViolationRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id":       { "type": "string" },
+        "ruleId":   { "type": "string" },
+        "severity": { "$ref": "common.schema.json#/$defs/Severity" },
+        "code":     { "$ref": "common.schema.json#/$defs/DiagnosticCode" }
+      }
+    },
+    "SeverityChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to"],
+      "properties": {
+        "id":     { "type": "string" },
+        "ruleId": { "type": "string" },
+        "from":   { "$ref": "common.schema.json#/$defs/Severity" },
+        "to":     { "$ref": "common.schema.json#/$defs/Severity" }
+      }
+    },
+    "SignalDeltas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graphSurfaceHashChanged"],
+      "properties": {
+        "scoreDelta":              { "type": ["number", "null"] },
+        "coverageDelta":           { "type": ["number", "null"] },
+        "connectivityDelta":       { "type": ["number", "null"] },
+        "confidenceDelta":         { "type": ["number", "null"] },
+        "violationsDelta":         { "type": ["integer", "null"] },
+        "graphSurfaceHashChanged": { "type": "boolean" }
+      }
+    }
+  }
+}

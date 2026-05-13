@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "agp.snapshot.v1",
+  "kind": "agp.snapshot",
+  "snapshotDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000099",
+  "payload": {
+    "agpVersion": "2.0.0",
+    "schemaVersion": "agp.snapshot.v1",
+    "archEngineVersion": "1.4.0",
+    "sourceCommand": "inspect",
+    "sourceSchemaVersion": "arch-engine.cli.v2",
+    "sourceExitCode": 0,
+    "sourceStatus": "passed",
+    "records": [],
+    "counts": {
+      "totalRecords": 0,
+      "factualRecords": 0,
+      "evidenceRecords": 0,
+      "trustRecords": 0,
+      "nodes": 0,
+      "edges": 0,
+      "adapterEvidence": 0,
+      "diagnostics": 0,
+      "driftRecords": 0,
+      "policyFindings": 0,
+      "provenanceRecords": 0,
+      "observationRecords": 0,
+      "attestationRecords": 0
+    },
+    "canonicalization": { "algorithm": "rfc8785-jcs", "encoding": "utf-8", "lineEnding": "lf" },
+    "hashing": { "recordPayload": "b3", "snapshotDigest": "sha256" },
+    "featureGates": { "observations": false, "attestations": false, "projections": false, "policy": false }
+  }
+}

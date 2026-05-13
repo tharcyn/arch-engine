@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "agp.snapshot.v1",
+  "kind": "agp.snapshot",
+  "snapshotDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000002",
+  "payload": {
+    "agpVersion": "1.0.0",
+    "schemaVersion": "agp.snapshot.v1",
+    "archEngineVersion": "1.4.0",
+    "sourceCommand": "inspect",
+    "sourceSchemaVersion": "arch-engine.cli.v2",
+    "sourceExitCode": 0,
+    "sourceStatus": "passed",
+    "emittedAt": "2026-05-13T08:01:00Z",
+    "records": [
+      { "id": "agp:adapter_evidence:selected:b3:00000000000000000000000000000000000000000000000000000000000000a2", "family": "adapter_evidence", "kind": "selected", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000a2" },
+      { "id": "agp:edge:depends_on:b3:00000000000000000000000000000000000000000000000000000000000000e1", "family": "edge", "kind": "depends_on", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000e1" },
+      { "id": "agp:edge:depends_on:b3:00000000000000000000000000000000000000000000000000000000000000e2", "family": "edge", "kind": "depends_on", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000e2" },
+      { "id": "agp:edge:depends_on:b3:00000000000000000000000000000000000000000000000000000000000000e3", "family": "edge", "kind": "depends_on", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000e3" },
+      { "id": "agp:node:package:b3:00000000000000000000000000000000000000000000000000000000000000c1", "family": "node", "kind": "package", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000c1" },
+      { "id": "agp:node:package:b3:00000000000000000000000000000000000000000000000000000000000000c2", "family": "node", "kind": "package", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000c2" },
+      { "id": "agp:node:package:b3:00000000000000000000000000000000000000000000000000000000000000c3", "family": "node", "kind": "package", "plane": "factual", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000c3" },
+      { "id": "agp:provenance:extraction:b3:00000000000000000000000000000000000000000000000000000000000000d2", "family": "provenance", "kind": "extraction", "plane": "trust", "payloadHash": "b3:00000000000000000000000000000000000000000000000000000000000000d2" }
+    ],
+    "counts": {
+      "totalRecords": 8,
+      "factualRecords": 7,
+      "evidenceRecords": 0,
+      "trustRecords": 1,
+      "nodes": 3,
+      "edges": 3,
+      "adapterEvidence": 1,
+      "diagnostics": 0,
+      "driftRecords": 0,
+      "policyFindings": 0,
+      "provenanceRecords": 1,
+      "observationRecords": 0,
+      "attestationRecords": 0
+    },
+    "shapeHash": {
+      "algorithm": "agp-wl1-blake3-v1",
+      "value": "b3:0000000000000000000000000000000000000000000000000000000000005bc5"
+    },
+    "graphSurfaceHash": "sha256:5bc54d9800000000000000000000000000000000000000000000000000000000",
+    "canonicalization": { "algorithm": "rfc8785-jcs", "encoding": "utf-8", "lineEnding": "lf" },
+    "hashing": { "recordPayload": "b3", "snapshotDigest": "sha256" },
+    "featureGates": { "observations": false, "attestations": false, "projections": false, "policy": false }
+  }
+}

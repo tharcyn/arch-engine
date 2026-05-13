@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/edge-record.schema.json",
+  "title": "AGP v1 — edge record",
+  "description": "Factual edge from the canonical topology. MVP locks `kind: depends_on` with `type: workspace_dependency`.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "edge" },
+    "kind":          { "$ref": "common.schema.json#/$defs/EdgeKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "factual" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type"],
+      "properties": {
+        "edgeIdLegacy": {
+          "description": "Verbatim Arch-Engine canonical-topology edge id (e_<8hex>). Informational only.",
+          "type": "string",
+          "pattern": "^e_[0-9a-f]{8}$"
+        },
+        "from": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "to":   { "type": "string", "minLength": 1, "maxLength": 512 },
+        "type": {
+          "description": "MVP locks 'workspace_dependency'.",
+          "type": "string",
+          "enum": ["workspace_dependency"]
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dependencyKind": { "$ref": "common.schema.json#/$defs/DependencyKind" },
+            "protocol":       { "$ref": "common.schema.json#/$defs/EdgeProtocol" }
+          }
+        }
+      }
+    }
+  }
+}

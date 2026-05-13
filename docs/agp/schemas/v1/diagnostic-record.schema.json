@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/diagnostic-record.schema.json",
+  "title": "AGP v1 — diagnostic record",
+  "description": "Factual diagnostic, mapped from JSON v2 diagnostics[]. `kind` is the lowercased ARCH_ENGINE_* code suffix (or AGP_EMITTER_*).",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "diagnostic" },
+    "kind":          { "$ref": "common.schema.json#/$defs/RecordKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "factual" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "ciBlocking", "message"],
+      "properties": {
+        "code":       { "$ref": "common.schema.json#/$defs/DiagnosticCode" },
+        "severity":   { "$ref": "common.schema.json#/$defs/Severity" },
+        "ciBlocking": { "$ref": "common.schema.json#/$defs/CiBlocking" },
+        "title":      { "type": "string" },
+        "message":    { "type": "string", "minLength": 1 },
+        "fix":        { "type": "string" },
+        "details":    { "type": "object" },
+        "docsHint":   { "type": "string" },
+        "scope": {
+          "description": "bundle | node:<id> | edge:<id>. MVP locks 'bundle' for diagnostics that don't reference a specific record.",
+          "type": "string",
+          "pattern": "^(bundle|node:[^\\s]+|edge:[^\\s]+)$"
+        },
+        "affectedRecordIds": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/RecordId" }
+        },
+        "sourceCommand": { "$ref": "common.schema.json#/$defs/SourceCommand" }
+      }
+    }
+  }
+}

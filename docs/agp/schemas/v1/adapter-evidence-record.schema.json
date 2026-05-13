@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/adapter-evidence-record.schema.json",
+  "title": "AGP v1 — adapter_evidence record",
+  "description": "Factual adapter identity and per-adapter metadata, mapped from Arch-Engine JSON v2 data.adapter. MVP locks adapter-specific sub-blocks for pnpm and yarn-pnp; monorepo adapter does not surface a metadata sub-block in v1.3.x.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "adapter_evidence" },
+    "kind":          { "type": "string", "enum": ["selected", "runner_up", "declined"] },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "factual" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "packageManager", "workspaceKind", "confidence", "reasons", "warnings", "alsoDetected", "metadata"],
+      "properties": {
+        "name":           { "$ref": "common.schema.json#/$defs/AdapterName" },
+        "version":        { "$ref": "common.schema.json#/$defs/SemverString" },
+        "packageManager": { "$ref": "common.schema.json#/$defs/PackageManager" },
+        "workspaceKind":  { "$ref": "common.schema.json#/$defs/WorkspaceKind" },
+        "confidence":     { "$ref": "common.schema.json#/$defs/Confidence" },
+        "reasons":        { "type": "array", "items": { "type": "string" } },
+        "warnings":       { "type": "array", "items": { "type": "string" } },
+        "alsoDetected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version", "confidence", "reasons"],
+            "properties": {
+              "name":       { "$ref": "common.schema.json#/$defs/AdapterName" },
+              "version":    { "$ref": "common.schema.json#/$defs/SemverString" },
+              "confidence": { "$ref": "common.schema.json#/$defs/Confidence" },
+              "reasons":    { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pnpm":    { "$ref": "#/$defs/PnpmMetadata" },
+            "yarnPnp": { "$ref": "#/$defs/YarnPnpMetadata" }
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "PnpmMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspaceFile", "packageManagerVersion", "lockfilePresent", "catalogsDetected", "excludedGlobs", "matchedGlobs"],
+      "properties": {
+        "workspaceFile":         { "type": "string", "enum": ["pnpm-workspace.yaml"] },
+        "packageManagerVersion": { "type": ["string", "null"], "pattern": "^([0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?)?$" },
+        "lockfilePresent":       { "type": "boolean" },
+        "catalogsDetected":      { "type": "boolean" },
+        "excludedGlobs":         { "type": "array", "items": { "$ref": "common.schema.json#/$defs/PosixRelativePath" } },
+        "matchedGlobs":          { "type": "array", "items": { "$ref": "common.schema.json#/$defs/PosixRelativePath" } }
+      }
+    },
+    "YarnPnpMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packageManagerVersion",
+        "pnpFilePresent",
+        "pnpLoaderPresent",
+        "yarnrcPresent",
+        "nodeLinker",
+        "nodeLinkerSource",
+        "workspacesPresent",
+        "workspacesObjectForm",
+        "rawGlobs",
+        "excludedGlobs",
+        "matchedGlobs"
+      ],
+      "properties": {
+        "packageManagerVersion": { "type": ["string", "null"], "pattern": "^([0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?)?$" },
+        "pnpFilePresent":        { "type": "boolean" },
+        "pnpLoaderPresent":      { "type": "boolean" },
+        "yarnrcPresent":         { "type": "boolean" },
+        "nodeLinker":            { "$ref": "common.schema.json#/$defs/NodeLinker" },
+        "nodeLinkerSource":      { "$ref": "common.schema.json#/$defs/NodeLinkerSource" },
+        "workspacesPresent":     { "type": "boolean" },
+        "workspacesObjectForm":  { "type": "boolean" },
+        "rawGlobs":              { "type": "array", "items": { "type": "string" } },
+        "excludedGlobs":         { "type": "array", "items": { "$ref": "common.schema.json#/$defs/PosixRelativePath" } },
+        "matchedGlobs":          { "type": "array", "items": { "$ref": "common.schema.json#/$defs/PosixRelativePath" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/provenance-record.schema.json",
+  "title": "AGP v1 — provenance record",
+  "description": "Trust-plane record describing how the bundle was produced. Excluded from snapshotDigest. git.dirty reflects bundle-emit time (OQ-5 default). MVP requires command/archEngineVersion/inputDigest/redactionPolicy.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "provenance" },
+    "kind":          { "type": "string", "enum": ["extraction", "signing", "build", "pipeline"] },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "trust" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "archEngineVersion", "inputDigest", "inputCommand", "redaction"],
+      "properties": {
+        "command":           { "$ref": "common.schema.json#/$defs/SourceCommand" },
+        "archEngineVersion": { "$ref": "common.schema.json#/$defs/SemverString" },
+        "inputDigest":       { "$ref": "common.schema.json#/$defs/InputDigest" },
+        "inputCommand":      { "$ref": "common.schema.json#/$defs/SourceCommand" },
+        "agpEmitterVersion": { "$ref": "common.schema.json#/$defs/SemverString" },
+        "git": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "commit": { "$ref": "common.schema.json#/$defs/GitCommit" },
+            "branch": { "$ref": "common.schema.json#/$defs/GitRef" },
+            "dirty":  {
+              "description": "Reflects bundle-emit time (OQ-5 default). Excluded from snapshotDigest.",
+              "type": "boolean"
+            }
+          }
+        },
+        "ci": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider"],
+          "properties": {
+            "provider": { "$ref": "common.schema.json#/$defs/CiProvider" },
+            "runId":    { "type": "string", "minLength": 1 },
+            "ref":      { "$ref": "common.schema.json#/$defs/GitRef" }
+          }
+        },
+        "redaction":  { "$ref": "common.schema.json#/$defs/RedactionPolicy" },
+        "producedAt": { "$ref": "common.schema.json#/$defs/Timestamp" }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/agp-bundle.schema.json",
+  "title": "AGP v1 — Bundle Convenience Object (NON-CANONICAL)",
+  "x-non-canonical": true,
+  "description": "Convenience single-JSON object for fixture testing only. Canonical AGP wire/disk layout is snapshot.json + records.ndjson — see snapshot.schema.json and record.schema.json. This bundle object MUST NOT be used as the canonical bundle representation. Its snapshotDigest MUST equal the digest computed over the canonical snapshot.json bytes alone. v1 schema corpus uses this shape to keep fixtures self-contained.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "snapshot", "records"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/BundleSchemaVersion" },
+    "snapshot":      { "$ref": "snapshot.schema.json" },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "record.schema.json" }
+    },
+    "diagnostics": {
+      "description": "Optional verbose diagnostic copy for tooling convenience. Redundant with diagnostic records inside `records[]`.",
+      "type": "array",
+      "items": { "type": "object" }
+    }
+  }
+}

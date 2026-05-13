@@ -1,0 +1,1 @@
+{"schemaVersion":"agp.record.v1","family":"edge","kind":"depends_on","id":"agp:edge:depends_on:b3:00000000000000000000000000000000000000000000000000000000000000e1","plane":"factual","payloadHash":"b3:00000000000000000000000000000000000000000000000000000000000000e1","payload":{"from":"@example/web","to":"@example/shared","type":"workspace_dependency"}}

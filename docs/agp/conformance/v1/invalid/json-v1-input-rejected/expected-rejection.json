@@ -1,0 +1,7 @@
+{
+  "verdict": "input_rejected",
+  "code": "AGP_EMITTER_INPUT_NOT_V2",
+  "severity": "ERROR",
+  "message": "Input is not Arch-Engine JSON v2. Expected schemaVersion === 'arch-engine.cli.v2'; got <absent>.",
+  "fix": "Re-run Arch-Engine with --json --json-schema=v2 to produce the v2 envelope, then re-invoke the emitter on the v2 output."
+}

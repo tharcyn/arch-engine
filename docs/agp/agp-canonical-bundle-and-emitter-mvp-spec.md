@@ -4,13 +4,29 @@
 
 | Field | Value |
 | --- | --- |
-| Document state | **Draft v1.0 — for review** |
+| Document state | **Draft v1.0 — for review; backed by machine-readable JSON Schemas** |
 | Document date | 2026-05-13 |
 | Author | Claude Opus 4.7 (1M context), specification pass |
 | Target Arch-Engine release line | v1.5.0 or v1.6.0 (minor; emitter ships behind explicit command/flag) |
 | Implementation status | Spec-only. No source has been written, no package created, no dependency added. |
+| Machine-readable schemas | [`docs/agp/schemas/v1/`](./schemas/v1/) — JSON Schema Draft 2020-12, normative for record/snapshot/bundle SHAPE. |
+| Conformance corpus | [`docs/agp/conformance/v1/`](./conformance/v1/) — 5 valid + 8 invalid fixtures + verifier rules. |
+| Open-question defaults | [`docs/agp/agp-schema-open-question-defaults.md`](./agp-schema-open-question-defaults.md) — defaults for OQ-1..10 locked by the schema pass. |
+| AGP repo extraction plan | [`docs/agp/agp-repo-extraction-plan.md`](./agp-repo-extraction-plan.md) — when/what moves to a separate AGP repo. |
 | Predecessor specs in this repo | [`docs/cli/baseline-comparison-spec.md`](../cli/baseline-comparison-spec.md), [`docs/adapters/multi-adapter-surface-spec.md`](../adapters/multi-adapter-surface-spec.md), [`docs/contracts/public-surface-contract.md`](../contracts/public-surface-contract.md), [`docs/contracts/determinism-contract.md`](../contracts/determinism-contract.md) |
 | Predecessor audits | [`audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md`](../../audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md), [`audits/release/ARCH_ENGINE_V1_4_0_MINOR_RELEASE_PREFLIGHT.md`](../../audits/release/ARCH_ENGINE_V1_4_0_MINOR_RELEASE_PREFLIGHT.md) |
+| Schema pass audit | [`audits/ARCH_ENGINE_AGP_SPEC_EXTRACTION_AND_SCHEMA_PASS_AUDIT.md`](../../audits/ARCH_ENGINE_AGP_SPEC_EXTRACTION_AND_SCHEMA_PASS_AUDIT.md) |
+
+### Normative boundary
+
+The prose of this document remains normative for **canonicalization
+rules** (§10) and **hashing/identity equations** (§11). The
+machine-readable schemas in `docs/agp/schemas/v1/` are normative for
+the **shape** of every record envelope, every family payload, the
+snapshot manifest, and the convenience bundle. Where the prose and a
+schema differ, the schema wins on shape and the prose wins on
+hashing/canonicalization — and the divergence is a spec bug to be
+filed. The schema pass audit lists the cross-refs.
 
 ### Supersession
 

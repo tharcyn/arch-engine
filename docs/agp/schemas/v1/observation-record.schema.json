@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/observation-record.schema.json",
+  "title": "AGP v1 — observation record",
+  "description": "Evidence-plane record. NEVER appears in factual digest. MUST NOT mutate node/edge/diagnostic/drift/policy_finding/adapter_evidence records. Carries observer identity, model version, prompt version, context record IDs, confidence, justification. Toggling observations MUST NOT change snapshotDigest.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "observation" },
+    "kind":          { "$ref": "common.schema.json#/$defs/RecordKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "evidence" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observer", "context", "body"],
+      "properties": {
+        "observer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "model", "modelVersion"],
+          "properties": {
+            "type":          { "$ref": "common.schema.json#/$defs/ObserverType" },
+            "model":         { "type": "string", "minLength": 1 },
+            "modelVersion":  { "type": "string", "minLength": 1 },
+            "promptVersion": { "type": "string", "minLength": 1 }
+          }
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recordIds"],
+          "properties": {
+            "recordIds": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "common.schema.json#/$defs/RecordId" }
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind":    { "type": "string", "minLength": 1, "maxLength": 64 },
+            "text":    { "type": "string" },
+            "claims":  { "type": "array", "items": { "type": "object" } },
+            "details": { "type": "object" }
+          }
+        },
+        "confidence":             { "$ref": "common.schema.json#/$defs/ObservationConfidence" },
+        "justification":          { "type": "string" },
+        "factualMutationAllowed": {
+          "description": "MUST be false or absent. Observation records cannot mutate factual records.",
+          "type": "boolean",
+          "const": false
+        },
+        "createdAt":              { "$ref": "common.schema.json#/$defs/Timestamp" }
+      }
+    }
+  }
+}

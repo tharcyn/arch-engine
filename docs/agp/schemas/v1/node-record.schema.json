@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/node-record.schema.json",
+  "title": "AGP v1 — node record",
+  "description": "Factual node from the canonical topology. MVP locks `kind: package`; future versions add workspace/module/service/file/domain.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["family", "kind", "payload"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/RecordSchemaVersion" },
+    "family":        { "const": "node" },
+    "kind":          { "$ref": "common.schema.json#/$defs/NodeKind" },
+    "id":            { "$ref": "common.schema.json#/$defs/RecordId" },
+    "plane":         { "const": "factual" },
+    "payloadHash":   { "$ref": "common.schema.json#/$defs/PayloadHash" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "type"],
+      "properties": {
+        "nodeId": {
+          "description": "Verbatim from JSON v2 data.topology.canonical.nodes[].id — typically a workspace package name.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "type": {
+          "description": "MVP locks 'package'.",
+          "type": "string",
+          "enum": ["package"]
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "workspacePath": { "$ref": "common.schema.json#/$defs/PosixRelativePath" },
+            "packageName":   { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

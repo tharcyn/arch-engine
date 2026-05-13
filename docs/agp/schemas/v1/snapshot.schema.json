@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/snapshot.schema.json",
+  "title": "AGP v1 — snapshot.json",
+  "description": "Manifest + counts + summary for the bundle. snapshotDigest is computed over a canonical projection of the payload that excludes emittedAt, the snapshotDigest self-reference, and any records[] entries whose plane is 'evidence' or 'trust'. Verifier MUST reconstruct that projection and re-hash.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "payload", "snapshotDigest"],
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/SnapshotSchemaVersion" },
+    "kind":          { "type": "string", "enum": ["agp.snapshot"] },
+    "snapshotDigest":{ "$ref": "common.schema.json#/$defs/SnapshotDigest" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agpVersion",
+        "schemaVersion",
+        "archEngineVersion",
+        "sourceCommand",
+        "sourceSchemaVersion",
+        "sourceExitCode",
+        "sourceStatus",
+        "records",
+        "counts",
+        "featureGates"
+      ],
+      "properties": {
+        "agpVersion":          { "$ref": "common.schema.json#/$defs/AgpVersion" },
+        "schemaVersion":       { "$ref": "common.schema.json#/$defs/SnapshotSchemaVersion" },
+        "archEngineVersion":   { "$ref": "common.schema.json#/$defs/SemverString" },
+        "sourceCommand":       { "$ref": "common.schema.json#/$defs/SourceCommand" },
+        "sourceSchemaVersion": {
+          "description": "Arch-Engine source envelope schemaVersion. v1.x locks 'arch-engine.cli.v2'.",
+          "type": "string",
+          "enum": ["arch-engine.cli.v2"]
+        },
+        "sourceExitCode":      { "$ref": "common.schema.json#/$defs/ExitCode" },
+        "sourceStatus":        { "$ref": "common.schema.json#/$defs/Status" },
+        "emittedAt": {
+          "description": "ISO 8601 UTC, second precision. EXCLUDED from snapshotDigest per spec §11.5.",
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "records": {
+          "type": "array",
+          "description": "Manifest of every record in records.ndjson. Each entry is referenced by id, with family+kind+plane+payloadHash for verification.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "kind", "plane", "payloadHash"],
+            "properties": {
+              "id":          { "$ref": "common.schema.json#/$defs/RecordId" },
+              "family":      { "$ref": "common.schema.json#/$defs/RecordFamily" },
+              "kind":        { "$ref": "common.schema.json#/$defs/RecordKind" },
+              "plane":       { "$ref": "common.schema.json#/$defs/Plane" },
+              "payloadHash": { "$ref": "common.schema.json#/$defs/PayloadHash" },
+              "lineNumber":  {
+                "description": "Optional 1-based line index in records.ndjson; advisory only — verifier does NOT trust this for content matching.",
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "totalRecords",
+            "factualRecords",
+            "evidenceRecords",
+            "trustRecords",
+            "nodes",
+            "edges",
+            "adapterEvidence",
+            "diagnostics",
+            "driftRecords",
+            "policyFindings",
+            "provenanceRecords",
+            "observationRecords",
+            "attestationRecords"
+          ],
+          "properties": {
+            "totalRecords":       { "type": "integer", "minimum": 0 },
+            "factualRecords":     { "type": "integer", "minimum": 0 },
+            "evidenceRecords":    { "type": "integer", "minimum": 0 },
+            "trustRecords":       { "type": "integer", "minimum": 0 },
+            "nodes":              { "type": "integer", "minimum": 0 },
+            "edges":              { "type": "integer", "minimum": 0 },
+            "adapterEvidence":    { "type": "integer", "minimum": 0 },
+            "diagnostics":        { "type": "integer", "minimum": 0 },
+            "driftRecords":       { "type": "integer", "minimum": 0 },
+            "policyFindings":     { "type": "integer", "minimum": 0 },
+            "provenanceRecords":  { "type": "integer", "minimum": 0 },
+            "observationRecords": { "type": "integer", "minimum": 0 },
+            "attestationRecords": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "summary": {
+          "description": "Optional summary mirror sourced from JSON v2 envelope.summary plus drift counters. Informational; the manifest records are authoritative.",
+          "type": "object"
+        },
+        "shapeHash": {
+          "description": "Optional graph-shape hash. Required iff input had data.topology.canonical.graphSurfaceHash (OQ-4 default).",
+          "$ref": "common.schema.json#/$defs/ShapeHash"
+        },
+        "graphSurfaceHash": {
+          "description": "Verbatim Arch-Engine graphSurfaceHash, when input carried one. Non-authoritative.",
+          "$ref": "common.schema.json#/$defs/GraphSurfaceHash"
+        },
+        "canonicalization": {
+          "description": "Declarative canonicalization rules used. Locked to JCS + UTF-8 + LF in v1.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["algorithm", "encoding", "lineEnding"],
+          "properties": {
+            "algorithm":  { "type": "string", "enum": ["rfc8785-jcs"] },
+            "encoding":   { "type": "string", "enum": ["utf-8"] },
+            "lineEnding": { "type": "string", "enum": ["lf"] }
+          }
+        },
+        "hashing": {
+          "description": "Declarative hash algorithms used.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recordPayload", "snapshotDigest"],
+          "properties": {
+            "recordPayload":  { "type": "string", "enum": ["b3"] },
+            "snapshotDigest": { "type": "string", "enum": ["sha256"] }
+          }
+        },
+        "featureGates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["observations", "attestations", "projections", "policy"],
+          "properties": {
+            "observations": { "type": "boolean" },
+            "attestations": { "type": "boolean" },
+            "projections":  { "type": "boolean" },
+            "policy":       { "type": "boolean" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "description": "If shapeHash is present, graphSurfaceHash MUST also be present (OQ-4 default).",
+          "if":   { "required": ["shapeHash"] },
+          "then": { "required": ["graphSurfaceHash"] }
+        }
+      ]
+    }
+  }
+}

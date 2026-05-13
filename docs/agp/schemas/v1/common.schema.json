@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arch-engine.dev/agp/v1/common.schema.json",
+  "title": "AGP v1 — Common Primitives",
+  "description": "Reusable type definitions shared by every AGP v1 schema. Imported via $ref by record/family/snapshot/bundle schemas. Locked by docs/agp/agp-canonical-bundle-and-emitter-mvp-spec.md.",
+
+  "$defs": {
+    "AgpVersion": {
+      "title": "AGP protocol version",
+      "description": "SemVer for the AGP wire contract. Locked at 1.0.0 in v1 schemas.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "SemverString": {
+      "title": "SemVer string",
+      "description": "Plain semver — pre-release / build-metadata permitted but not required.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "RecordSchemaVersion": {
+      "title": "Per-record schemaVersion",
+      "description": "The schema version of the AGP record envelope. v1 locks 'agp.record.v1'.",
+      "type": "string",
+      "enum": ["agp.record.v1"]
+    },
+    "SnapshotSchemaVersion": {
+      "title": "Snapshot schemaVersion",
+      "description": "The schema version of snapshot.json. v1 locks 'agp.snapshot.v1'.",
+      "type": "string",
+      "enum": ["agp.snapshot.v1"]
+    },
+    "BundleSchemaVersion": {
+      "title": "Bundle convenience schemaVersion",
+      "description": "Optional convenience bundle.json schema version.",
+      "type": "string",
+      "enum": ["agp.bundle.v1"]
+    },
+    "RecordFamily": {
+      "title": "Record family",
+      "type": "string",
+      "enum": [
+        "node",
+        "edge",
+        "adapter_evidence",
+        "diagnostic",
+        "drift",
+        "policy_finding",
+        "provenance",
+        "observation",
+        "attestation"
+      ]
+    },
+    "SnapshotFamily": {
+      "title": "Snapshot manifest family marker",
+      "description": "The snapshot record family is reserved for snapshot.json itself; it does NOT appear in records.ndjson.",
+      "type": "string",
+      "enum": ["snapshot"]
+    },
+    "RecordKind": {
+      "title": "Record kind (family-specific sub-discriminator)",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "Plane": {
+      "title": "Three-plane separation tag",
+      "description": "factual = in snapshotDigest; evidence = non-authoritative; trust = provenance/attestation.",
+      "type": "string",
+      "enum": ["factual", "evidence", "trust"]
+    },
+    "HashAlgorithmPrefix": {
+      "title": "Declarative hash algorithm prefix",
+      "description": "AGP v1 supports BLAKE3 for internal payloadHash (`b3:`) and SHA-256 for public subject digests (`sha256:`). Unknown prefixes are rejected.",
+      "type": "string",
+      "enum": ["b3", "sha256"]
+    },
+    "Blake3Digest": {
+      "title": "BLAKE3 digest",
+      "description": "Lowercase hex BLAKE3 digest prefixed with `b3:`. 64 hex chars = 256 bits.",
+      "type": "string",
+      "pattern": "^b3:[0-9a-f]{64}$"
+    },
+    "Sha256Digest": {
+      "title": "SHA-256 digest",
+      "description": "Lowercase hex SHA-256 digest prefixed with `sha256:`. 64 hex chars.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "PayloadHash": {
+      "title": "Per-record payload hash",
+      "description": "AGP v1 record payloadHash MUST be a BLAKE3 digest.",
+      "$ref": "#/$defs/Blake3Digest"
+    },
+    "SnapshotDigest": {
+      "title": "Public snapshot digest",
+      "description": "AGP v1 snapshotDigest MUST be a SHA-256 digest for OCI/SLSA/in-toto/Sigstore compatibility.",
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "InputDigest": {
+      "title": "Provenance input digest",
+      "description": "SHA-256 digest over the source Arch-Engine JSON v2 bytes.",
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "GraphSurfaceHash": {
+      "title": "Arch-Engine canonical-topology graphSurfaceHash",
+      "description": "Verbatim from JSON v2 data.topology.canonical.graphSurfaceHash. Non-authoritative in AGP — informational only.",
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "RecordId": {
+      "title": "AGP record identity",
+      "description": "Canonical formula: `agp:<family>:<kind>:b3:<64-hex>`. Verifier MUST recompute and compare.",
+      "type": "string",
+      "pattern": "^agp:(node|edge|adapter_evidence|diagnostic|drift|policy_finding|provenance|observation|attestation):[a-z][a-z0-9_]*:b3:[0-9a-f]{64}$"
+    },
+    "PosixRelativePath": {
+      "title": "Repo-relative POSIX path",
+      "description": "Forward slashes only. Never absolute. Never starts with `/`, `\\`, or a Windows drive letter. `..` traversal forbidden.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!\\\\)((?!^|/)(?:\\.\\./|\\.\\.$))*[^\\\\]*$",
+      "not": {
+        "anyOf": [
+          { "pattern": "^/" },
+          { "pattern": "^[A-Za-z]:" },
+          { "pattern": "\\\\" },
+          { "pattern": "(^|/)\\.\\./" },
+          { "pattern": "(^|/)\\.\\.$" }
+        ]
+      }
+    },
+    "Severity": {
+      "title": "Diagnostic / finding severity",
+      "description": "Matches Arch-Engine ARCH_ENGINE_* severities.",
+      "type": "string",
+      "enum": ["INFO", "WARNING", "BLOCKING", "ERROR", "INTERNAL"]
+    },
+    "Confidence": {
+      "title": "Adapter / observer confidence",
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW", "NONE"]
+    },
+    "ObservationConfidence": {
+      "title": "Observation confidence (numeric)",
+      "description": "Float in [0, 1]. Used by observation records only.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "AdapterName": {
+      "title": "Adapter package name",
+      "description": "npm-style scoped package name for the adapter that produced the evidence.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^@arch-engine/[a-z0-9-]+$"
+    },
+    "PackageManager": {
+      "title": "Detected package manager",
+      "type": "string",
+      "enum": ["pnpm", "yarn", "npm", "yarn-pnp", "unknown"]
+    },
+    "WorkspaceKind": {
+      "title": "Detected workspace kind",
+      "type": "string",
+      "enum": [
+        "pnpm-workspace",
+        "yarn-pnp",
+        "package-json-workspaces",
+        "single-package",
+        "unknown"
+      ]
+    },
+    "DiagnosticCode": {
+      "title": "ARCH_ENGINE_* or AGP_EMITTER_* diagnostic code",
+      "type": "string",
+      "pattern": "^(ARCH_ENGINE|AGP_EMITTER)_[A-Z][A-Z0-9_]*$"
+    },
+    "CiBlocking": {
+      "title": "Whether the diagnostic/finding blocks CI",
+      "type": "boolean"
+    },
+    "SourceCommand": {
+      "title": "Arch-Engine command that produced the JSON v2 envelope",
+      "type": "string",
+      "enum": ["inspect", "analyze", "check"]
+    },
+    "ExitCode": {
+      "title": "Arch-Engine exit code",
+      "type": "integer",
+      "enum": [0, 1, 2, 3, 5]
+    },
+    "Status": {
+      "title": "JSON v2 envelope status",
+      "type": "string",
+      "enum": [
+        "passed",
+        "blocked",
+        "warning",
+        "error",
+        "internal_error",
+        "not_enforced"
+      ]
+    },
+    "Timestamp": {
+      "title": "ISO 8601 UTC timestamp",
+      "description": "Second precision. Allowed only in snapshot.payload.emittedAt, observation.payload.createdAt, and provenance.payload.producedAt. EXCLUDED from factual snapshotDigest.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "GitRef": {
+      "title": "Git ref or branch name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "GitCommit": {
+      "title": "Git commit hash (40 hex)",
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "CiProvider": {
+      "title": "Known CI provider tag",
+      "type": "string",
+      "enum": [
+        "github-actions",
+        "gitlab-ci",
+        "circleci",
+        "jenkins",
+        "buildkite",
+        "azure-pipelines",
+        "bitbucket-pipelines",
+        "other",
+        "none"
+      ]
+    },
+    "RedactionPolicy": {
+      "title": "Provenance redaction policy declaration",
+      "description": "Every bundle declares how it handled host-specific data.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repoRoot", "homeDir", "absolutePaths"],
+      "properties": {
+        "repoRoot":      { "type": "string", "enum": ["redacted", "verbatim_local"] },
+        "homeDir":       { "type": "string", "enum": ["redacted", "verbatim_local"] },
+        "absolutePaths": { "type": "string", "enum": ["rejected", "stripped", "allowed"] }
+      }
+    },
+    "ShapeHash": {
+      "title": "Optional graph-shape hash",
+      "description": "Versioned algorithm + value. Non-authoritative — informational only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "pattern": "^agp-[a-z0-9]+-[a-z0-9-]+$"
+        },
+        "value": { "$ref": "#/$defs/Blake3Digest" }
+      }
+    },
+    "EdgeKind": {
+      "title": "Edge kind (MVP locks depends_on)",
+      "type": "string",
+      "enum": [
+        "depends_on",
+        "contains",
+        "imports",
+        "owns",
+        "calls",
+        "generated_from"
+      ]
+    },
+    "NodeKind": {
+      "title": "Node kind (MVP locks package)",
+      "type": "string",
+      "enum": [
+        "package",
+        "workspace",
+        "module",
+        "service",
+        "file",
+        "domain"
+      ]
+    },
+    "DependencyKind": {
+      "title": "package.json dependency-kind",
+      "type": "string",
+      "enum": [
+        "dependency",
+        "devDependency",
+        "peerDependency",
+        "optionalDependency"
+      ]
+    },
+    "EdgeProtocol": {
+      "title": "Workspace dependency protocol",
+      "type": "string",
+      "enum": ["workspace", "portal", "link", "catalog", "semver"]
+    },
+    "NodeLinker": {
+      "title": "Yarn Berry nodeLinker value",
+      "type": ["string", "null"],
+      "enum": ["pnp", "node-modules", "pnpm", "unknown", null]
+    },
+    "NodeLinkerSource": {
+      "title": "Provenance tag for nodeLinker (v1.3.1+ trust polish)",
+      "type": "string",
+      "enum": ["yarnrc", "inferred_from_pnp_file", "absent"]
+    },
+    "ObserverType": {
+      "title": "Observation observer type",
+      "type": "string",
+      "enum": ["llm", "heuristic", "external_scanner", "manual"]
+    },
+    "AttestationKind": {
+      "title": "Attestation envelope kind",
+      "type": "string",
+      "enum": [
+        "dsse_envelope",
+        "sigstore_bundle",
+        "gh_artifact_attestation",
+        "in_toto_predicate"
+      ]
+    },
+    "PolicyFindingKind": {
+      "title": "Policy finding kind",
+      "type": "string",
+      "enum": ["blocking_violation", "advisory", "waived"]
+    },
+    "DriftKind": {
+      "title": "Drift record kind",
+      "type": "string",
+      "enum": [
+        "node_added",
+        "node_removed",
+        "node_changed",
+        "edge_added",
+        "edge_removed",
+        "edge_changed",
+        "violation_new",
+        "violation_resolved",
+        "violation_persisted",
+        "severity_changed",
+        "signal_delta"
+      ]
+    },
+    "JsonPointer": {
+      "title": "RFC 6901 JSON Pointer (informational)",
+      "type": "string",
+      "pattern": "^(/[^/~]*(?:~[01][^/~]*)*)*$"
+    }
+  },
+
+  "type": "object",
+  "description": "This document declares reusable $defs only and does not validate concrete bundles directly. It is referenced via $ref by every other v1 schema."
+}
