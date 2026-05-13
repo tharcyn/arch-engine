@@ -25,6 +25,8 @@
     "src/render-markdown.ts",
     "src/canonical-topology.ts",
     "src/baseline-reader.ts",
-    "src/drift.ts"
+    "src/drift.ts",
+    "src/adapters/adapter-contract.ts",
+    "src/adapters/adapter-registry.ts"
   ]
 }
