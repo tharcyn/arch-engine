@@ -1,0 +1,60 @@
+{
+  "name": "@arch-engine/agp-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Private/experimental AGP canonical bundle verifier. Independently verifies snapshot.json + records.ndjson bundles emitted by @arch-engine/agp-emitter. NOT published to npm; NOT integrated into the main arch-engine CLI.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharcyn/arch-engine.git",
+    "directory": "packages/agp-verifier"
+  },
+  "homepage": "https://github.com/tharcyn/arch-engine",
+  "bugs": {
+    "url": "https://github.com/tharcyn/arch-engine/issues"
+  },
+  "keywords": [
+    "agp",
+    "verifier",
+    "evidence",
+    "bundle",
+    "canonical",
+    "deterministic",
+    "blake3",
+    "rfc8785",
+    "arch-engine",
+    "private"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "agp-verify": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist -p tsconfig.json"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.4.0",
+    "ajv": "^8.18.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
