@@ -4,289 +4,259 @@
 [![Build Status](https://github.com/tharcyn/arch-engine/actions/workflows/test.yml/badge.svg)](https://github.com/tharcyn/arch-engine/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/tharcyn/arch-engine/blob/main/LICENSE)
 
-Architecture governance runtime for real codebases.
+**Catch architecture drift before merge.**
 
-Arch-Engine extracts structural relationships directly from source code and enables enforcement of architectural rules via policy packs — automatically, deterministically.
+Arch-Engine is a deterministic architecture evidence engine for JavaScript/TypeScript repositories. It extracts workspace topology from a real repo, surfaces structural drift in CI, and is evolving toward verifiable **AGP evidence bundles** for audit-grade architecture governance.
 
+```text
+repo  →  deterministic topology  →  drift report  →  CI evidence  →  AGP bundle
 ```
-Code → Graph Extraction → Capability Adapters → Policy Packs → Diagnostics
-```
 
-> **Safe diagnostic runtime.** No source files modified. No dependencies mutated. Fully offline. Creates a local `.arch-engine/` context directory on first run.
+> **Safe by design.** Read-only. Offline. Adapters never execute `npm`, `pnpm`, `yarn`, or `.pnp.cjs`. No source mutation. A local `.arch-engine/` cache directory is created on first run.
+
+---
+
+## Why this exists
+
+Architecture drift is **invisible in pull requests**. Workspace boundaries get redrawn, packages quietly start depending on packages they shouldn't, lockfile edits ripple through the graph — and the only signal a reviewer gets is a `package.json` diff that takes ten files of context to interpret.
+
+Arch-Engine turns the structural state of your repository into a **deterministic, diffable artifact**: a topology report you can post on every PR, gate CI on, store as evidence, and (with the upcoming AGP track) independently verify.
+
+---
+
+## What it does today
+
+- **Extracts deterministic workspace topology** from real repos — packages, dependency edges, workspace boundaries.
+- **Three workspace adapters**, all read-only:
+  - `@arch-engine/adapter-monorepo` — npm / yarn-classic workspaces + single-package fallback.
+  - `@arch-engine/adapter-pnpm` — `pnpm-workspace.yaml`, `workspace:*` protocols.
+  - `@arch-engine/adapter-yarn-pnp` — Yarn Berry / Plug'n'Play (preview MVP).
+- **Multiple output formats:** human, JSON v1/v2, markdown.
+- **Baseline comparison:** diff this PR's topology against `main` and surface what changed.
+- **GitHub Actions templates** for PR markdown reports and sticky drift comments.
+- **Exit codes that drive CI:** `0` clean, `1` blocking violation, `2` invalid input, `3` adapter failure, `5` internal invariant.
+- **Offline. Hermetic.** No network calls. No package-manager execution. No source mutation.
 
 ---
 
 ## Quickstart
 
-The CLI requires the workspace topology adapter to extract a graph from a real
-repository. Install both packages:
+Install the CLI alongside the adapter(s) for your workspace shape:
 
 ```bash
-npm install @arch-engine/cli @arch-engine/adapter-monorepo
-npx arch-engine doctor
+# Pick the adapter(s) that match your repo. Installing all three is safe;
+# the CLI picks the one with highest detection confidence.
+npm install --save-dev \
+  @arch-engine/cli@1.4.0 \
+  @arch-engine/adapter-monorepo@1.3.1 \
+  @arch-engine/adapter-pnpm@0.1.1 \
+  @arch-engine/adapter-yarn-pnp@0.1.0
 ```
 
-```
-✔ Topology extracted successfully
-✔ Workspace type resolved as: single (highest confidence)
-✔ Packages detected: 1 / 1 expected
-✔ Connected nodes: 1
-✔ Coverage: 100%
-✔ Connectivity: 100%
-✔ Confidence: HIGH (Structured single workspace extraction)
-✔ Authority crossings observed: 0
-```
+Then walk the five commands:
 
-With a governance pack installed, the engine can detect boundary violations:
-
-```
-Detected authority boundary crossing:
-  frontend → database mutation layer
-
-Suggested policy:
-  enforce service isolation boundary
+```bash
+npx arch-engine doctor    # workspace readiness + adapter signal
+npx arch-engine inspect   # extracted topology summary
+npx arch-engine analyze   # signal / risk scoring (informational)
+npx arch-engine check     # policy enforcement (CI-gating)
+npx arch-engine explain   # human-readable reasoning for any target
 ```
 
-**Reading the output:**
+**JSON output for CI / tooling:**
 
-- **Coverage** — Percentage of repository nodes extracted into the topology graph.
-- **Connectivity** — Whether dependency relationships resolved into a coherent graph.
-- **Confidence** — Extraction confidence based on workspace detection and adapter signal strength.
-- **Authority crossings** — Architectural boundary violations between layers or domains.
+```bash
+npx arch-engine inspect --json --json-schema=v2 --output arch-engine-report.json
+```
 
-See the [CLI Surface Contract](docs/cli-surface-contract.md) for full signal interpretation.
+**Markdown for PR reports:**
+
+```bash
+npx arch-engine check --ci --format markdown --output arch-engine-report.md
+```
+
+**Baseline drift report:**
+
+```bash
+# 1) Generate baseline from your default branch.
+npx arch-engine check --ci --json --json-schema=v2 --output arch-engine-baseline.json
+
+# 2) On a PR, diff this branch against the baseline.
+npx arch-engine check --ci --baseline arch-engine-baseline.json \
+  --format markdown --output arch-engine-report.md
+```
+
+**First-run expectations**
+- A `.arch-engine/` cache directory is created in the repo root (small JSON files; safe to `.gitignore`).
+- No source files are modified.
+- No package manager is invoked by any adapter.
 
 ---
 
-## How Arch-Engine differs from ESLint, OPA, and Bazel
+## CI workflow
 
-Arch-Engine is not a linter, config validator, or build system. It operates on **topology** — the structural dependency graph of your repository — rather than individual files, syntax trees, or build targets.
+Arch-Engine ships ready-to-copy GitHub Actions workflow templates that post a deterministic architecture report on every pull request — either as a downloadable artifact (safe on every PR, even from forks) or as a sticky PR comment that updates in place.
 
-| Tool | Operates on | Purpose |
+| Template | What it does | Works on fork PRs? |
 | --- | --- | --- |
-| **ESLint** | Individual files / ASTs | Syntax rules, code style |
-| **OPA** | Arbitrary data + Rego policy | General-purpose policy evaluation |
-| **Bazel** | Build graph / action cache | Build orchestration, hermetic builds |
-| **Arch-Engine** | Package dependency topology | Architecture enforcement, boundary governance |
+| `arch-engine-pr-report.yml` | Markdown report uploaded as build artifact. | Yes |
+| `arch-engine-pr-comment.yml` | Sticky PR comment + artifact. | Artifact on every PR; comment on internal PRs only. |
+| `arch-engine-pr-baseline-report.yml` | Diff vs base branch; drift-aware report as artifact. | Yes |
+| `arch-engine-pr-baseline-comment.yml` | Drift sticky comment + artifact. | Same as above. |
 
-Arch-Engine extracts the real structural relationships in your codebase and evaluates architecture policies against them. Linters check syntax. Build systems manage output. Arch-Engine governs structure.
+```bash
+# Drop a template into your repo:
+curl -fsSL https://raw.githubusercontent.com/tharcyn/arch-engine/main/examples/github-actions/arch-engine-pr-baseline-report.yml \
+  -o .github/workflows/arch-engine-pr-baseline-report.yml
+```
+
+All four templates fail the job (`exit 1`) on a blocking violation, so they slot into branch-protection required checks directly. See [`examples/github-actions/`](examples/github-actions/) for permissions, fork limitations, and troubleshooting.
 
 ---
 
-## CLI commands
+## AGP evidence track
 
-| Command | Purpose |
+**AGP** (*Architecture Governance Protocol*) is the next-generation evidence format Arch-Engine is evolving toward: a canonical, content-addressed, independently verifiable bundle of architecture facts.
+
+> **Status: private / experimental.** Two workspace packages — `@arch-engine/agp-emitter` and `@arch-engine/agp-verifier` — exist in this repo as `private: true`, are **not** published to npm, and are **not** wired into the main `arch-engine` CLI yet. They are evolving behind real-repo trials before a public surface lands.
+
+A bundle is just two files on disk:
+
+```text
+agp/
+  snapshot.json          ← manifest + counts + snapshotDigest
+  records.ndjson         ← sorted record stream, one record per line
+```
+
+Designed to be:
+
+- **Deterministic** — same input → byte-identical output, byte-identical digest.
+- **Schema-valid** — every record validates against the [v1 JSON Schemas](docs/agp/schemas/v1/).
+- **Hash-linked** — every record carries a `b3:<64-hex>` BLAKE3 payload hash; the snapshot carries a `sha256:<64-hex>` digest projection.
+- **Independently verifiable** — the verifier never trusts the emitter; it recomputes every hash from the canonical projection.
+- **CI / release-evidence-ready** — small, diffable, archivable.
+
+**Real-repo trial evidence (private verifier trial):**
+
+| Signal | Result |
 | --- | --- |
-| `arch-engine doctor` | Full topology health diagnostic with confidence scoring |
-| `arch-engine inspect` | Topology graph extraction and structural analysis |
-| `arch-engine check` | Policy evaluation against extracted topology |
-| `arch-engine analyze` | Blast radius and stability scoring |
-| `arch-engine explain` | Human-readable architecture reasoning output |
+| Bundles verified across 8 real OSS repos × 3 commands | **24 / 24 `valid`** |
+| Controlled tamper cases detected (10 tamper classes) | **60 / 60 detected, correct verdict + correct issue code** |
+| Determinism replays | **9 / 9 byte-identical** |
+| Path-leak issues across 4 705 records | **0** |
+| Tracked-file mutations in 8 cloned repos | **0** |
+| P0/P1/P2/P3 issues | **0** |
 
-All commands support `--json` for machine-readable CI integration. Exit codes reflect diagnostic status.
+Full audit: [`audits/ARCH_ENGINE_AGP_VERIFIER_REAL_REPO_TRIAL_AUDIT.md`](audits/ARCH_ENGINE_AGP_VERIFIER_REAL_REPO_TRIAL_AUDIT.md).
+
+The next mission is the **public CLI integration spec** (`arch-engine emit-agp` / `arch-engine verify-agp`) targeting a future `@arch-engine/cli@1.5.0` minor release. The protocol itself ([spec](docs/agp/agp-canonical-bundle-and-emitter-mvp-spec.md), [schemas](docs/agp/schemas/v1/), [conformance corpus](docs/agp/conformance/v1/)) is in-tree and stable.
+
+---
+
+## Use cases
+
+- **PR architecture drift reports** — every PR carries a markdown diff of what changed structurally.
+- **Monorepo boundary checks** — workspace edges classified by kind (`dependency`, `devDependency`, `peerDependency`).
+- **Package graph visibility** — packages, edges, protocols (`workspace:`, `portal:`, `link:`) in one deterministic report.
+- **CI-gated architecture policies** — composable governance packs that escalate severity and chain provenance.
+- **Baseline comparison across branches** — surface added / removed / changed edges and new violations.
+- **Architecture evidence for release / audit workflows** — JSON v2 artifacts you can attach to releases today; verifiable AGP bundles when the public CLI integration lands.
+
+---
+
+## How Arch-Engine differs
+
+Arch-Engine is **complementary** to existing tools, not a replacement.
+
+| Tool | Main job | What Arch-Engine adds |
+| --- | --- | --- |
+| **ESLint** | File / AST rules | Repository-level architecture topology |
+| **Nx / Turborepo** | Task graph + build orchestration | Architecture-drift reporting independent of build cache |
+| **dependency-cruiser** | Module-level dependency constraints | CI evidence, baseline drift across branches, AGP roadmap |
+| **OPA** | General-purpose policy engine | Architecture-specific facts + evidence bundles |
+| **Bazel** | Hermetic builds | Architecture evidence layer independent of the build system |
+
+Linters check syntax. Build systems manage output. Arch-Engine governs **structure** — and surfaces structural change in the place it matters: the pull request.
+
+---
+
+## Current maturity
+
+**Stable public surface** (`@arch-engine/cli@1.4.0`):
+- `doctor` / `inspect` / `analyze` / `check` / `explain` commands.
+- JSON v1 and v2 envelopes; markdown reports; baseline comparison.
+- `@arch-engine/adapter-monorepo@1.3.1` (npm / yarn-classic / single-package).
+- GitHub Actions PR-report + baseline-drift templates.
+
+**Preview adapters** (`additive, opt-in install`):
+- `@arch-engine/adapter-pnpm@0.1.1` — pnpm workspaces.
+- `@arch-engine/adapter-yarn-pnp@0.1.0` — Yarn Berry / Plug'n'Play (MVP; never executes `.pnp.cjs`).
+
+**Preview governance packs:**
+- `@arch-engine/governance-pack-authority`
+- `@arch-engine/governance-pack-rest-contract`
+- `@arch-engine/governance-pack-journey`
+
+**Experimental / private** (in-repo, never published):
+- `@arch-engine/agp-emitter@0.1.0`
+- `@arch-engine/agp-verifier@0.1.0`
+- Public CLI integration (`arch-engine emit-agp` / `verify-agp`) is **spec-pending** and not yet released.
 
 ---
 
 ## Packages
 
-Arch-Engine ships as a constellation of focused packages. The **core runtime** is the only required install — adapters and governance packs are optional extensions.
+### Public
 
 | Package | Role |
 | --- | --- |
-| [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types |
-| [@arch-engine/core](./packages/core) | Topology reasoning runtime |
-| [@arch-engine/cli](./packages/cli) | Command-line interface |
-| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | Workspace topology extraction (npm, yarn-classic, single) |
-| [@arch-engine/adapter-pnpm](./packages/adapter-pnpm) | pnpm workspace extraction (`pnpm-workspace.yaml`, `workspace:*`, exclusion globs) — preview, additive in v1.3.0 |
-| [@arch-engine/adapter-yarn-pnp](./packages/adapter-yarn-pnp) | Yarn Berry / Plug'n'Play workspace extraction (`.pnp.cjs`, `workspace:*`, `portal:`, `link:`) — preview MVP, additive |
-| [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | Authority boundary governance |
-| [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | REST contract parity governance |
-| [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | Journey lifecycle governance |
+| [`@arch-engine/cli@1.4.0`](./packages/cli) | Command-line interface — `doctor`, `inspect`, `analyze`, `check`, `explain`. |
+| [`@arch-engine/adapter-monorepo@1.3.1`](./packages/adapter-monorepo) | npm / yarn-classic workspaces + single-package fallback. |
+| [`@arch-engine/adapter-pnpm@0.1.1`](./packages/adapter-pnpm) | pnpm workspaces (preview). |
+| [`@arch-engine/adapter-yarn-pnp@0.1.0`](./packages/adapter-yarn-pnp) | Yarn Berry / Plug'n'Play (preview MVP). |
+| [`@arch-engine/governance-pack-authority`](./packages/governance-pack-authority) | Authority-boundary governance pack. |
+| [`@arch-engine/governance-pack-rest-contract`](./packages/governance-pack-rest-contract) | REST contract parity governance pack. |
+| [`@arch-engine/governance-pack-journey`](./packages/governance-pack-journey) | Journey-lifecycle governance pack. |
+| `@arch-engine/core` / `@arch-engine/schema` | Internal runtime + contracts (pulled in transitively; you rarely depend on them directly). |
 
-```bash
-# Core runtime (required)
-npm install @arch-engine/core
+### Private / experimental — in-repo only, **never published to npm**
 
-# CLI
-npm install @arch-engine/cli
-
-# Optional: workspace topology extraction
-npm install @arch-engine/adapter-monorepo
-
-# Optional: pnpm workspaces (preview, additive in v1.3.0)
-npm install @arch-engine/adapter-pnpm
-
-# Optional: Yarn Berry / Plug'n'Play workspaces (preview MVP)
-npm install @arch-engine/adapter-yarn-pnp
-
-# Optional: governance packs
-npm install @arch-engine/governance-pack-authority
-npm install @arch-engine/governance-pack-rest-contract
-npm install @arch-engine/governance-pack-journey
-```
-
-### pnpm workspace support (preview)
-
-When `@arch-engine/adapter-pnpm` is installed alongside the CLI,
-`pnpm-workspace.yaml` workspaces are detected at HIGH confidence and
-extracted with full glob expansion, exclusion-glob support, and
-`workspace:*` / `workspace:^` / `workspace:~` protocol awareness on
-`dependencies`, `devDependencies`, `peerDependencies`, and
-`optionalDependencies`. The adapter is pure-fs read: it never
-executes `pnpm`, reads `node_modules/`, opens network sockets, or
-mutates the user's repository.
-
-Existing GitHub Actions workflow templates work unchanged with
-pnpm repositories — Arch-Engine's CLI invocations are
-package-manager agnostic. If your CI installs dependencies with
-`pnpm install`, run that step before the Arch-Engine job as you
-normally would.
-
-### Yarn Berry / Plug'n'Play support (preview MVP)
-
-When `@arch-engine/adapter-yarn-pnp` is installed alongside the
-CLI, repositories shipping `.pnp.cjs` or `.pnp.loader.mjs` are
-detected at HIGH confidence. Topology is extracted from the root
-`package.json#workspaces` declaration (array or object form) and
-the workspace package manifests. `workspace:*`, `workspace:^`,
-`workspace:~`, `workspace:<version>`, `portal:<path>`, and
-`link:<path>` protocols are recognised on all four dependency
-kinds. The adapter is a strict safety MVP: it **never** executes
-`.pnp.cjs`, never imports the PnP loader, never invokes `yarn`,
-never reads `node_modules/`, never reads `.yarn/cache`, and never
-opens network sockets.
-
-A non-blocking INFO diagnostic
-(`ARCH_ENGINE_PNP_RESOLUTION_DEFERRED`) is always emitted when a
-PnP file is detected, explaining that full PnP resolver parity is
-intentionally deferred. Workspace topology extraction continues
-to work; only out-of-workspace external resolutions are not
-modelled.
-
-### Architecture layering
-
-```
-      @arch-engine/schema           ← canonical contracts
-               ↓
-       @arch-engine/core            ← topology reasoning runtime
-               ↓
-        @arch-engine/cli            ← developer-facing surface
-               ↓
-  adapter capability layer          ← workspace detection (optional)
-               ↓
-governance policy pack layer        ← architecture enforcement (optional)
-```
-
----
-
-## Provider Adapter Architecture (preview, not yet released)
-
-A provider adapter layer for proposing architectural policy updates to GitHub /
-GitLab via PR/MR exists in the repository but is **not** part of the current
-`@arch-engine/*@1.0.x` published surface. The packages
-`@arch-engine/adapter-github` and `@arch-engine/adapter-gitlab` are not on npm
-and the corresponding `arch-engine github …` / `arch-engine gitlab …` CLI
-verbs are not in the published CLI yet.
-
-For a deeper dive into the adapter substrate, see [Provider Adapter Architecture](docs/architecture/adapters.md).
-
----
-
-## Built-in policy packs
-
-Policy packs are optional governance overlays that enforce architecture contracts against the extracted topology graph. They do not modify runtime behavior or source code.
-
-| Pack | Enforces |
+| Package | Role |
 | --- | --- |
-| **authority** | Authority boundary violations between architectural layers |
-| **rest-contract** | REST contract parity across service interfaces |
-| **journey** | Journey lifecycle regression detection across system flows |
-
-Policy packs are composable. Multiple packs evaluate deterministically with severity escalation and provenance chains.
-
-See the [Policy Pack Contract](docs/policy-pack-contract.md) for authoring guidance.
+| `@arch-engine/agp-emitter@0.1.0` *(private)* | Converts a JSON v2 report into a canonical AGP bundle. **Not on npm.** **Not wired into the main CLI.** |
+| `@arch-engine/agp-verifier@0.1.0` *(private)* | Independently verifies an AGP bundle. **Not on npm.** **Not wired into the main CLI.** |
 
 ---
 
-## Snapshot replay and determinism
+## Out of scope today
 
-Arch-Engine guarantees deterministic execution. The `closureGraphHash` provides a cryptographic fingerprint of the full topology evaluation:
+- Production routing enforcement.
+- Runtime code execution or source mutation.
+- Package-manager invocation (`npm install`, `pnpm install`, `yarn install`) from any adapter.
+- Graph-database persistence.
+- Public `arch-engine emit-agp` / `arch-engine verify-agp` CLI subcommands.
+- Signing / attestation / Sigstore / SLSA / in-toto / DSSE / SPDX / CycloneDX.
+- SaaS dashboard.
+- Multi-repo federation handshake.
 
-- **Snapshot replay** — Evaluation output is byte-stable across runs and environments.
-- **Lineage integrity** — Hash identity is preserved through policy composition and federation overlays.
-- **Transport independence** — Results remain stable regardless of registry routing path.
+## Upcoming
 
-See the [Determinism Contract](docs/determinism-contract.md) and [Identity Surface Contract](docs/identity-surface-contract.md).
-
----
-
-## Export surface
-
-| Path | Description |
-| --- | --- |
-| `@arch-engine/core` | Core engine runner, manifest loader, policy system |
-| `@arch-engine/core/analysis` | Stability scoring, blast radius, graph analysis |
-| `@arch-engine/core/parsers` | Topology file parsers (experimental) |
+- AGP CLI integration spec (`emit-agp` / `verify-agp` subcommand surface).
+- `@arch-engine/cli@1.5.0` minor release wiring AGP integration via lazy peer-dependency loading (same pattern as `@arch-engine/adapter-yarn-pnp`).
+- AGP repo extraction once the protocol surface is battle-tested via CLI integration.
 
 ---
 
 ## Examples
 
-Try the demo fixture for a 60-second tour of the v1.0.x command surface:
-
-```bash
-cd examples/demo-drift
-npx arch-engine doctor
-npx arch-engine inspect
-npx arch-engine analyze
-npx arch-engine check
-```
-
-The fixture is three small workspaces (`frontend`, `services`, `payments`)
-illustrating an architecture-drift scenario. See
-[examples/demo-drift/README.md](examples/demo-drift/README.md) for the story.
-
 | Example | Demonstrates |
 | --- | --- |
-| [demo-drift](examples/demo-drift/) | Tiny topology fixture for first-run CLI walkthrough |
-| [GitHub Actions templates](examples/github-actions/) | PR markdown report + optional sticky-comment templates (v1.1.0) and baseline / drift-report templates (v1.2.0) |
-| [Reference Policy Pack](examples/reference-policy-pack/) | Canonical topology specimen, authority-tier enforcement |
-| [Multi-Policy Composition](examples/multi-policy-composition/) | Severity escalation, provenance chains, composition hash stability |
-| [Federation Overlay](examples/federation-overlay/) | Cross-registry composition, mirror fallback, closure hash parity |
-| [Signed Policy Pack](examples/signed-policy-pack/) | Cryptographic authority enforcement, unsigned rejection |
-| [Snapshot Replay Certification](examples/snapshot-replay-certification/) | Structural hash reproducibility, execution identity portability |
-
----
-
-## GitHub Actions / PR reports
-
-Generate a deterministic markdown architecture report on every pull
-request — either as a downloadable artifact (safe on every PR, fork
-or internal) or as a sticky PR comment that updates in place.
-
-```bash
-# v1.1.0 — current-state report on every PR
-npx arch-engine check --ci --format markdown --output arch-engine-report.md
-
-# v1.2.0 — baseline comparison: surface what *changed* in this PR
-npx arch-engine check --ci --baseline arch-engine-baseline.json \
-  --format markdown --output arch-engine-report.md
-```
-
-Copy a starter template from
-[`examples/github-actions/`](examples/github-actions/) into
-`.github/workflows/` and you have a CI-gated architecture check that
-posts the report on every PR. Four templates ship:
-
-- **v1.1.0:** `arch-engine-pr-report.yml` (artifact-only),
-  `arch-engine-pr-comment.yml` (sticky PR comment).
-- **v1.2.0:** `arch-engine-pr-baseline-report.yml` (drift artifact),
-  `arch-engine-pr-baseline-comment.yml` (drift sticky comment) —
-  surface what changed against the PR's base branch.
-
-See the
-[examples/github-actions/README](examples/github-actions/README.md)
-for permissions, fork limitations, and troubleshooting.
+| [demo-drift](examples/demo-drift/) | Tiny topology fixture for a 60-second CLI walkthrough. |
+| [GitHub Actions templates](examples/github-actions/) | Four PR-report templates (current state + baseline drift). |
+| [Reference Policy Pack](examples/reference-policy-pack/) | Canonical topology specimen + authority-tier enforcement. |
+| [Multi-Policy Composition](examples/multi-policy-composition/) | Severity escalation + provenance chains across packs. |
+| [Federation Overlay](examples/federation-overlay/) | Cross-registry composition + closure-hash parity. |
+| [Snapshot Replay Certification](examples/snapshot-replay-certification/) | Deterministic hash reproducibility + execution identity. |
 
 ---
 
@@ -294,60 +264,25 @@ for permissions, fork limitations, and troubleshooting.
 
 | Document | Scope |
 | --- | --- |
-| [CLI Surface Contract](docs/cli-surface-contract.md) | Command semantics, exit codes, output format |
-| [Execution Model](docs/execution-model.md) | Runtime lifecycle, adapter resolution, policy evaluation |
-| [Capability Model](docs/capability-model.md) | Adapter architecture, signal enrichment |
-| [Policy Pack Contract](docs/policy-pack-contract.md) | Pack structure, composition rules, severity model |
-| [Determinism Contract](docs/determinism-contract.md) | Hash stability, snapshot replay guarantees |
-| [Identity Surface Contract](docs/identity-surface-contract.md) | Graph identity, lineage verification |
-| [Public Surface Contract](docs/public-surface-contract.md) | Export stability, API freeze policy |
-| [Registry Federation Contract](docs/registry-federation-contract.md) | Cross-registry composition, mirror fallback |
-| [Versioning Strategy](docs/versioning-strategy.md) | Semantic versioning policy |
-| [Ecosystem Positioning](docs/ecosystem-positioning.md) | Relationship to existing tools |
-| [Release Notes — v1.0.0](docs/releases/v1.0.0.md) | Stable release details |
-
----
-
-## Repository structure
-
-```
-packages/
-  schema/                    Canonical schema contracts and shared types
-  core/                      Topology reasoning runtime
-  cli/                       Command-line interface
-  adapter-monorepo/          Workspace topology extraction adapter
-  governance-pack-authority/  Authority boundary governance pack
-  governance-pack-rest-contract/  REST contract parity governance pack
-  governance-pack-journey/   Journey lifecycle governance pack
-examples/                    Self-contained topology and policy composition examples
-docs/                        Architecture contracts, specifications, release notes
-schemas/                     JSON schema definitions for diagnostic output
-scripts/                     Internal maintenance tooling (not part of runtime surface)
-site/                        Landing page (arch-engine.dev)
-```
+| [CLI Surface Contract](docs/cli-surface-contract.md) | Command semantics, exit codes, output format. |
+| [CLI Experience Spec](docs/cli/cli-experience-spec.md) | First-run path, error language, ergonomics. |
+| [Baseline Comparison Spec](docs/cli/baseline-comparison-spec.md) | `--baseline` semantics + drift report format. |
+| [Execution Model](docs/execution-model.md) | Runtime lifecycle, adapter resolution, policy evaluation. |
+| [Capability Model](docs/capability-model.md) | Adapter architecture + signal enrichment. |
+| [Policy Pack Contract](docs/policy-pack-contract.md) | Pack structure, composition, severity. |
+| [Determinism Contract](docs/determinism-contract.md) | Hash stability + snapshot replay guarantees. |
+| [Ecosystem Positioning](docs/ecosystem-positioning.md) | Relationship to ESLint / Nx / OPA / Bazel. |
+| [AGP Bundle and Emitter MVP Spec](docs/agp/agp-canonical-bundle-and-emitter-mvp-spec.md) | Canonical bundle format, hashing, verification model. |
+| [AGP v1 JSON Schemas](docs/agp/schemas/v1/) | Schema-level contract for every record family. |
+| [AGP v1 Conformance Corpus](docs/agp/conformance/v1/) | Valid + invalid fixture corpus. |
+| [Release notes — v1.4.0](docs/releases/v1.4.0.md) | Latest stable release details. |
+| [AGP Verifier real-repo trial](audits/ARCH_ENGINE_AGP_VERIFIER_REAL_REPO_TRIAL_AUDIT.md) | Full evidence for the AGP track. |
 
 ---
 
 ## Status
 
-Arch Engine follows semantic versioning. 1.x releases maintain CLI compatibility guarantees across adapters and governance packs.
-
-## AGP integration (upcoming)
-
-The Architecture Governance Protocol (AGP) is a separate ecosystem published
-under the `@arch-governance/*` scope. Arch-Engine v1.0.x does **not** yet emit
-AGP records and does **not** depend on any `@arch-governance/*` package. AGP
-emitter integration is planned as a separate, opt-in package (e.g.
-`@arch-engine/agp-emitter`) and will not change the existing
-`doctor`/`inspect`/`analyze`/`check`/`explain` surface.
-
-## Out of scope
-
-- Production routing enforcement
-- Multi-repo federation handshake protocol
-- Ecosystem registry marketplace
-- Graph database persistence
-- AGP emitter (planned, see above)
+Arch-Engine follows semantic versioning. v1.x releases maintain CLI compatibility across adapters and governance packs. Preview adapters and the AGP evidence track are additive — installing them is opt-in and never alters the stable v1.x command surface.
 
 ## License
 
