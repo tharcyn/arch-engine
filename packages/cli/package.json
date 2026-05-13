@@ -25,7 +25,7 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "arch-engine": "./dist/bin.js"
+    "arch-engine": "dist/bin.js"
   },
   "exports": {
     ".": "./dist/bin.js"
