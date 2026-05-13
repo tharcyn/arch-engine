@@ -165,6 +165,33 @@ and metadata. JSON v1 default output is unaffected. If your CI
 installs dependencies with `pnpm install` already, leave that step
 where it is — Arch-Engine never invokes the package manager itself.
 
+### Works with Yarn Berry / Plug'n'Play (preview MVP)
+
+Repositories that ship `.pnp.cjs` or `.pnp.loader.mjs` can opt into
+the dedicated `@arch-engine/adapter-yarn-pnp` adapter:
+
+```yaml
+      - name: Install Arch-Engine
+        run: npm install --no-save @arch-engine/cli @arch-engine/adapter-monorepo @arch-engine/adapter-yarn-pnp
+
+      # …existing arch-engine step unchanged…
+```
+
+When the adapter is present, `arch-engine doctor` reports the
+selected adapter:
+
+```
+✔ Adapter selected: @arch-engine/adapter-yarn-pnp (HIGH adapter confidence)
+```
+
+The v0.1.0 MVP is package.json-shape based: it reads workspace
+package manifests, parses `workspace:*`, `portal:`, and `link:`
+protocols, and emits an informational
+`ARCH_ENGINE_PNP_RESOLUTION_DEFERRED` diagnostic. It does **not**
+execute `.pnp.cjs`, invoke `yarn`, or read `node_modules`. As with
+pnpm, install your dependencies in your usual CI step — Arch-Engine
+itself never runs the package manager.
+
 ## Sample output
 
 When the [`examples/demo-drift`](../demo-drift/) fixture is the

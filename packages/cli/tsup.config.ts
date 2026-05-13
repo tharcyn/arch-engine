@@ -7,5 +7,9 @@ export default defineConfig({
   clean: true,
   minify: false,
   dts: false,
-  external: ['@arch-engine/adapter-monorepo', '@arch-engine/adapter-pnpm'],
+  external: [
+    '@arch-engine/adapter-monorepo',
+    '@arch-engine/adapter-pnpm',
+    '@arch-engine/adapter-yarn-pnp',
+  ],
 });

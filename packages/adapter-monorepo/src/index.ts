@@ -403,7 +403,7 @@ export const monorepoAdapter = createMonorepoAdapter();
 // ─── Pass 1: ArchitectureAdapter-compatible class ───────
 
 const ADAPTER_NAME = '@arch-engine/adapter-monorepo' as const;
-const ADAPTER_VERSION = '1.2.0' as const;
+const ADAPTER_VERSION = '1.3.1' as const;
 
 /**
  * @internal Deterministic edge id matching the CLI canonical-topology
@@ -477,6 +477,18 @@ export class MonorepoArchitectureAdapter {
     // docs/adapters/multi-adapter-surface-spec.md §11.4.
     const pnpmAdapterAvailable = context.cache.get('archengine:pnpmAdapterAvailable') === true;
 
+    // Pass 3: parallel decline for Yarn PnP. When the yarn-pnp adapter
+    // is registered, decline `package.json#workspaces` repos that
+    // *also* carry a `.pnp.cjs` or `.pnp.loader.mjs` so the yarn-pnp
+    // adapter wins without triggering ARCH_ENGINE_ADAPTER_CONFLICT.
+    // The monorepo adapter retains the fallback for yarn classic /
+    // npm workspaces (no PnP file present).
+    const yarnPnpAdapterAvailable =
+      context.cache.get('archengine:yarnPnpAdapterAvailable') === true;
+    const hasYarnPnpFile =
+      fs.existsSync(path.join(context.cwd, '.pnp.cjs')) ||
+      fs.existsSync(path.join(context.cwd, '.pnp.loader.mjs'));
+
     if (probe.workspaceType === 'pnpm') {
       if (pnpmAdapterAvailable) {
         return {
@@ -501,6 +513,20 @@ export class MonorepoArchitectureAdapter {
         warnings.push('pnpm-workspace.yaml had no parseable `packages:` entries');
       }
     } else if (probe.workspaceType === 'yarn-npm') {
+      if (hasYarnPnpFile && yarnPnpAdapterAvailable) {
+        return {
+          adapterName: this.adapterName,
+          detected: false,
+          confidence: 'NONE',
+          workspaceKind: 'yarn-pnp',
+          packageManager: 'yarn-pnp',
+          reasons: [
+            '.pnp.cjs/.pnp.loader.mjs present; declining in favour of @arch-engine/adapter-yarn-pnp',
+          ],
+          warnings: [],
+          diagnostics: [],
+        };
+      }
       detected = true;
       confidence = 'HIGH';
       workspaceKind = 'package-json-workspaces';

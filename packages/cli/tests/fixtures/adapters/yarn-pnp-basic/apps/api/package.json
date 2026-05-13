@@ -1,0 +1,8 @@
+{
+  "name": "@yarn-pnp-basic/api",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@yarn-pnp-basic/shared": "^0.0.0"
+  }
+}

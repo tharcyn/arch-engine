@@ -104,7 +104,9 @@ describe('Pass 1 structural conformance', () => {
   test('MonorepoArchitectureAdapter class exposes adapterName/adapterVersion', () => {
     const adapter = new MonorepoArchitectureAdapter();
     expect(adapter.adapterName).toBe('@arch-engine/adapter-monorepo');
-    expect(adapter.adapterVersion).toBe('1.2.0');
+    // Bumped from 1.2.0 → 1.3.1 in Adapter Pass 3 (yarn-pnp cache-hint
+    // protocol). The version constant tracks the package.json version.
+    expect(adapter.adapterVersion).toBe('1.3.1');
   });
 
   test('createMonorepoArchitectureAdapter returns an instance of the class', () => {

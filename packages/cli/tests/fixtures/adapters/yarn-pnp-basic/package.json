@@ -1,0 +1,10 @@
+{
+  "name": "yarn-pnp-basic-fixture-root",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "yarn@4.0.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

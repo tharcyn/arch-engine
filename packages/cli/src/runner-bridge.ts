@@ -11,23 +11,27 @@
  *    structural adapter metadata (Pass 2 — surfaced under JSON v2
  *    `data.adapter`).
  *
- *  Adapter selection (Pass 2, per
+ *  Adapter selection (Pass 2 + Pass 3, per
  *  docs/adapters/multi-adapter-surface-spec.md §7):
  *
  *    candidates (in precedence order):
  *      2 — @arch-engine/adapter-pnpm        (if installed)
+ *      3 — @arch-engine/adapter-yarn-pnp    (if installed)
  *      4 — @arch-engine/adapter-monorepo    (always loadable)
  *
  *  The bridge:
- *    1. Lazily imports both adapter packages. Either may be absent.
- *    2. Builds an adapter context with a cache hint
- *       (`archengine:pnpmAdapterAvailable`) so the monorepo adapter
- *       can decline pnpm-workspace.yaml when pnpm is registered.
+ *    1. Lazily imports all three adapter packages. Any may be absent.
+ *    2. Builds an adapter context with cache hints so lower-
+ *       precedence adapters can decline overlapping signals:
+ *         - `archengine:pnpmAdapterAvailable` — pnpm wins
+ *            pnpm-workspace.yaml
+ *         - `archengine:yarnPnpAdapterAvailable` — yarn-pnp wins
+ *            .pnp.cjs / .pnp.loader.mjs
  *    3. Runs `selectArchitectureAdapter` and classifies the result.
  *    4. Dispatches to the chosen adapter's legacy-shape helper —
- *       `runPnpmExtraction(cwd)` or `runMonorepoExtraction(cwd)` —
- *       so downstream code consumes the unchanged
- *       `MonorepoExtractionResult` shape.
+ *       `runPnpmExtraction(cwd)`, `runYarnPnpExtraction(cwd)`, or
+ *       `runMonorepoExtraction(cwd)` — so downstream code consumes
+ *       the unchanged `MonorepoExtractionResult` shape.
  *    5. Promotes adapter-level diagnostics to ARCH_ENGINE_* codes
  *       and propagates them up via the bridge result.
  */
@@ -63,6 +67,7 @@ import {
 
 type AdapterModule = typeof import('@arch-engine/adapter-monorepo');
 type PnpmAdapterModule = typeof import('@arch-engine/adapter-pnpm');
+type YarnPnpAdapterModule = typeof import('@arch-engine/adapter-yarn-pnp');
 
 export async function loadMonorepoAdapter(): Promise<AdapterModule> {
   try {
@@ -79,6 +84,14 @@ export async function loadMonorepoAdapter(): Promise<AdapterModule> {
 async function tryLoadPnpmAdapter(): Promise<PnpmAdapterModule | null> {
   try {
     return await import('@arch-engine/adapter-pnpm');
+  } catch {
+    return null;
+  }
+}
+
+async function tryLoadYarnPnpAdapter(): Promise<YarnPnpAdapterModule | null> {
+  try {
+    return await import('@arch-engine/adapter-yarn-pnp');
   } catch {
     return null;
   }
@@ -153,9 +166,10 @@ export async function executeRunnerBridge(
 ): Promise<BridgeExecutionResult> {
   const totalStart = Date.now();
 
-  // 1. Resolve both adapters lazily.
+  // 1. Resolve all three adapters lazily.
   const monorepoModule = await loadMonorepoAdapter();
   const pnpmModule = await tryLoadPnpmAdapter();
+  const yarnPnpModule = await tryLoadYarnPnpAdapter();
 
   // 2. Build registry. Lower number = higher priority.
   const registry = [] as ReturnType<typeof registerArchitectureAdapter>[];
@@ -165,6 +179,12 @@ export async function executeRunnerBridge(
       registry.push(registerArchitectureAdapter(candidate as ArchitectureAdapter, 2));
     }
   }
+  if (yarnPnpModule) {
+    const candidate = (yarnPnpModule.yarnPnpArchitectureAdapter as unknown);
+    if (isArchitectureAdapter(candidate as ArchitectureAdapter)) {
+      registry.push(registerArchitectureAdapter(candidate as ArchitectureAdapter, 3));
+    }
+  }
   if (monorepoModule.monorepoArchitectureAdapter) {
     const candidate = monorepoModule.monorepoArchitectureAdapter as unknown;
     if (isArchitectureAdapter(candidate as ArchitectureAdapter)) {
@@ -172,11 +192,16 @@ export async function executeRunnerBridge(
     }
   }
 
-  // 3. Construct adapter context; hint pnpm availability so monorepo
-  //    declines pnpm-workspace.yaml when pnpm is registered.
+  // 3. Construct adapter context with cache hints so lower-precedence
+  //    adapters can decline overlapping signals:
+  //      - pnpm wins pnpm-workspace.yaml
+  //      - yarn-pnp wins .pnp.cjs / .pnp.loader.mjs
   const ctx = createAdapterContext(cwd);
   if (pnpmModule) {
     ctx.cache.set('archengine:pnpmAdapterAvailable', true);
+  }
+  if (yarnPnpModule) {
+    ctx.cache.set('archengine:yarnPnpAdapterAvailable', true);
   }
 
   // 4. Run deterministic selection.
@@ -254,6 +279,55 @@ export async function executeRunnerBridge(
         })),
         metadata: {
           pnpm: result.adapterInfo.metadata.pnpm,
+          edges: result.adapterInfo.metadata.edges,
+          graphSurfaceHash: result.adapterInfo.graphSurfaceHash,
+          sourceFiles: result.adapterInfo.sourceFiles,
+        },
+      };
+    }
+  } else if (
+    selection &&
+    selection.selected &&
+    selection.selected.adapter.adapterName === 'yarn-pnp' &&
+    yarnPnpModule
+  ) {
+    // Pass 3 — yarn-pnp dispatch branch.
+    const result = yarnPnpModule.runYarnPnpExtraction(cwd);
+    if (!result) {
+      // PnP signals disappeared between detection and extraction
+      // (unlikely but defensible). Fall back to monorepo.
+      extraction = monorepoModule.runMonorepoExtraction(cwd);
+      adapterSummary = buildSummaryForMonorepo(monorepoModule, selection);
+    } else {
+      extraction = result as unknown as ReturnType<
+        typeof monorepoModule.runMonorepoExtraction
+      >;
+      for (const d of result.adapterInfo.diagnostics) {
+        const code = d.code as Parameters<typeof buildDiagnostic>[0]['code'];
+        adapterDiagnostics.push(
+          buildDiagnostic({
+            code,
+            message: d.message,
+            details: d.details,
+          }),
+        );
+      }
+      adapterSummary = {
+        name: result.adapterInfo.name,
+        version: result.adapterInfo.version,
+        packageManager: 'yarn',
+        workspaceKind: 'yarn-pnp',
+        confidence: result.adapterInfo.confidence,
+        reasons: result.adapterInfo.reasons,
+        warnings: result.adapterInfo.warnings,
+        alsoDetected: selection.runnersUp.map((r) => ({
+          name: prettyAdapterName(r.adapter.adapter.adapterName),
+          version: r.adapter.adapter.adapterVersion,
+          confidence: r.detection.confidence,
+          reasons: r.detection.reasons,
+        })),
+        metadata: {
+          yarnPnp: result.adapterInfo.metadata.yarnPnp,
           edges: result.adapterInfo.metadata.edges,
           graphSurfaceHash: result.adapterInfo.graphSurfaceHash,
           sourceFiles: result.adapterInfo.sourceFiles,

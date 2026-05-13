@@ -48,13 +48,17 @@
   },
   "peerDependencies": {
     "@arch-engine/adapter-monorepo": "^1.3.0",
-    "@arch-engine/adapter-pnpm": "^0.1.1"
+    "@arch-engine/adapter-pnpm": "^0.1.1",
+    "@arch-engine/adapter-yarn-pnp": "^0.1.0"
   },
   "peerDependenciesMeta": {
     "@arch-engine/adapter-monorepo": {
       "optional": true
     },
     "@arch-engine/adapter-pnpm": {
+      "optional": true
+    },
+    "@arch-engine/adapter-yarn-pnp": {
       "optional": true
     }
   },

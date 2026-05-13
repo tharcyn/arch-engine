@@ -1,0 +1,10 @@
+{
+  "name": "yarn-pnp-workspace-protocol-fixture-root",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "yarn@4.1.0+sha256.deadbeef",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

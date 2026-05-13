@@ -33,6 +33,7 @@
     "packages/governance-pack-journey",
     "packages/adapter-monorepo",
     "packages/adapter-pnpm",
+    "packages/adapter-yarn-pnp",
     "packages/adapters/shared",
     "packages/adapters/conformance",
     "packages/adapters/github",
@@ -43,7 +44,7 @@
     "prepack": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p packages/schema/tsconfig.json && tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/adapter-monorepo/tsconfig.json && tsc --noEmit -p packages/adapter-pnpm/tsconfig.json && tsc --noEmit -p packages/governance-pack-rest-contract/tsconfig.json && tsc --noEmit -p packages/governance-pack-authority/tsconfig.json && tsc --noEmit -p packages/governance-pack-journey/tsconfig.json && tsc --noEmit -p packages/cli/tsconfig.json",
+    "typecheck": "tsc --noEmit -p packages/schema/tsconfig.json && tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/adapter-monorepo/tsconfig.json && tsc --noEmit -p packages/adapter-pnpm/tsconfig.json && tsc --noEmit -p packages/adapter-yarn-pnp/tsconfig.json && tsc --noEmit -p packages/governance-pack-rest-contract/tsconfig.json && tsc --noEmit -p packages/governance-pack-authority/tsconfig.json && tsc --noEmit -p packages/governance-pack-journey/tsconfig.json && tsc --noEmit -p packages/cli/tsconfig.json",
     "clean": "rm -rf packages/*/dist action/dist"
   },
   "bin": {
@@ -59,6 +60,7 @@
     "packages/governance-pack-journey/dist",
     "packages/adapter-monorepo/dist",
     "packages/adapter-pnpm/dist",
+    "packages/adapter-yarn-pnp/dist",
     "action/action.yml",
     "action/dist",
     "README.md",

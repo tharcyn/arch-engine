@@ -96,8 +96,9 @@ Arch-Engine ships as a constellation of focused packages. The **core runtime** i
 | [@arch-engine/schema](./packages/schema) | Canonical schema contracts and shared types |
 | [@arch-engine/core](./packages/core) | Topology reasoning runtime |
 | [@arch-engine/cli](./packages/cli) | Command-line interface |
-| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | Workspace topology extraction (npm, yarn, single) |
+| [@arch-engine/adapter-monorepo](./packages/adapter-monorepo) | Workspace topology extraction (npm, yarn-classic, single) |
 | [@arch-engine/adapter-pnpm](./packages/adapter-pnpm) | pnpm workspace extraction (`pnpm-workspace.yaml`, `workspace:*`, exclusion globs) — preview, additive in v1.3.0 |
+| [@arch-engine/adapter-yarn-pnp](./packages/adapter-yarn-pnp) | Yarn Berry / Plug'n'Play workspace extraction (`.pnp.cjs`, `workspace:*`, `portal:`, `link:`) — preview MVP, additive |
 | [@arch-engine/governance-pack-authority](./packages/governance-pack-authority) | Authority boundary governance |
 | [@arch-engine/governance-pack-rest-contract](./packages/governance-pack-rest-contract) | REST contract parity governance |
 | [@arch-engine/governance-pack-journey](./packages/governance-pack-journey) | Journey lifecycle governance |
@@ -114,6 +115,9 @@ npm install @arch-engine/adapter-monorepo
 
 # Optional: pnpm workspaces (preview, additive in v1.3.0)
 npm install @arch-engine/adapter-pnpm
+
+# Optional: Yarn Berry / Plug'n'Play workspaces (preview MVP)
+npm install @arch-engine/adapter-yarn-pnp
 
 # Optional: governance packs
 npm install @arch-engine/governance-pack-authority
@@ -137,6 +141,27 @@ pnpm repositories — Arch-Engine's CLI invocations are
 package-manager agnostic. If your CI installs dependencies with
 `pnpm install`, run that step before the Arch-Engine job as you
 normally would.
+
+### Yarn Berry / Plug'n'Play support (preview MVP)
+
+When `@arch-engine/adapter-yarn-pnp` is installed alongside the
+CLI, repositories shipping `.pnp.cjs` or `.pnp.loader.mjs` are
+detected at HIGH confidence. Topology is extracted from the root
+`package.json#workspaces` declaration (array or object form) and
+the workspace package manifests. `workspace:*`, `workspace:^`,
+`workspace:~`, `workspace:<version>`, `portal:<path>`, and
+`link:<path>` protocols are recognised on all four dependency
+kinds. The adapter is a strict safety MVP: it **never** executes
+`.pnp.cjs`, never imports the PnP loader, never invokes `yarn`,
+never reads `node_modules/`, never reads `.yarn/cache`, and never
+opens network sockets.
+
+A non-blocking INFO diagnostic
+(`ARCH_ENGINE_PNP_RESOLUTION_DEFERRED`) is always emitted when a
+PnP file is detected, explaining that full PnP resolver parity is
+intentionally deferred. Workspace topology extraction continues
+to work; only out-of-workspace external resolutions are not
+modelled.
 
 ### Architecture layering
 

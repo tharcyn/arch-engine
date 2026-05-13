@@ -1,0 +1,13 @@
+{
+  "name": "@proto/api",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@proto/lib": "workspace:^",
+    "@proto/lib-portal": "portal:../../packages/lib"
+  },
+  "devDependencies": {
+    "@proto/lib-link": "link:../../packages/lib",
+    "@proto/external": "^1.0.0"
+  }
+}

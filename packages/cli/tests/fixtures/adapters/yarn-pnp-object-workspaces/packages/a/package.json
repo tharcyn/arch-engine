@@ -1,0 +1,8 @@
+{
+  "name": "@object-form/a",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@object-form/b": "workspace:*"
+  }
+}
