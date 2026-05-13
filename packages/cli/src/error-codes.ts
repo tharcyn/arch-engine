@@ -271,7 +271,11 @@ const METADATA: Record<ArchEngineErrorCode, ArchEngineErrorMetadata> = {
     exitCode: 0,
     title: 'Workspace adapter selection used low-confidence fallback.',
     defaultFix:
-      'No adapter reported HIGH or MEDIUM confidence. If the right adapter package is available, install it (e.g. `npm install --save-dev @arch-engine/adapter-pnpm`).',
+      'No adapter reported HIGH or MEDIUM confidence. ' +
+      'For pnpm workspaces, ensure `pnpm-workspace.yaml` exists at the repository root — a `pnpm-lock.yaml` alone does not define a pnpm workspace. ' +
+      'For npm or yarn workspaces, ensure the root `package.json` declares a `workspaces` field. ' +
+      'For single-package repositories, this warning is informational. ' +
+      'If a more specific adapter package is available, install it (e.g. `npm install --save-dev @arch-engine/adapter-pnpm`).',
     ciBlocking: false,
     docsHint: 'adapters',
   },

@@ -165,6 +165,14 @@ export interface PnpmExtractionResult {
     metadata: {
       pnpm: {
         workspaceFile: string;
+        /**
+         * Parsed pnpm version from root `package.json#packageManager`
+         * (e.g. `"9.0.0"` for `"pnpm@9.0.0"`). `null` when the
+         * `packageManager` field is absent or does not identify pnpm.
+         * Always serialised — never `undefined` — so the JSON v2
+         * `data.adapter.metadata.pnpm` shape is deterministic.
+         */
+        packageManagerVersion: string | null;
         lockfilePresent: boolean;
         catalogsDetected: boolean;
         excludedGlobs: string[];
@@ -274,6 +282,33 @@ function readPackageManagerHint(cwd: string): string | null {
   }
 }
 
+/**
+ * Extract the pnpm version string from a `package.json#packageManager`
+ * hint of the form `pnpm@<version>`. Returns the bare version (e.g.
+ * `"9.0.0"`) when the hint identifies pnpm; `null` otherwise.
+ *
+ * v1.3.1 micro-delta: the legacy adapter emitted the raw hint
+ * (sometimes including the `pnpm@` prefix and a trailing `+<sha>`
+ * fingerprint, sometimes omitted entirely). This helper makes the
+ * serialised value deterministic and always either a clean version
+ * or `null` — never the prefixed form, never `undefined`.
+ *
+ * No network. No pnpm execution. No node_modules read. Allowed
+ * source: the root `package.json#packageManager` field already
+ * captured into `state.packageManagerHint`.
+ */
+function derivePackageManagerVersion(hint: string | null): string | null {
+  if (typeof hint !== 'string') return null;
+  if (!hint.startsWith('pnpm@')) return null;
+  const rest = hint.slice('pnpm@'.length);
+  // Strip optional integrity fingerprint suffix (`+<sha>`) per the
+  // corepack `packageManager` spec. The version portion ends at the
+  // first `+` or end-of-string.
+  const plusIdx = rest.indexOf('+');
+  const version = plusIdx >= 0 ? rest.slice(0, plusIdx) : rest;
+  return version.length > 0 ? version : null;
+}
+
 // ─── Public class ─────────────────────────────────────
 
 const ADAPTER_NAME = 'pnpm' as const;
@@ -365,7 +400,7 @@ export class PnpmArchitectureAdapter {
       adapterMetadata: {
         pnpm: {
           workspaceFile: state.workspaceFilePath,
-          packageManagerVersion: state.packageManagerHint,
+          packageManagerVersion: derivePackageManagerVersion(state.packageManagerHint),
           lockfilePresent: state.lockfilePresent,
           catalogsDetected: state.catalogsDetected,
           excludedGlobs: state.globExpansion.excludedDirs,
@@ -470,6 +505,7 @@ export function runPnpmExtraction(cwd: string): PnpmExtractionResult | null {
         metadata: {
           pnpm: {
             workspaceFile: state.workspaceFilePath,
+            packageManagerVersion: derivePackageManagerVersion(state.packageManagerHint),
             lockfilePresent: state.lockfilePresent,
             catalogsDetected: state.catalogsDetected,
             excludedGlobs: [],
@@ -586,6 +622,7 @@ export function runPnpmExtraction(cwd: string): PnpmExtractionResult | null {
       metadata: {
         pnpm: {
           workspaceFile: state.workspaceFilePath,
+          packageManagerVersion: derivePackageManagerVersion(state.packageManagerHint),
           lockfilePresent: state.lockfilePresent,
           catalogsDetected: state.catalogsDetected,
           excludedGlobs: [...state.globExpansion.excludedDirs],
@@ -742,7 +779,7 @@ function emptyTopology(
     adapterMetadata: {
       pnpm: {
         workspaceFile: state.workspaceFilePath,
-        packageManagerVersion: state.packageManagerHint,
+        packageManagerVersion: derivePackageManagerVersion(state.packageManagerHint),
         lockfilePresent: state.lockfilePresent,
         catalogsDetected: state.catalogsDetected,
         excludedGlobs: [],

@@ -167,6 +167,12 @@ export async function doctorCommand(options: any) {
   // adapter that produced the topology so users running pnpm /
   // multi-adapter setups can confirm at a glance that the right
   // adapter handled their repo.
+  //
+  // v1.3.1 P3-1: disambiguate the two distinct confidence axes the
+  // doctor surfaces — adapter-selection confidence (which adapter,
+  // and how sure we are) vs. topology-signal confidence (how much
+  // structure we extracted). Using the same word for both
+  // confused real-repo trial users on single-package fallback runs.
   const summaryConfidence = bridge.adapterSummary.confidence;
   const confidenceIcon =
     summaryConfidence === 'HIGH'
@@ -175,17 +181,17 @@ export async function doctorCommand(options: any) {
         ? pc.green('✔')
         : pc.yellow('⚠');
   console.log(
-    `${confidenceIcon} Adapter: ${pc.bold(bridge.adapterSummary.name)} (${summaryConfidence} confidence)`,
+    `${confidenceIcon} Adapter selected: ${pc.bold(bridge.adapterSummary.name)} (${summaryConfidence} adapter confidence)`,
   );
 
   // Nodes
   console.log(`${pc.green('✔')} Packages detected: ${pc.bold(meta.detectedNodes)} / ${meta.expectedNodes} expected`);
   console.log(`${pc.green('✔')} Connected nodes: ${pc.bold(meta.connectedNodes)}`);
 
-  // Coverage + Confidence
+  // Coverage + Topology signal
   console.log(`${pc.green('✔')} Coverage: ${pc.bold((meta.coverage * 100).toFixed(0))}%`);
   console.log(`${pc.green('✔')} Connectivity: ${pc.bold((meta.connectivity * 100).toFixed(0))}%`);
-  console.log(`${meta.topologyConfidence >= 0.70 ? pc.green('✔') : pc.yellow('⚠')} Confidence: ${pc.bold(results.confidenceDescription)}`);
+  console.log(`${meta.topologyConfidence >= 0.70 ? pc.green('✔') : pc.yellow('⚠')} Topology signal: ${pc.bold(results.confidenceDescription)}`);
 
   // Authority crossings
   console.log(`${pc.green('✔')} Authority crossings observed: ${pc.bold(extraction.authorityCrossings.length)}`);

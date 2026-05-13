@@ -4,6 +4,71 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] — 2026-05-13
+
+Patch release. Trust-polish follow-up to the v1.3.0 real-repo
+adapter trial (verdict: `REAL_REPO_ADAPTER_TRIAL_STRONG_SIGNAL`).
+Three small fixes that improve the message quality and metadata
+determinism of the adapter surface introduced in v1.3.0. No new
+commands, no new flags, no JSON v1 change, no adapter-selection
+change, no `graphSurfaceHash` change, no AGP dependency.
+
+Packages bumped:
+
+- `@arch-engine/cli`: `1.3.0` → `1.3.1`
+- `@arch-engine/adapter-pnpm`: `0.1.0` → `0.1.1`
+
+All other packages (`@arch-engine/core`, `@arch-engine/schema`,
+`@arch-engine/adapter-monorepo`, the three governance packs) are
+unchanged at `1.3.0` — no source in those packages was touched by
+this patch.
+
+### Fixed
+
+- Clarified `doctor` human output by distinguishing
+  adapter-selection confidence from topology coverage signal.
+  The previous wording emitted two distinct "Confidence" labels
+  (one about which adapter was chosen and how confidently; one
+  about how much of the workspace topology was extracted), which
+  on single-package fallback runs read as a contradiction.
+  Output now reads `Adapter selected: <name> (<X> adapter
+  confidence)` and `Topology signal: <X> (<description>)`.
+  Icons and exit semantics unchanged.
+- Improved `ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE` fix guidance to
+  call out the `pnpm-lock.yaml`-without-`pnpm-workspace.yaml`
+  edge case, the npm/yarn `workspaces`-field requirement, and the
+  fact that the warning is informational on legitimate
+  single-package repositories. Severity, exit code, ciBlocking,
+  code name, and title are unchanged.
+- Stabilized `data.adapter.metadata.pnpm.packageManagerVersion`
+  serialization in JSON v2. The field is now always present (no
+  longer sometimes-absent), always the bare version string
+  (e.g. `"9.0.0"` rather than the raw `"pnpm@9.0.0"` hint), and
+  `null` when the root `package.json#packageManager` is absent
+  or does not identify pnpm. Parses Corepack-style `+<sha>`
+  integrity suffixes deterministically. No new I/O — still
+  read-only from the root `package.json` already loaded by the
+  adapter. No pnpm execution, no network, no `node_modules` read,
+  no `.pnpm-store` read.
+
+### Compatibility
+
+- JSON v1 output unchanged.
+- JSON v2 envelope shape unchanged. The only delta inside the
+  envelope is the deterministic `data.adapter.metadata.pnpm.packageManagerVersion`
+  value/presence described above.
+- Adapter selection behavior unchanged (precedence, cache-hint
+  protocol, confidence classification, `CONFLICT`/`LOW_CONFIDENCE`/
+  `RESOLVED`/`NONE` statuses all byte-identical to v1.3.0).
+- `graphSurfaceHash` unchanged for every fixture.
+- No new commands or flags.
+- No new `ARCH_ENGINE_*` error codes; `ARCH_ENGINE_*` vocabulary
+  remains the 22-code set locked in v1.3.0.
+- No AGP dependency added.
+- `@arch-engine/cli` `peerDependencies["@arch-engine/adapter-pnpm"]`
+  bumped from `^0.1.0` to `^0.1.1`. Range remains optional via
+  `peerDependenciesMeta`.
+
 ## [1.3.0] — 2026-05-13
 
 Minor release. Lights up runtime **adapter selection** and ships the

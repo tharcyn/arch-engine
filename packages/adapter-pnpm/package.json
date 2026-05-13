@@ -1,6 +1,6 @@
 {
   "name": "@arch-engine/adapter-pnpm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic workspace topology extraction adapter for pnpm-managed monorepos.",
   "license": "MIT",
   "type": "module",

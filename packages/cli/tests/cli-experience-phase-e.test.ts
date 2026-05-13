@@ -190,6 +190,24 @@ describe('Phase E — error-codes.ts', () => {
       }
     }
   });
+
+  // v1.3.1 P3-2: the LOW_CONFIDENCE fix text must mention the
+  // pnpm-workspace.yaml edge case so users with a pnpm-lock.yaml-only
+  // single-package repo don't conclude "Arch-Engine doesn't support
+  // pnpm." The wording is also a soft pointer for npm/yarn workspace
+  // users on a single-package repo.
+  test('ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE.defaultFix mentions pnpm-workspace.yaml edge case', () => {
+    const meta = getArchEngineErrorMetadata('ARCH_ENGINE_ADAPTER_LOW_CONFIDENCE');
+    expect(meta.severity).toBe('WARNING');
+    expect(meta.exitCode).toBe(0);
+    expect(meta.ciBlocking).toBe(false);
+    expect(meta.defaultFix).toMatch(/pnpm-workspace\.yaml/);
+    expect(meta.defaultFix).toMatch(/pnpm-lock\.yaml/);
+    // Calls out single-package repos as informational.
+    expect(meta.defaultFix.toLowerCase()).toMatch(/single[- ]package|informational/);
+    // Calls out npm/yarn workspaces field too.
+    expect(meta.defaultFix.toLowerCase()).toMatch(/workspaces.*field|workspaces field/);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════

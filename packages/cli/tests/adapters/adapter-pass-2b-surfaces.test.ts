@@ -51,36 +51,63 @@ function runJsonAllowFail(args: string[], cwd: string): { exit: number; json: an
   }
 }
 
-// ─── doctor human output (Pass 2B P4) ─────────────────────
+// ─── doctor human output (Pass 2B P4 / v1.3.1 P3-1) ─────────
 
 describe('doctor human output — Adapter line', () => {
-  test('shows Adapter: line with chosen adapter and confidence on repo root', () => {
+  test('shows Adapter selected: line with chosen adapter and adapter confidence on repo root', () => {
     const text = runText(['doctor'], REPO_ROOT);
-    expect(text).toMatch(/Adapter:\s+@arch-engine\/adapter-monorepo\s+\(HIGH confidence\)/);
+    expect(text).toMatch(
+      /Adapter selected:\s+@arch-engine\/adapter-monorepo\s+\(HIGH adapter confidence\)/,
+    );
   });
 
   test('shows pnpm adapter on a pnpm fixture', () => {
     const text = runText(['doctor'], PNPM_FIXTURE);
-    expect(text).toMatch(/Adapter:\s+@arch-engine\/adapter-pnpm\s+\(HIGH confidence\)/);
+    expect(text).toMatch(
+      /Adapter selected:\s+@arch-engine\/adapter-pnpm\s+\(HIGH adapter confidence\)/,
+    );
   });
 
-  test('Adapter line appears between Workspace type and Packages detected', () => {
+  test('Adapter selected line appears between Workspace type and Packages detected', () => {
     const text = runText(['doctor'], REPO_ROOT);
     const idxWorkspace = text.indexOf('Workspace type resolved as');
-    const idxAdapter = text.indexOf('Adapter:');
+    const idxAdapter = text.indexOf('Adapter selected:');
     const idxPackages = text.indexOf('Packages detected');
     expect(idxWorkspace).toBeGreaterThan(-1);
     expect(idxAdapter).toBeGreaterThan(idxWorkspace);
     expect(idxPackages).toBeGreaterThan(idxAdapter);
   });
 
-  test('doctor --quiet suppresses verbose output but Adapter line still appears', () => {
-    // The Adapter line is part of the verdict header (not the optional
-    // domain/integrity blocks suppressed by --quiet). Confirms users
-    // running `arch-engine doctor --ci --quiet` still see which
+  test('doctor --quiet suppresses verbose output but Adapter selected line still appears', () => {
+    // The Adapter selected line is part of the verdict header (not the
+    // optional domain/integrity blocks suppressed by --quiet). Confirms
+    // users running `arch-engine doctor --ci --quiet` still see which
     // adapter handled their repo.
     const text = runText(['doctor', '--quiet'], REPO_ROOT);
-    expect(text).toMatch(/Adapter:\s+@arch-engine\/adapter-monorepo/);
+    expect(text).toMatch(/Adapter selected:\s+@arch-engine\/adapter-monorepo/);
+  });
+
+  // v1.3.1 P3-1: the two distinct confidence axes must be visually
+  // disambiguated. The adapter-selection line says "adapter
+  // confidence"; the topology-coverage line says "Topology signal".
+  // Both labels must be present and on separate lines so users do
+  // not read "(LOW adapter confidence)" and "Topology signal: HIGH …"
+  // as a contradiction.
+  test('confidence labels are disambiguated (adapter confidence vs Topology signal)', () => {
+    const text = runText(['doctor'], REPO_ROOT);
+    expect(text).toMatch(/adapter confidence/);
+    expect(text).toMatch(/Topology signal:/);
+    // The old ambiguous bare "Confidence:" label must no longer appear.
+    // (Defensive: matches the literal label position, not the substring
+    // inside "adapter confidence" or "Topology signal".)
+    expect(text).not.toMatch(/^[^\n]*\bConfidence:\s/m);
+  });
+
+  test('pnpm fixture also surfaces disambiguated labels', () => {
+    const text = runText(['doctor'], PNPM_FIXTURE);
+    expect(text).toMatch(/Adapter selected:\s+@arch-engine\/adapter-pnpm/);
+    expect(text).toMatch(/adapter confidence/);
+    expect(text).toMatch(/Topology signal:/);
   });
 });
 

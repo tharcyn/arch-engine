@@ -125,6 +125,64 @@ describe('JSON v2 data.adapter — pnpm fixture (Pass 2 path)', () => {
     expect(json.data.adapter.name).toBe('@arch-engine/adapter-pnpm');
     expect(json.status).toBe('not_enforced');
   });
+
+  // v1.3.1 micro-delta: `data.adapter.metadata.pnpm.packageManagerVersion`
+  // must serialise consistently — a clean version string when the root
+  // `package.json#packageManager` identifies pnpm, `null` otherwise.
+  // Never `undefined`; never the raw `pnpm@x.y.z` form.
+  test('packageManagerVersion is null on a fixture without packageManager field', () => {
+    const json = runJson(['inspect', '--json', '--json-schema=v2'], PNPM_FIXTURE);
+    const md = json.data.adapter.metadata.pnpm;
+    expect('packageManagerVersion' in md).toBe(true);
+    expect(md.packageManagerVersion).toBeNull();
+  });
+});
+
+describe('JSON v2 data.adapter — pnpm fixture with packageManager hint', () => {
+  // The `pnpm-workspace-protocol` fixture declares
+  // `"packageManager": "pnpm@9.0.0"` in its root package.json.
+  const PNPM_PROTOCOL_FIXTURE = path.join(
+    REPO_ROOT,
+    'packages/cli/tests/fixtures/adapters/pnpm-workspace-protocol',
+  );
+
+  test('packageManagerVersion is the bare version string ("9.0.0")', () => {
+    const json = runJson(
+      ['inspect', '--json', '--json-schema=v2'],
+      PNPM_PROTOCOL_FIXTURE,
+    );
+    const md = json.data.adapter.metadata.pnpm;
+    expect(md.packageManagerVersion).toBe('9.0.0');
+  });
+
+  test('packageManagerVersion remains stable across doctor / inspect / analyze / check', () => {
+    const verbs: Array<'doctor' | 'inspect' | 'analyze' | 'check'> = [
+      'doctor',
+      'inspect',
+      'analyze',
+      'check',
+    ];
+    const versions = verbs.map((v) => {
+      const { json } = runJsonAllowFail(
+        [v, '--json', '--json-schema=v2'],
+        PNPM_PROTOCOL_FIXTURE,
+      );
+      return json?.data?.adapter?.metadata?.pnpm?.packageManagerVersion;
+    });
+    expect(new Set(versions).size).toBe(1);
+    expect(versions[0]).toBe('9.0.0');
+  });
+
+  test('emitted JSON contains no absolute paths under data.adapter.metadata.pnpm', () => {
+    const json = runJson(
+      ['inspect', '--json', '--json-schema=v2'],
+      PNPM_PROTOCOL_FIXTURE,
+    );
+    const blob = JSON.stringify(json.data.adapter.metadata.pnpm);
+    expect(blob).not.toMatch(/\/Users\//);
+    expect(blob).not.toMatch(/^\/tmp\//);
+    expect(blob).not.toMatch(/[A-Z]:\\/);
+  });
 });
 
 describe('Adapter top-level identity is stable across commands', () => {

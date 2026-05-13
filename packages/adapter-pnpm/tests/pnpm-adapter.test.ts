@@ -196,6 +196,55 @@ describe('runPnpmExtraction()', () => {
   });
 });
 
+// v1.3.1 micro-delta — packageManagerVersion serialisation contract.
+//
+// Goal: deterministic serialisation. The field is always present in
+// `metadata.pnpm` (never `undefined`), always a clean version string
+// (never the prefixed `"pnpm@..."` form), and `null` when the root
+// `package.json#packageManager` is absent or does not identify pnpm.
+describe('packageManagerVersion serialisation (v1.3.1 micro-delta)', () => {
+  test('runPnpmExtraction emits null when packageManager field is absent (basic fixture)', () => {
+    const r = runPnpmExtraction(F.basic)!;
+    expect('packageManagerVersion' in r.adapterInfo.metadata.pnpm).toBe(true);
+    expect(r.adapterInfo.metadata.pnpm.packageManagerVersion).toBeNull();
+  });
+
+  test('runPnpmExtraction emits "9.0.0" for fixture declaring packageManager: pnpm@9.0.0', () => {
+    const r = runPnpmExtraction(F.protocol)!;
+    expect(r.adapterInfo.metadata.pnpm.packageManagerVersion).toBe('9.0.0');
+  });
+
+  test('extractTopology() also emits the parsed version under adapterMetadata.pnpm', () => {
+    const t = pnpmArchitectureAdapter.extractTopology(ctx(F.protocol));
+    const md = (t.adapterMetadata as { pnpm: { packageManagerVersion: string | null } })
+      .pnpm;
+    expect(md.packageManagerVersion).toBe('9.0.0');
+  });
+
+  test('extractTopology() emits null when packageManager is absent', () => {
+    const t = pnpmArchitectureAdapter.extractTopology(ctx(F.basic));
+    const md = (t.adapterMetadata as { pnpm: { packageManagerVersion: string | null } })
+      .pnpm;
+    expect(md.packageManagerVersion).toBeNull();
+  });
+
+  test('empty-globs fixture still serialises packageManagerVersion: null', () => {
+    // The empty-globs fixture has no packageManager field — confirm
+    // the field is present and explicit even on the degraded path.
+    const t = pnpmArchitectureAdapter.extractTopology(ctx(F.empty));
+    const md = (t.adapterMetadata as { pnpm: { packageManagerVersion: string | null } })
+      .pnpm;
+    expect('packageManagerVersion' in md).toBe(true);
+    expect(md.packageManagerVersion).toBeNull();
+  });
+
+  test('repeated extractions yield byte-identical metadata.pnpm (no nondeterminism)', () => {
+    const a = pnpmArchitectureAdapter.extractTopology(ctx(F.protocol));
+    const b = pnpmArchitectureAdapter.extractTopology(ctx(F.protocol));
+    expect(JSON.stringify(a.adapterMetadata)).toBe(JSON.stringify(b.adapterMetadata));
+  });
+});
+
 describe('parsePnpmWorkspaceYaml() — unit tests', () => {
   test('parses a simple packages list', () => {
     const out = parsePnpmWorkspaceYaml('packages:\n  - "apps/*"\n  - packages/*\n');
