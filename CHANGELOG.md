@@ -4,6 +4,176 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-05-13
+
+Minor release. Adds first-class **Yarn Berry / Plug'n'Play
+workspace support** via a new optional adapter package,
+`@arch-engine/adapter-yarn-pnp@0.1.0`. The adapter is a safe
+package.json-shape extractor: it never executes `.pnp.cjs`,
+never invokes `yarn`, never installs anything, and never reads
+`node_modules` or `.yarn/cache`. The CLI's deterministic adapter
+registry now picks the right adapter (pnpm at precedence 2,
+yarn-pnp at precedence 3, monorepo at precedence 4) without
+surfacing `ARCH_ENGINE_ADAPTER_CONFLICT` on overlapping signals.
+
+Real-repo trial verdict against 11 public OSS repos covering
+Yarn PnP, Yarn Berry `nodeLinker: node-modules`, Yarn classic,
+pnpm workspaces, and single-package layouts:
+`YARN_PNP_REAL_REPO_TRIAL_STRONG_SIGNAL` — **11/11 correct
+adapter selections, 0 P0/P1/P2 issues, 0 path leaks, 0 repo
+mutations**.
+
+Packages bumped:
+
+- `@arch-engine/cli`: `1.3.1` → `1.4.0`
+- `@arch-engine/adapter-monorepo`: `1.3.0` → `1.3.1` (yarn-pnp
+  cache-hint decline protocol added; behavior unchanged when
+  the yarn-pnp adapter is not loaded).
+- `@arch-engine/adapter-yarn-pnp`: **new package** at `0.1.0`.
+
+Other packages (`@arch-engine/adapter-pnpm@0.1.1`,
+`@arch-engine/core@1.3.0`, `@arch-engine/schema@1.3.0`, the
+three governance packs) are unchanged at their v1.3.x
+versions — no source there was touched.
+
+### Added
+
+- Added `@arch-engine/adapter-yarn-pnp@0.1.0` — a new optional
+  adapter package for Yarn Berry / Plug'n'Play workspaces.
+  Detects PnP signals (`.pnp.cjs`, `.pnp.loader.mjs`,
+  `.yarnrc.yml`) by file presence only. Extracts topology from
+  `package.json#workspaces` (array form or object form, both
+  supported), resolving `workspace:`, `portal:`, and `link:`
+  protocols on `dependencies`, `devDependencies`,
+  `peerDependencies`, and `optionalDependencies`. Pure-fs read;
+  no execution of repo-controlled code.
+- Added registry wiring for the yarn-pnp adapter at precedence
+  3, between `@arch-engine/adapter-pnpm` (precedence 2) and the
+  `@arch-engine/adapter-monorepo` fallback (precedence 4).
+- Added JSON v2 `data.adapter.metadata.yarnPnp` sub-block when
+  the yarn-pnp adapter is selected. Fields:
+  `packageManagerVersion` (parsed bare yarn version, Corepack
+  `+sha` stripped, or `null`), `pnpFilePresent`,
+  `pnpLoaderPresent`, `yarnrcPresent`, `nodeLinker`,
+  `nodeLinkerSource` (provenance enum — `"yarnrc"` /
+  `"inferred_from_pnp_file"` / `"absent"`),
+  `workspacesPresent`, `workspacesObjectForm`, `rawGlobs`,
+  `excludedGlobs`, `matchedGlobs`.
+- Wired `ARCH_ENGINE_PNP_RESOLUTION_DEFERRED` (added to the
+  vocabulary in v1.3.0 in anticipation of this release) as a
+  non-blocking diagnostic that surfaces whenever a PnP file is
+  present, explaining that full PnP resolver parity is
+  intentionally deferred and that topology is extracted from
+  `package.json#workspaces` only.
+- Added 12 fixtures under `packages/cli/tests/fixtures/adapters/`
+  covering Yarn PnP basic, workspace-protocol, object-form,
+  empty-globs, unnamed-package, loader-only, and
+  pnpm-conflict-coexistence cases.
+- Added 73+ structural tests in
+  `packages/adapter-yarn-pnp/tests/` and
+  `packages/cli/tests/adapters/` covering detection, extraction,
+  determinism, safety invariants, and the v0.1.1-trust-polish
+  `nodeLinkerSource` provenance contract.
+- Added Yarn PnP support sections to the root `README.md` and
+  the GitHub Actions example.
+- Added real-repo trial audit
+  (`audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md`)
+  and release hygiene audit
+  (`audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_RELEASE_HYGIENE_AUDIT.md`).
+- Added `.gitignore` rule for
+  `packages/cli/tests/fixtures/**/.arch-engine/` so the CLI's
+  auto-init runtime artifacts no longer dirty the working tree
+  on every test run.
+
+### Changed
+
+- `@arch-engine/adapter-monorepo` now declines to claim a
+  `package.json#workspaces` repository when a `.pnp.cjs` /
+  `.pnp.loader.mjs` is also present AND the yarn-pnp adapter is
+  registered. Avoids `ARCH_ENGINE_ADAPTER_CONFLICT` without
+  changing behaviour for consumers who do not install the new
+  adapter (the cache-hint check is a no-op when the hint is
+  absent). Adapter version constant aligned to `1.3.1`.
+- `@arch-engine/cli` `peerDependencies` extended to include
+  `@arch-engine/adapter-yarn-pnp: ^0.1.0` (optional via
+  `peerDependenciesMeta`). The `@arch-engine/adapter-monorepo`
+  peer range tightened from `^1.3.0` to `^1.3.1` to ensure the
+  yarn-pnp cache-hint decline is available when the v1.4.0 CLI
+  runs.
+
+### Trust polish (v0.1.1 of `@arch-engine/adapter-yarn-pnp`, included)
+
+- `data.adapter.metadata.yarnPnp.nodeLinker` now reports
+  `"pnp"` (rather than `null`) on repositories that ship a
+  `.pnp.cjs` / `.pnp.loader.mjs` but have no explicit
+  `nodeLinker:` declaration in `.yarnrc.yml` — matching Yarn
+  Berry's documented default. A new sibling
+  `nodeLinkerSource: "inferred_from_pnp_file"` / `"yarnrc"` /
+  `"absent"` makes the provenance auditable.
+
+### Compatibility
+
+- JSON v1 output unchanged.
+- JSON v2 envelope shape unchanged at the top level. The only
+  new content is the `data.adapter.metadata.yarnPnp` sub-block
+  (additive; absent on non-yarn-pnp adapter selections) and the
+  new `nodeLinkerSource` field within it.
+- `graphSurfaceHash` for every pre-existing fixture / repo is
+  byte-identical to v1.3.1 (verified by the parity tests and
+  the real-repo trial replay check).
+- Adapter selection on `pnpm-basic`, the repo root, and all
+  single-package fixtures is byte-identical to v1.3.1.
+- 22-code `ARCH_ENGINE_*` vocabulary unchanged. The
+  `ARCH_ENGINE_PNP_RESOLUTION_DEFERRED` code locked in v1.3.0
+  is now actively used by the new adapter — no new codes added.
+- No new CLI commands or flags.
+- No AGP dependency.
+- Node engines unchanged (`>=18.0.0`).
+- Exit codes unchanged.
+
+### Trial Evidence
+
+- 12 candidates probed, 11 tested (rushstack dropped — no root
+  `package.json`).
+- 11/11 correct adapter selections (8 CORRECT_HIGH, 3 CORRECT_LOW).
+- 0 P0 / 0 P1 / 0 P2 / 1 P3 (fixed by hygiene pass) issues.
+- 0 absolute-path leaks across 33 JSON outputs.
+- 0 source-file mutations across 11 cloned repos.
+- `graphSurfaceHash` deterministic on replay for `yarnpkg/berry`.
+- See [`audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md`](audits/ARCH_ENGINE_ADAPTER_PASS_3_YARN_PNP_REAL_REPO_TRIAL.md).
+
+### Safety model
+
+The Yarn PnP MVP **never**:
+
+- executes `.pnp.cjs` or `.pnp.loader.mjs`
+- invokes `yarn` or any other package-manager binary
+- runs `npm install` / `pnpm install` / `yarn install`
+- opens network sockets
+- reads `node_modules/`, `.yarn/cache`, `.yarn/unplugged`,
+  `.yarn/install-state.gz`
+- mutates the target repository
+- emits absolute paths or wall-clock-derived data in JSON v2
+
+These invariants are pinned by structural tests and verified
+against the only real Yarn PnP repository in mainstream OSS
+today (`yarnpkg/berry` itself).
+
+### Migration
+
+- **Existing v1.3.1 users** of `@arch-engine/cli` with the
+  monorepo or pnpm adapters: no action required. v1.4.0 is
+  fully backward-compatible with all v1.3.x consumer code.
+- **Yarn Berry / PnP users**: install the new adapter alongside
+  the CLI:
+  ```bash
+  npm install --save-dev \
+    @arch-engine/cli@1.4.0 \
+    @arch-engine/adapter-monorepo@1.3.1 \
+    @arch-engine/adapter-pnpm@0.1.1 \
+    @arch-engine/adapter-yarn-pnp@0.1.0
+  ```
+
 ## [1.3.1] — 2026-05-13
 
 Patch release. Trust-polish follow-up to the v1.3.0 real-repo
